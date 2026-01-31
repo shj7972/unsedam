@@ -1,0 +1,782 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{% include "includes/sidebar_input.html" %}
+
+<!-- Sidebar Banner -->
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<!-- 우측: 별자리운세 결과 -->
+<div class="result-container">
+    <!-- 컨텐츠 상단 배너 -->
+
+    {% if not processed or not birth_date %}
+    <div class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">⭐</div>
+        <h2 style="color: var(--gold-primary); margin-bottom: 1rem;">별자리운세</h2>
+        <p style="color: var(--text-muted); line-height: 1.8;">
+            왼쪽에서 성함과 생년월일을 입력하시면 별자리 운세를 확인할 수 있습니다.
+        </p>
+    </div>
+    {% else %}
+    <div class="glass-card" id="byeoljari-container">
+        <div class="section-header" id="byeoljari-title" style="display: none;">
+            <span>⭐</span> <span id="user-name">{{ user_name }}</span>님의 <span id="current-year">{{ current_year
+                }}</span>년 별자리운세
+        </div>
+
+        <!-- 로딩 표시 -->
+        <div id="byeoljari-loading" style="text-align: center; padding: 2rem;">
+            <div class="spinner"
+                style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;">
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-muted);">별자리 운세를 계산하고 있습니다...</p>
+        </div>
+
+        <!-- 결과 표시 영역 -->
+        <div id="byeoljari-result" style="display: none;"></div>
+
+        <!-- 공유하기 버튼 영역 -->
+        <div id="byeoljari-share" style="display: none;">
+            {% include "includes/share_buttons.html" %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 마지막 계산된 데이터 저장 (AI 분석용)
+    let lastCalculatedData = null;
+    let isAIAnalysisRunning = false;
+    let lastProcessedApiKey = '';
+
+    // 페이지 로드 시 별자리운세 계산
+    document.addEventListener('DOMContentLoaded', function () {
+        // localStorage에서 읽어와서 폼에 채우기 (세션 값보다 우선)
+        fillFormFromLocalStorage('input-form');
+
+        // 폼에 값이 있으면 자동으로 결과 계산 및 표시
+        setTimeout(() => {
+            const form = document.getElementById('input-form');
+            if (form) {
+                const nameInput = form.querySelector('[name="name"]');
+                const birthDateInput = form.querySelector('[name="birth_date"]');
+                const genderSelect = form.querySelector('[name="gender"]');
+
+                if (nameInput?.value && birthDateInput?.value && genderSelect?.value) {
+                    autoLoadByeoljari();
+                }
+            }
+        }, 100);
+
+        // API Key 입력 감지 리스너 추가
+        const apiKeyInput = document.getElementById('api-key-input');
+        if (apiKeyInput) {
+            apiKeyInput.addEventListener('change', function () {
+                const apiKey = this.value.trim();
+                if (apiKey.startsWith('sk-') && apiKey.length > 20 && lastCalculatedData && apiKey !== lastProcessedApiKey) {
+                    console.log('API Key 변경 감지: AI 분석 요청');
+                    requestAIAnalysis(lastCalculatedData);
+                }
+            });
+        }
+    });
+
+    // AI 결과 포맷팅
+    function formatAIResult(data) {
+        if (!data) return '';
+
+        let html = '';
+
+        if (data.overview) {
+            html += `
+                <div style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(212,175,55,0.15); border-radius: 12px; border: 1px solid var(--border-gold);">
+                    <div style="color: #D4AF37; font-size: 1.1em; font-weight: bold; margin-bottom: 0.5rem;">${data.overview.keyTheme || '오늘의 테마'}</div>
+                    <div style="color: #E2E8F0; line-height: 1.6;">${data.overview.summary || ''}</div>
+                </div>
+            `;
+        }
+
+        if (data.detailedAnalysis) {
+            const sections = [
+                { key: 'personality', icon: '🧠', title: '심리 & 성격' },
+                { key: 'love', icon: '❤️', title: '애정운' },
+                { key: 'career', icon: '💼', title: '직업/학업운' },
+                { key: 'wealth', icon: '💰', title: '재물운' },
+                { key: 'health', icon: '🏥', title: '건강운' }
+            ];
+
+            html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">`;
+
+            sections.forEach(sec => {
+                if (data.detailedAnalysis[sec.key]) {
+                    html += `
+                        <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                            <div style="color: #D4AF37; font-weight: 600; margin-bottom: 0.5rem;">${sec.icon} ${sec.title}</div>
+                            <div style="color: #E2E8F0; font-size: 0.95em; line-height: 1.6;">${data.detailedAnalysis[sec.key]}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            html += `</div>`;
+        }
+
+        if (data.advice) {
+            html += `
+                <div style="margin-top: 1.5rem;">
+                    <h4 style="color: #D4AF37; margin-bottom: 1rem;">💡 AI의 조언</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="padding: 1rem; background: rgba(46,204,113,0.15); border-radius: 8px;">
+                            <div style="color: #2ecc71; font-weight: bold; margin-bottom: 0.5rem;">Do (추천)</div>
+                            <ul style="margin: 0; padding-left: 1.2rem; color: #E2E8F0;">
+                                ${(data.advice.do || []).map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div style="padding: 1rem; background: rgba(231,76,60,0.15); border-radius: 8px;">
+                            <div style="color: #e74c3c; font-weight: bold; margin-bottom: 0.5rem;">Avoid (주의)</div>
+                            <ul style="margin: 0; padding-left: 1.2rem; color: #E2E8F0;">
+                                ${(data.advice.avoid || []).map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    ${data.advice.luckyTip ? `
+                    <div style="padding: 1rem; background: rgba(52,152,219,0.15); border-radius: 8px; text-align: center;">
+                        <span style="color: #3498db; font-weight: bold;">🍀 행운 팁:</span> 
+                        <span style="color: #E2E8F0;">${data.advice.luckyTip}</span>
+                    </div>` : ''}
+                </div>
+            `;
+        }
+
+        return html;
+    }
+
+    // AI 분석 요청
+    async function requestAIAnalysis(byeoljariData) {
+        const apiKeyInput = document.getElementById('api-key-input');
+        const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+        const submitBtn = document.querySelector('button[type="submit"]');
+
+        if (!apiKey || !apiKey.startsWith('sk-')) {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+            return;
+        }
+
+        if (isAIAnalysisRunning) return;
+        isAIAnalysisRunning = true;
+
+        // 버튼 비활성화
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'AI 분석중...';
+        }
+
+        lastProcessedApiKey = apiKey;
+
+        // AI 분석 카드 표시
+        const aiCard = document.getElementById('ai-analysis-card');
+        if (aiCard) aiCard.style.display = 'block';
+
+        const aiResultDiv = document.getElementById('ai-result');
+        if (!aiResultDiv) {
+            isAIAnalysisRunning = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+            return;
+        }
+
+        aiResultDiv.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+                <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <p style="margin-top: 1rem; color: var(--text-muted);">AI가 별자리 운세를 심도있게 분석 중입니다...</p>
+                <p style="font-size: 0.9em; color: var(--text-muted); opacity: 0.7;">(최대 30초 정도 소요될 수 있습니다)</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch('/api/byeoljari-ai-analysis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ byeoljari_data: byeoljariData, api_key: apiKey })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'AI 분석 요청 실패');
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedText = '';
+            let buffer = '';
+            let fullData = null;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const jsonStr = line.substring(6).trim();
+                            const data = JSON.parse(jsonStr);
+                            if (data.type === 'start') accumulatedText = '';
+                            else if (data.type === 'chunk' && data.content) accumulatedText += data.content;
+                            else if (data.type === 'complete') fullData = data.data;
+                            else if (data.type === 'error') throw new Error(data.error);
+                        } catch (e) { console.error('Parsing error:', e); }
+                    }
+                }
+            }
+
+            if (fullData) aiResultDiv.innerHTML = formatAIResult(fullData);
+            else if (accumulatedText) {
+                try {
+                    aiResultDiv.innerHTML = formatAIResult(JSON.parse(accumulatedText));
+                } catch (e) {
+                    aiResultDiv.innerHTML = `<div style="padding: 1rem; color: #FCA5A5;">분석 결과를 표시하는 중 오류가 발생했습니다.</div>`;
+                }
+            }
+        } catch (error) {
+            console.error('AI Analysis Error:', error);
+            aiResultDiv.innerHTML = `<div style="padding: 1rem; color: #FCA5A5;">⚠️ ${error.message || 'AI 분석 중 오류가 발생했습니다.'}</div>`;
+        } finally {
+            isAIAnalysisRunning = false;
+            // 버튼 활성화
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+        }
+    }
+
+    // 세션 데이터로 자동 별자리운세 로드
+    async function autoLoadByeoljari() {
+        // 폼에서 직접 값을 읽어와서 사용 (localStorage에서 채워진 최신 값)
+        const form = document.getElementById('input-form');
+        if (!form) return;
+
+        const nameInput = form.querySelector('[name="name"]');
+        const birthDateInput = form.querySelector('[name="birth_date"]');
+        const birthTimeInput = form.querySelector('[name="birth_time"]');
+        const genderSelect = form.querySelector('[name="gender"]');
+        const isLunarCheckbox = form.querySelector('[name="is_lunar"]');
+
+        // 폼 값이 없으면 자동 로드하지 않음
+        if (!nameInput?.value || !birthDateInput?.value || !genderSelect?.value) {
+            return;
+        }
+
+        // 먼저 사주 계산 API를 호출하여 최신 데이터 가져오기
+        const formData = new FormData();
+        formData.append('name', nameInput.value);
+        formData.append('birth_date', birthDateInput.value);
+        formData.append('birth_time', birthTimeInput.value || '');
+        formData.append('gender', genderSelect.value);
+        if (isLunarCheckbox?.checked) {
+            formData.append('is_lunar', 'true');
+        }
+
+        try {
+            // 사주 계산 먼저 수행
+            const calculateResponse = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const calculateData = await calculateResponse.json();
+
+            if (calculateResponse.ok && calculateData.success) {
+                // 별자리운세 계산 (폼에서 직접 읽은 생년월일과 이름 전달)
+                calculateByeoljari(birthDateInput.value, nameInput.value);
+            } else {
+                // 사주 계산 실패 시 폼 값으로 직접 시도
+                calculateByeoljari(birthDateInput.value, nameInput.value);
+            }
+        } catch (error) {
+            console.error('자동 별자리운세 로드 오류:', error);
+            // 오류 발생 시 폼 값으로 직접 시도
+            calculateByeoljari(birthDateInput.value, nameInput.value);
+        }
+    }
+
+    // 별자리운세 계산
+    async function calculateByeoljari(birthDate = null, userName = null) {
+        const loadingDiv = document.getElementById('byeoljari-loading');
+        const resultDiv = document.getElementById('byeoljari-result');
+
+        if (!loadingDiv || !resultDiv) return;
+
+        // 로딩 표시
+        loadingDiv.style.display = 'block';
+        resultDiv.style.display = 'none';
+
+        // 생년월일과 이름이 제공되지 않으면 폼에서 가져오기
+        if (!birthDate) {
+            const birthDateInput = document.getElementById('birth_date');
+            if (birthDateInput) birthDate = birthDateInput.value;
+        }
+        if (!userName) {
+            const nameInput = document.getElementById('name');
+            if (nameInput) userName = nameInput.value;
+        }
+
+        try {
+            const requestBody = {};
+            if (birthDate) requestBody.birth_date = birthDate;
+            if (userName) requestBody.user_name = userName;
+
+            const response = await fetch('/api/byeoljari', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+
+                renderByeoljariResult(data.data);
+            } else {
+                loadingDiv.innerHTML = `<div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">⚠️ ${data.detail || '별자리운세 계산 중 오류가 발생했습니다.'}</div>`;
+            }
+        } catch (error) {
+            console.error('별자리운세 계산 오류:', error);
+            loadingDiv.innerHTML = `<div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">⚠️ 네트워크 오류가 발생했습니다.</div>`;
+        }
+    }
+
+    // 별자리운세 결과 렌더링
+    function renderByeoljariResult(data) {
+        lastCalculatedData = data;
+
+        const resultDiv = document.getElementById('byeoljari-result');
+        if (!resultDiv) return;
+
+        // 정보입력란에서 이름 가져오기 (최신 값)
+        const nameInput = document.getElementById('name');
+        const userName = nameInput?.value || data.user_name || '';
+
+        // 올해 연도 가져오기
+        const currentYear = data.current_year || new Date().getFullYear();
+
+        // 상단 타이틀 업데이트
+        const titleDiv = document.getElementById('byeoljari-title');
+        if (titleDiv) {
+            const userNameSpan = titleDiv.querySelector('#user-name');
+            const currentYearSpan = titleDiv.querySelector('#current-year');
+            if (userNameSpan) userNameSpan.textContent = userName;
+            if (currentYearSpan) currentYearSpan.textContent = currentYear;
+            titleDiv.style.display = 'block';
+        }
+
+        // 공유 버튼 표시
+        const shareDiv = document.getElementById('byeoljari-share');
+        if (shareDiv) shareDiv.style.display = 'block';
+
+        // 공유 데이터 설정
+        const shareTitle = `${data.current_year || new Date().getFullYear()}년 ${userName}님의 별자리 운세 - ${data.korean_name} (${data.emoji})`;
+        const shareDesc = `오늘의 운세: ${data.today_fortune.level}! ${data.today_fortune.message.substring(0, 50)}...`;
+
+        window.currentShareData = {
+            title: shareTitle,
+            description: shareDesc,
+            url: window.location.href,
+            text: `${shareTitle}\n${shareDesc}\n\n지금 바로 확인해보세요!`
+        };
+
+        // API Key 확인
+        const apiKeyInput = document.getElementById('api-key-input');
+        const hasApiKey = apiKeyInput ? apiKeyInput.value.trim().startsWith('sk-') && apiKeyInput.value.trim().length > 20 : false;
+
+        // AI 분석 자동 요청
+        if (hasApiKey) {
+            console.log('API Key 존재, AI 분석 자동 요청');
+            setTimeout(() => requestAIAnalysis(data), 100);
+        }
+
+        let html = '';
+
+        // AI 분석 섹션 추가
+        const aiDisplay = hasApiKey ? 'block' : 'none';
+        html += `
+        <div id="ai-analysis-card" class="glass-card result-card" style="margin-bottom: 2rem; display: ${aiDisplay};">
+            <div class="section-header">
+                <span>🔮</span> AI 별자리 심층 분석
+            </div>
+            
+            <div id="ai-result-container">
+                <div id="ai-result" style="margin-top: 1.5rem;">
+        `;
+
+        if (hasApiKey) {
+            html += `
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">AI가 별자리 운세를 심도있게 분석 중입니다...</p>
+                </div>
+            `;
+        } else {
+            html += `<div style="padding: 1rem; color: var(--text-muted); text-align: center; background: rgba(0,0,0,0.2); border-radius: 8px;">OpenAI API Key를 입력하시면 AI 점성가가 당신의 별자리를 심도있게 분석해드립니다.</div>`;
+        }
+
+        html += `
+                </div>
+            </div>
+        </div>
+        `;
+
+        html += `
+        <!-- 별자리 기본 정보 -->
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 12px; margin-bottom: 2rem; text-align: center;">
+            <div style="font-size: 5rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(212,175,55,0.5));">${data.emoji}</div>
+            <div style="font-size: 2.2em; font-weight: bold; color: #D4AF37; margin-bottom: 0.5rem; text-shadow: 0 0 10px rgba(212,175,55,0.5);">${data.korean_name}</div>
+            <div style="color: #A0AEC0; font-size: 1.2em; margin-bottom: 0.8rem;">${data.english_name}</div>
+            <div style="color: #A0AEC0; font-size: 0.95em; margin-bottom: 1rem;">생일: ${data.birth_date_formatted}</div>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(212,175,55,0.2);">
+                <div>
+                    <div style="color: #D4AF37; font-size: 0.9em; margin-bottom: 0.3rem;">수호성</div>
+                    <div style="color: #E2E8F0; font-weight: 600;">${data.constellation_info.planet || '-'}</div>
+                </div>
+                <div>
+                    <div style="color: #D4AF37; font-size: 0.9em; margin-bottom: 0.3rem;">원소</div>
+                    <div style="color: #E2E8F0; font-weight: 600;">${data.constellation_info.element || '-'}</div>
+                </div>
+                <div>
+                    <div style="color: #D4AF37; font-size: 0.9em; margin-bottom: 0.3rem;">기간</div>
+                    <div style="color: #E2E8F0; font-weight: 600; font-size: 0.9em;">${data.constellation_info.period || '-'}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 오늘의 운세 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🌅 오늘의 운세</h3>
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%); border-left: 5px solid ${data.today_fortune.color}; border-radius: 12px; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <span style="font-size: 2.5rem;">${data.today_fortune.emoji}</span>
+                <div>
+                    <div style="font-size: 1.8em; font-weight: bold; color: ${data.today_fortune.color}; margin-bottom: 0.3rem;">${data.today_fortune.level}의 하루</div>
+                    <div style="color: #A0AEC0; font-size: 0.9em;">${data.current_date}</div>
+                </div>
+            </div>
+            <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em; margin-bottom: 1.5rem;">${data.today_fortune.message}</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+                <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <div style="color: #D4AF37; font-size: 0.9em; margin-bottom: 0.5rem;">💕 연애운</div>
+                    <div style="color: #E2E8F0; font-size: 0.95em; line-height: 1.6;">${data.today_fortune.love}</div>
+                </div>
+                <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <div style="color: #D4AF37; font-size: 0.9em; margin-bottom: 0.5rem;">💼 사업/직장운</div>
+                    <div style="color: #E2E8F0; font-size: 0.95em; line-height: 1.6;">${data.today_fortune.work}</div>
+                </div>
+                <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <div style="color: #D4AF37; font-size: 0.9em; margin-bottom: 0.5rem;">🏥 건강운</div>
+                    <div style="color: #E2E8F0; font-size: 0.95em; line-height: 1.6;">${data.today_fortune.health}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 이번 주 운세 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">📅 이번 주 운세</h3>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 12px; margin-bottom: 2rem;">
+            <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em;">${data.weekly_fortune.message}</div>
+        </div>
+        
+        <!-- 이번 달 운세 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🌟 이번 달 운세</h3>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-left: 5px solid ${data.monthly_fortune.color}; border-radius: 12px; margin-bottom: 2rem;">
+            <div style="font-size: 1.3em; font-weight: bold; color: ${data.monthly_fortune.color}; margin-bottom: 1rem;">${data.monthly_fortune.level}</div>
+            <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em;">${data.monthly_fortune.message}</div>
+        </div>
+        
+        <!-- 올해의 운세 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">💫 ${data.current_year}년 운세</h3>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 12px; margin-bottom: 2rem;">
+            <div style="font-size: 1.3em; font-weight: bold; color: #D4AF37; margin-bottom: 1rem;">올해의 테마: ${data.yearly_fortune.theme}</div>
+            <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em;">${data.yearly_fortune.message}</div>
+        </div>
+        
+        <!-- 별자리 특성 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">✨ 별자리 특성</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div>
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">💪 강점</h4>
+                ${data.constellation_info.detailed_traits.강점.map(s => `<div style="padding: 0.5rem; margin: 0.3rem 0; background: rgba(46,204,113,0.2); border-radius: 6px; color: #E2E8F0;">✓ ${s}</div>`).join('')}
+            </div>
+            <div>
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">⚠️ 약점</h4>
+                ${data.constellation_info.detailed_traits.약점.map(w => `<div style="padding: 0.5rem; margin: 0.3rem 0; background: rgba(231,76,60,0.2); border-radius: 6px; color: #E2E8F0;">△ ${w}</div>`).join('')}
+            </div>
+        </div>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 12px; line-height: 1.8; color: #E2E8F0; margin-bottom: 2rem;">
+            <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">📝 성격 설명</h4>
+            ${data.constellation_info.detailed_traits.성격}
+        </div>
+        
+        <!-- 행운의 요소 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🍀 행운의 요소</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: #D4AF37; font-size: 0.9em; font-weight: 600; margin-bottom: 0.5rem;">🎨 행운의 색상</div>
+                <div style="color: #E2E8F0; font-size: 1.1em; font-weight: 600;">${data.lucky_elements.color}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: #D4AF37; font-size: 0.9em; font-weight: 600; margin-bottom: 0.5rem;">🔢 행운의 숫자</div>
+                <div style="color: #E2E8F0; font-size: 1.1em; font-weight: 600;">${data.lucky_elements.number}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: #D4AF37; font-size: 0.9em; font-weight: 600; margin-bottom: 0.5rem;">📅 행운의 요일</div>
+                <div style="color: #E2E8F0; font-size: 1.1em; font-weight: 600;">${data.lucky_elements.day}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: #D4AF37; font-size: 0.9em; font-weight: 600; margin-bottom: 0.5rem;">🧭 행운의 방향</div>
+                <div style="color: #E2E8F0; font-size: 1.1em; font-weight: 600;">${data.lucky_elements.direction}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: #D4AF37; font-size: 0.9em; font-weight: 600; margin-bottom: 0.5rem;">💎 행운의 보석</div>
+                <div style="color: #E2E8F0; font-size: 1.1em; font-weight: 600;">${data.lucky_elements.stone}</div>
+            </div>
+        </div>
+        
+        <!-- 별자리 궁합 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">💕 별자리 궁합</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div>
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">💕 최고의 궁합</h4>
+                ${data.compatibility.best.map(s => `<div style="padding: 0.8rem; margin: 0.5rem 0; background: rgba(46,204,113,0.2); border-radius: 8px; text-align: center; color: #E2E8F0; font-weight: 600;">${s}</div>`).join('')}
+            </div>
+            <div>
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">👍 좋은 궁합</h4>
+                ${data.compatibility.good.map(s => `<div style="padding: 0.8rem; margin: 0.5rem 0; background: rgba(52,152,219,0.2); border-radius: 8px; text-align: center; color: #E2E8F0; font-weight: 600;">${s}</div>`).join('')}
+            </div>
+            <div>
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">⚠️ 도전적인 궁합</h4>
+                ${data.compatibility.challenge.map(s => `<div style="padding: 0.8rem; margin: 0.5rem 0; background: rgba(231,76,60,0.2); border-radius: 8px; text-align: center; color: #E2E8F0; font-weight: 600;">${s}</div>`).join('')}
+            </div>
+        </div>
+        
+        <!-- 생활 영역별 상세 운세 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🎯 생활 영역별 상세 운세</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">💼 직업/사업 운</h4>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.life_aspects.career}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">💰 재물/금전 운</h4>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.life_aspects.wealth}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">❤️ 연애/인간관계 운</h4>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.life_aspects.love}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">🏥 건강 운</h4>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.life_aspects.health}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">📚 학습/교육 운</h4>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.life_aspects.study}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">👨‍👩‍👧‍👦 가족 운</h4>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.life_aspects.family}</div>
+            </div>
+        </div>
+        
+        <!-- 추천 직업 & 취미 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">💼 추천 직업 & 취미</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div>
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">💼 추천 직업</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    ${data.career_hobby.careers.map(c => `<span style="padding: 0.5rem 1rem; background: rgba(212,175,55,0.2); border-radius: 8px; color: #E2E8F0; font-weight: 500;">${c}</span>`).join('')}
+                </div>
+            </div>
+            <div>
+                <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">🎨 추천 취미</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    ${data.career_hobby.hobbies.map(h => `<span style="padding: 0.5rem 1rem; background: rgba(52,152,219,0.2); border-radius: 8px; color: #E2E8F0; font-weight: 500;">${h}</span>`).join('')}
+                </div>
+            </div>
+        </div>
+        
+        <!-- 연애 스타일 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">❤️ 연애 스타일</h3>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 12px; margin-bottom: 2rem;">
+            <div style="color: #D4AF37; font-size: 1.2em; font-weight: bold; margin-bottom: 1rem;">연애 스타일: ${data.love_style.style}</div>
+            <div style="color: #E2E8F0; line-height: 1.8; margin-bottom: 1.5rem;">${data.love_style.approach}</div>
+            <div style="padding-top: 1rem; border-top: 1px solid rgba(212,175,55,0.2);">
+                <div style="color: #D4AF37; font-weight: 600; margin-bottom: 0.5rem;">이상형</div>
+                <div style="color: #E2E8F0; margin-bottom: 1rem;">${data.love_style.ideal_type}</div>
+                <div style="color: #D4AF37; font-weight: 600; margin-bottom: 0.5rem;">연애 팁</div>
+                <div style="color: #E2E8F0;">${data.love_style.tips}</div>
+            </div>
+        </div>
+        
+        <!-- 건강 관리 & 주의사항 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🏥 건강 관리 & 주의사항</h3>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 12px; margin-bottom: 2rem;">
+            <div style="margin-bottom: 1.5rem;">
+                <div style="color: #D4AF37; font-weight: 600; margin-bottom: 0.5rem;">💪 건강 강점</div>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.health_info.strengths}</div>
+            </div>
+            <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(212,175,55,0.2);">
+                <div style="color: #D4AF37; font-weight: 600; margin-bottom: 0.5rem;">⚠️ 주의할 부분</div>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.health_info.weaknesses}</div>
+            </div>
+            <div style="padding-top: 1rem; border-top: 1px solid rgba(212,175,55,0.2);">
+                <div style="color: #D4AF37; font-weight: 600; margin-bottom: 0.5rem;">💡 건강 관리 팁</div>
+                <div style="color: #E2E8F0; line-height: 1.8;">${data.health_info.tips}</div>
+            </div>
+        </div>
+        
+        <!-- 12개월 운세 가이드 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">📆 12개월 운세 가이드</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            ${data.monthly_detailed.map(f => `
+                <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-left: 4px solid ${f.color}; border-radius: 8px;">
+                    <div style="color: ${f.color}; font-weight: bold; font-size: 1.1em; margin-bottom: 0.5rem;">${f.month}</div>
+                    <div style="color: #D4AF37; font-size: 0.9em; margin-bottom: 0.5rem;">${f.level}</div>
+                    <div style="color: #E2E8F0; font-size: 0.9em; line-height: 1.6;">${f.message}</div>
+                </div>
+            `).join('')}
+        </div>
+        
+        <!-- 별자리별 조언 -->
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">💡 별자리별 조언</h3>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 12px; line-height: 1.8; color: #E2E8F0; font-size: 1.05em;">
+            ${data.advice}
+        </div>
+    `;
+
+        resultDiv.innerHTML = html;
+    }
+
+    // 폼 제출 처리 (tojeong.html과 동일)
+    document.getElementById('input-form')?.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const errorDiv = document.getElementById('form-error');
+        const submitBtn = this.querySelector('button[type="submit"]');
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '처리 중...';
+        }
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+
+        try {
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // 세션 데이터를 localStorage에 저장 (다른 페이지로 이동 시 사용)
+                if (data.data && data.data.session_data) {
+                    saveSessionDataToLocalStorage(data.data);
+                } else {
+                    // session_data가 없으면 FormData에서 직접 저장
+                    const sessionData = {
+                        user_name: formData.get('name') || '',
+                        user_gender: formData.get('gender') || '',
+                        birth_date: formData.get('birth_date') || '',
+                        birth_time: formData.get('birth_time') || '',
+                        is_lunar: formData.get('is_lunar') === 'on' || formData.get('is_lunar') === 'true',
+                        _timestamp: Date.now() // 타임스탬프 추가
+                    };
+                    localStorage.setItem('user_session_data', JSON.stringify(sessionData));
+                }
+
+                // 폼 값을 FormData에서 직접 업데이트하여 즉시 반영
+                const form = document.getElementById('input-form');
+                if (form) {
+                    const nameInput = form.querySelector('[name="name"]');
+                    const birthDateInput = form.querySelector('[name="birth_date"]');
+                    const birthTimeInput = form.querySelector('[name="birth_time"]');
+                    const genderSelect = form.querySelector('[name="gender"]');
+                    const isLunarCheckbox = form.querySelector('[name="is_lunar"]');
+
+                    if (nameInput) nameInput.value = formData.get('name') || '';
+                    if (birthDateInput) birthDateInput.value = formData.get('birth_date') || '';
+                    if (birthTimeInput) birthTimeInput.value = formData.get('birth_time') || '';
+                    if (genderSelect) genderSelect.value = formData.get('gender') || '';
+                    if (isLunarCheckbox) {
+                        const isLunarValue = formData.get('is_lunar');
+                        isLunarCheckbox.checked = isLunarValue === 'on' || isLunarValue === 'true' || isLunarValue === true;
+                    }
+                }
+
+                // 버튼 상태 복원
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+
+                // 별자리운세 자동 계산 (FormData에서 직접 생년월일과 이름 전달)
+                const birthDate = formData.get('birth_date');
+                const userName = formData.get('name');
+                setTimeout(() => {
+                    calculateByeoljari(birthDate, userName);
+                }, 200);
+            } else {
+                if (errorDiv) {
+                    errorDiv.textContent = data.detail || '오류가 발생했습니다.';
+                    errorDiv.style.display = 'block';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            if (errorDiv) {
+                errorDiv.textContent = '네트워크 오류가 발생했습니다.';
+                errorDiv.style.display = 'block';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+        }
+    });
+
+    // 스피너 애니메이션
+    const style = document.createElement('style');
+    style.textContent = `
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

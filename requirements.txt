@@ -1,0 +1,19 @@
+# FastAPI 웹 프레임워크
+fastapi
+uvicorn
+jinja2
+python-multipart
+itsdangerous
+
+# 기존 의존성
+ephem
+korean-lunar-calendar
+google-generativeai
+openai
+requests
+
+# 배포용
+# gunicorn (Vercel에서는 @vercel/python이 자체 핸들러를 사용하므로 필수 아님)
+
+# Streamlit (기존 앱과 병렬 운영용 - 나중에 제거 가능)
+

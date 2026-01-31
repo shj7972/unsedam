@@ -1,0 +1,481 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{% include "includes/sidebar_input.html" %}
+
+<!-- Sidebar Banner -->
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<!-- 우측: 타로 카드 뽑기 및 결과 -->
+<div class="result-container">
+    <!-- 컨텐츠 상단 배너 -->
+
+
+    <div class="glass-card">
+        <div class="section-header">
+            <span>🃏</span> 타로 카드
+        </div>
+
+        <!-- 타로 소개 -->
+        <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+            <p style="color: #E2E8F0; line-height: 1.8;">
+                타로 카드는 당신의 내면을 탐색하고 미래에 대한 통찰을 제공합니다.
+                마음을 집중하고 질문을 떠올린 후 카드를 뽑아보세요.
+            </p>
+        </div>
+
+        <!-- 질문 입력 (선택사항) -->
+        <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">💭 질문이나 상황을 입력하세요 (선택사항)</h3>
+        <textarea id="taro-question" placeholder="예: 오늘 하루는 어떨까요? / 이 관계의 미래는? / 새로운 직장에서의 적응은?"
+            style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); min-height: 100px; margin-bottom: 1.5rem; font-family: inherit; resize: vertical;"></textarea>
+
+        <!-- 스프레드 타입 선택 -->
+        <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">🎴 카드 뽑기 방식 선택</h3>
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">
+                <input type="radio" name="spread-type" value="1장" checked style="margin-right: 0.5rem;">
+                <span>1장 - 원 카드: 현재 상황에 대한 간단한 통찰</span>
+            </label>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">
+                <input type="radio" name="spread-type" value="3장" style="margin-right: 0.5rem;">
+                <span>3장 - 과거·현재·미래: 시간의 흐름을 통한 상황 이해</span>
+            </label>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">
+                <input type="radio" name="spread-type" value="5장" style="margin-right: 0.5rem;">
+                <span>5장 - 켈틱 크로스: 상황에 대한 깊이 있는 종합 분석</span>
+            </label>
+        </div>
+
+        <!-- 카드 뽑기 버튼 -->
+        <button id="draw-tarot-btn"
+            style="width: 100%; padding: 1rem; background: var(--gold-gradient); border: none; border-radius: 8px; color: var(--bg-dark); font-weight: bold; cursor: pointer; font-size: 1rem; margin-bottom: 1.5rem;">
+            🔮 카드 뽑기
+        </button>
+
+        <!-- 결과 표시 영역 -->
+        <!-- 결과 표시 영역 -->
+        <div id="tarot-result-container" style="display: none;"></div>
+
+        <!-- 공유하기 버튼 영역 -->
+        <div id="tarot-share" style="display: none;">
+            {% include "includes/share_buttons.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 페이지 로드 시 localStorage에서 폼 값 복원
+    document.addEventListener('DOMContentLoaded', function () {
+        fillFormFromLocalStorage('input-form');
+    });
+
+    // 타로 카드 뽑기
+    document.getElementById('draw-tarot-btn')?.addEventListener('click', async function () {
+        const questionInput = document.getElementById('taro-question');
+        const spreadTypeInputs = document.querySelectorAll('input[name="spread-type"]');
+        const resultContainer = document.getElementById('tarot-result-container');
+
+        if (!resultContainer) return;
+
+        // 스프레드 타입 가져오기
+        let spreadType = '1장';
+        for (const input of spreadTypeInputs) {
+            if (input.checked) {
+                spreadType = input.value;
+                break;
+            }
+        }
+
+        const question = questionInput ? questionInput.value.trim() : '';
+
+        // 로딩 표시
+        resultContainer.style.display = 'block';
+        resultContainer.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p style="margin-top: 1rem; color: var(--text-muted);">타로 카드를 뽑고 있습니다...</p>
+        </div>
+    `;
+
+        try {
+            // API Key는 입력 필드에서 직접 가져옴 (저장하지 않음)
+            const apiKeyInput = document.getElementById('api-key-input');
+            const currentApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+
+            const response = await fetch('/api/tarot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    spread_type: spreadType,
+                    question: question,
+                    api_key: currentApiKey  // API Key를 요청 본문에 포함
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                renderTarotResult(data.data);
+            } else {
+                resultContainer.innerHTML = `<div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">⚠️ ${data.detail || '타로 카드 뽑기 중 오류가 발생했습니다.'}</div>`;
+            }
+        } catch (error) {
+            console.error('타로 카드 뽑기 오류:', error);
+            resultContainer.innerHTML = `<div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">⚠️ 네트워크 오류가 발생했습니다.</div>`;
+        }
+    });
+
+    // 타로 결과 렌더링
+    function renderTarotResult(result) {
+        const resultContainer = document.getElementById('tarot-result-container');
+        if (!resultContainer) return;
+
+        const spreadType = result.spread_type;
+        const question = result.question;
+        const cards = result.cards;
+        const analysis = result.analysis;
+
+
+
+        // 공유 버튼 표시
+        const shareDiv = document.getElementById('tarot-share');
+        if (shareDiv) shareDiv.style.display = 'block';
+
+        // 공유 데이터 설정
+        let shareTitle = "오늘의 타로 운세 - 운세담";
+        if (spreadType === '1장') shareTitle = `오늘의 원 카드 타로 운세 - ${cards[0].카드명}`;
+        else if (spreadType === '3장') shareTitle = "타로 과거-현재-미래 분석 - 운세담";
+        else if (spreadType === '5장') shareTitle = "타로 켈틱 크로스 상세 분석 - 운세담";
+
+        const shareDesc = question ? `질문: ${question}\n메시지: ${analysis.overall_theme}` : `메시지: ${analysis.overall_theme}`;
+
+        window.currentShareData = {
+            title: shareTitle,
+            description: shareDesc,
+            url: window.location.href,
+            text: `${shareTitle}\n${shareDesc}\n\n지금 바로 확인해보세요!`
+        };
+
+        let html = '';
+
+        // 질문이 있으면 표시
+        if (question) {
+            html += `
+            <div class="section-header" style="margin-top: 0;">
+                <span>💭</span> 질문: ${question}
+            </div>
+            <div style="margin-bottom: 2rem;"></div>
+        `;
+        }
+
+        // 스프레드 정보
+        const spreadNames = {
+            "1장": "원 카드",
+            "3장": "과거·현재·미래",
+            "5장": "켈틱 크로스"
+        };
+
+        html += `<h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🎴 ${spreadNames[spreadType]} 스프레드</h3>`;
+
+        // 카드 표시
+        const numCards = cards.length;
+        let cardGridStyle = '';
+
+        if (numCards === 1) {
+            cardGridStyle = 'grid-template-columns: 1fr;';
+        } else if (numCards === 3) {
+            cardGridStyle = 'grid-template-columns: repeat(3, 1fr);';
+        } else if (numCards === 5) {
+            cardGridStyle = 'grid-template-columns: repeat(3, 1fr);';
+        } else {
+            cardGridStyle = `grid-template-columns: repeat(${numCards}, 1fr);`;
+        }
+
+        html += `<div style="display: grid; ${cardGridStyle}; gap: 1rem; margin-bottom: 2rem;">`;
+
+        // 5장 스프레드의 경우 특별 레이아웃
+        if (numCards === 5) {
+            // 첫 3장
+            for (let i = 0; i < 3; i++) {
+                html += renderSingleCard(cards[i], i);
+            }
+            html += '</div><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem; margin-top: 1rem;">';
+            // 나머지 2장
+            for (let i = 3; i < 5; i++) {
+                html += renderSingleCard(cards[i], i);
+            }
+        } else {
+            // 일반 레이아웃
+            for (let i = 0; i < numCards; i++) {
+                html += renderSingleCard(cards[i], i);
+            }
+        }
+
+        html += '</div>';
+
+        html += '<hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(212,175,55,0.3);">';
+
+        // 종합 해석
+        html += `<h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🔮 종합 해석</h3>`;
+
+        // 전체 테마
+        html += `
+        <h4 style="color: #D4AF37; margin-top: 1.5rem; margin-bottom: 1rem;">💫 전체 테마</h4>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1rem;">
+            <p style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em;">
+                ${analysis.overall_theme}
+            </p>
+        </div>
+    `;
+
+        // 상세 해석
+        if (analysis.detailed_interpretation) {
+            html += `
+            <h4 style="color: #D4AF37; margin-top: 1.5rem; margin-bottom: 1rem;">📖 상세 해석</h4>
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1rem;">
+                <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em;">
+                    ${analysis.detailed_interpretation.replace(/\n/g, '<br>')}
+                </div>
+            </div>
+        `;
+        }
+
+        // 카드 관계성
+        if (analysis.card_relationships && analysis.card_relationships.length > 0) {
+            html += `
+            <h4 style="color: #D4AF37; margin-top: 1.5rem; margin-bottom: 1rem;">🔗 카드 간 관계성</h4>
+        `;
+            for (const relationship of analysis.card_relationships) {
+                html += `
+                <div style="padding: 1rem; background: rgba(52,152,219,0.1); border-left: 4px solid #3498db; border-radius: 6px; margin-bottom: 0.5rem;">
+                    <p style="color: #E2E8F0; line-height: 1.6; margin: 0;">• ${relationship}</p>
+                </div>
+            `;
+            }
+        }
+
+        // 핵심 메시지
+        if (analysis.key_messages && analysis.key_messages.length > 0) {
+            html += `
+            <h4 style="color: #D4AF37; margin-top: 1.5rem; margin-bottom: 1rem;">✨ 핵심 메시지</h4>
+        `;
+            for (const message of analysis.key_messages) {
+                html += `
+                <div style="padding: 1rem; background: rgba(46,204,113,0.1); border-left: 4px solid #2ecc71; border-radius: 6px; margin-bottom: 0.5rem;">
+                    <p style="color: #E2E8F0; line-height: 1.6; margin: 0;">• ${message}</p>
+                </div>
+            `;
+            }
+        }
+
+        // 조언
+        if (analysis.advice && analysis.advice.length > 0) {
+            html += `
+            <h4 style="color: #D4AF37; margin-top: 1.5rem; margin-bottom: 1rem;">💡 조언</h4>
+        `;
+            for (const adviceItem of analysis.advice) {
+                html += `
+                <div style="padding: 1rem; background: rgba(52, 152, 219, 0.1); border-left: 4px solid #3498db; border-radius: 6px; margin-bottom: 0.5rem;">
+                    <p style="color: #E2E8F0; line-height: 1.6; margin: 0;">${adviceItem}</p>
+                </div>
+            `;
+            }
+        }
+
+        // 경고
+        if (analysis.warning && analysis.warning.length > 0) {
+            html += `
+            <h4 style="color: #D4AF37; margin-top: 1.5rem; margin-bottom: 1rem;">⚠️ 주의사항</h4>
+        `;
+            for (const warningItem of analysis.warning) {
+                html += `
+                <div style="padding: 1rem; background: rgba(231,76,60,0.1); border-left: 4px solid #e74c3c; border-radius: 6px; margin-bottom: 0.5rem;">
+                    <p style="color: #E2E8F0; line-height: 1.6; margin: 0;">• ${warningItem}</p>
+                </div>
+            `;
+            }
+        }
+
+        // 마지막 안내
+        html += `
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(212,175,55,0.3);">
+        <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-top: 1rem;">
+            <p style="color: #A0AEC0; line-height: 1.8; font-size: 0.9em;">
+                💫 타로 카드는 당신의 현재 상황과 내면의 메시지를 담고 있습니다. 
+                카드는 미래를 예언하는 것이 아니라, 현재 상황에서의 가능성과 주의사항을 알려줍니다. 
+                카드들이 제시하는 메시지를 참고하여 자신의 판단과 선택을 하시기 바랍니다.
+            </p>
+        </div>
+    `;
+
+        // 다시 뽑기 버튼
+        html += `
+        <button id="redraw-tarot-btn" style="width: 100%; padding: 1rem; background: var(--gold-gradient); border: none; border-radius: 8px; color: var(--bg-dark); font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 1.5rem;">
+            🔄 다시 뽑기
+        </button>
+    `;
+
+        resultContainer.innerHTML = html;
+
+        // 다시 뽑기 버튼 이벤트
+        document.getElementById('redraw-tarot-btn')?.addEventListener('click', function () {
+            resultContainer.style.display = 'none';
+            resultContainer.innerHTML = '';
+        });
+    }
+
+    // 단일 카드 렌더링
+    function renderSingleCard(cardData, index) {
+        const cardName = cardData.카드명;
+        const position = cardData.위치;
+        const isReversed = cardData.역위치;
+        const icon = cardData.아이콘 || '🃏';
+        const defaultImage = cardData.default_image; // 기본 이미지 경로
+        const aiImageUrl = cardData.ai_image_url; // AI 생성 이미지 URL (선택사항)
+
+        const reversedText = isReversed ? " (역위치)" : "";
+        const cardMeaning = isReversed ? cardData.역위치 : cardData.정위치;
+
+        // 이미지 우선순위: 기본 이미지 > AI 생성 이미지 > 아이콘
+        let imageOrIcon = '';
+        if (defaultImage) {
+            // 기본 이미지 사용 (역위치일 경우 180도 회전)
+            imageOrIcon = `<img src="${defaultImage}" alt="${cardName}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width: 100%; max-width: 300px; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3); margin-bottom: 0.5rem; ${isReversed ? 'transform: rotate(180deg);' : ''}" /><div style="font-size: 3rem; margin-bottom: 0.5rem; display: none;">${icon}</div>`;
+        } else if (aiImageUrl) {
+            // AI 생성 이미지 사용
+            imageOrIcon = `<img src="${aiImageUrl}" alt="${cardName}" style="width: 100%; max-width: 300px; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3); margin-bottom: 0.5rem; ${isReversed ? 'transform: rotate(180deg);' : ''}" />`;
+        } else {
+            // 아이콘 사용
+            imageOrIcon = `<div style="font-size: 3rem; margin-bottom: 0.5rem;">${icon}</div>`;
+        }
+
+        return `
+        <div style="padding: 1rem; background: rgba(212,175,55,0.15); border-radius: 12px; border: 2px solid rgba(212,175,55,0.4); min-height: 300px;">
+            <div style="text-align: center; margin-bottom: 1rem;">
+                ${imageOrIcon}
+                <div style="font-weight: bold; color: #D4AF37; font-size: 1.1em; margin-bottom: 0.5rem;">
+                    ${position}
+                </div>
+                <div style="color: #F9E79F; font-size: 0.95em; margin-bottom: 1rem;">
+                    ${cardName}${reversedText}
+                </div>
+            </div>
+            <div style="padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                <div style="color: #E2E8F0; font-size: 0.9em; line-height: 1.6;">
+                    ${cardMeaning}
+                </div>
+            </div>
+        </div>
+    `;
+    }
+
+    // 폼 제출 처리 (사주 계산)
+    document.getElementById('input-form')?.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        // 버튼이 비활성화되어 있으면 처리하지 않음
+        if (submitBtn && submitBtn.disabled) {
+            return;
+        }
+
+        const formData = new FormData(this);
+        const errorDiv = document.getElementById('form-error');
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '처리 중...';
+        }
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+
+        try {
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // 세션 데이터를 localStorage에 저장 (다른 페이지로 이동 시 사용)
+                if (data.data && data.data.session_data) {
+                    saveSessionDataToLocalStorage(data.data);
+                } else {
+                    const sessionData = {
+                        user_name: formData.get('name') || '',
+                        user_gender: formData.get('gender') || '',
+                        birth_date: formData.get('birth_date') || '',
+                        birth_time: formData.get('birth_time') || '',
+                        is_lunar: formData.get('is_lunar') === 'on' || formData.get('is_lunar') === 'true',
+                        _timestamp: Date.now() // 타임스탬프 추가
+                    };
+                    localStorage.setItem('user_session_data', JSON.stringify(sessionData));
+                }
+
+                // 폼 값을 FormData에서 직접 업데이트하여 즉시 반영
+                const form = document.getElementById('input-form');
+                if (form) {
+                    const nameInput = form.querySelector('[name="name"]');
+                    const birthDateInput = form.querySelector('[name="birth_date"]');
+                    const birthTimeInput = form.querySelector('[name="birth_time"]');
+                    const genderSelect = form.querySelector('[name="gender"]');
+                    const isLunarCheckbox = form.querySelector('[name="is_lunar"]');
+
+                    if (nameInput) nameInput.value = formData.get('name') || '';
+                    if (birthDateInput) birthDateInput.value = formData.get('birth_date') || '';
+                    if (birthTimeInput) birthTimeInput.value = formData.get('birth_time') || '';
+                    if (genderSelect) genderSelect.value = formData.get('gender') || '';
+                    if (isLunarCheckbox) {
+                        const isLunarValue = formData.get('is_lunar');
+                        isLunarCheckbox.checked = isLunarValue === 'on' || isLunarValue === 'true' || isLunarValue === true;
+                    }
+                }
+
+                // 버튼 상태 복원
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+            } else {
+                if (errorDiv) {
+                    errorDiv.textContent = data.detail || '오류가 발생했습니다.';
+                    errorDiv.style.display = 'block';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            if (errorDiv) {
+                errorDiv.textContent = '네트워크 오류가 발생했습니다.';
+                errorDiv.style.display = 'block';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+        }
+    });
+
+    // 스피너 애니메이션
+    const style = document.createElement('style');
+    style.textContent = `
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

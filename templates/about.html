@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+<div class="glass-card" style="padding: 1.5rem;">
+    <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">운세담 소개</h3>
+    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+        운세담은 고대 명리학의 지혜와 현대 인공지능 기술의 만남을 통해, 누구나 쉽고 깊이 있게 자신의 운명을 이해할 수 있도록 돕는 프리미엄 운세 플랫폼입니다.
+    </p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <div class="glass-card" style="padding: 3rem 2rem;">
+        <h1 style="color: var(--gold-primary); margin-bottom: 2rem; text-align: center;">About 운세담 (About Us)</h1>
+
+        <div style="margin-bottom: 2.5rem;">
+            <h2
+                style="color: #E2E8F0; margin-bottom: 1rem; border-left: 4px solid var(--gold-primary); padding-left: 1rem;">
+                우리의 비전</h2>
+            <p style="color: var(--text-muted); line-height: 1.8; text-align: justify;">
+                사람은 누구나 자신만의 특별한 하늘의 지도를 가지고 태어납니다. 하지만 복잡하고 난해한 명학의 용어들은 일반인들이 자신의 지도를 읽는 데 큰 장벽이 되어왔습니다.
+                <strong>운세담</strong>은 인공지능(AI) 기술을 활용하여 이러한 장벽을 허물고, 개인의 사주팔자를 현대적인 언어로 재해석하여 삶의 방향을 제시하는 나침반이 되고자 합니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 2.5rem;">
+            <h2
+                style="color: #E2E8F0; margin-bottom: 1rem; border-left: 4px solid var(--gold-primary); padding-left: 1rem;">
+                AI와 명리학의 만남</h2>
+            <p style="color: var(--text-muted); line-height: 1.8; text-align: justify;">
+                운세담의 분석 모델은 수천 년간 축적된 동양 명리학의 방대한 데이터베이스를 바탕으로 학습되었습니다.
+                만세력의 정밀한 계산은 물론, 오행의 상생상극, 십이운성, 각종 신살 등을 종합적으로 고려하여 AI가 다각도에서 분석 결과를 도출합니다.
+                단순히 '좋다/나쁘다' 식의 단편적인 풀이가 아닌, 입체적이고 상세한 분석을 통해 사용자에게 깊은 통찰을 제공합니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 2.5rem;">
+            <h2
+                style="color: #E2E8F0; margin-bottom: 1rem; border-left: 4px solid var(--gold-primary); padding-left: 1rem;">
+                제공 서비스</h2>
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                <div
+                    style="background: rgba(255, 255, 255, 0.03); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.1);">
+                    <h3 style="color: var(--gold-secondary); margin-bottom: 0.5rem;">AI 프리미엄 사주</h3>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;">개인의 기질과 평생의 운 흐름을 AI가 정밀하게 분석합니다.</p>
+                </div>
+                <div
+                    style="background: rgba(255, 255, 255, 0.03); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.1);">
+                    <h3 style="color: var(--gold-secondary); margin-bottom: 0.5rem;">정통 토정비결</h3>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;">한 해의 신수를 월별로 상세하게 풀이해드립니다.</p>
+                </div>
+                <div
+                    style="background: rgba(255, 255, 255, 0.03); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.1);">
+                    <h3 style="color: var(--gold-secondary); margin-bottom: 0.5rem;">꿈해몽 & 타로</h3>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;">무의식의 상징을 분석하고 현재의 고민에 대한 해답을 찾습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div
+            style="background: var(--navy-glass); padding: 2rem; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-top: 3rem;">
+            <p style="color: var(--gold-primary); font-weight: bold; margin-bottom: 0.5rem; text-align: center;">"운명은
+                정해진 대로 흘러가는 것이 아니라, 당신의 선택으로 완성되는 것입니다."</p>
+            <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem;">운세담은 당신의 밝은 미래를 위한 든든한 동반자가
+                되겠습니다.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

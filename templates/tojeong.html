@@ -1,0 +1,1469 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{% include "includes/sidebar_input.html" %}
+
+<!-- Sidebar Banner -->
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<!-- 우측: 토정비결 결과 -->
+<div class="result-container">
+    <!-- 컨텐츠 상단 배너 (결과 영역에만 위치) -->
+
+
+    <!-- 초기 안내 메시지 (결과가 없을 때만 표시) -->
+    {% if not processed or not pillars_data %}
+    <div id="tojeong-initial-message" class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+        <h2 style="color: var(--gold-primary); margin-bottom: 1rem;">토정비결</h2>
+        <p style="color: var(--text-muted); line-height: 1.8;">
+            왼쪽에서 성함과 생년월일을 입력하시면 토정비결을 확인할 수 있습니다.
+        </p>
+    </div>
+
+    <!-- SEO Rich Content (초기 화면에만 표시, 결과 나오면 숨김) -->
+    <div id="seo-rich-content" class="glass-card"
+        style="margin-top: 2rem; padding: 2rem; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem; font-size: 1.3rem;">💡 토정비결과 사주팔자 가이드</h3>
+
+        <div style="margin-bottom: 2rem;">
+            <h4
+                style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">
+                토정비결의 유래</h4>
+            <p style="color: var(--text-muted); line-height: 1.7; font-size: 0.95rem; text-align: justify;">
+                토정비결(土亭秘訣)은 조선 중기의 학자 토정(土亭) 이지함(李之菡, 1517~1578) 선생이 저술한 것으로 알려진 비결서(秘訣書)입니다.
+                주로 한 해의 신수를 보는데 사용되며, 태어난 연, 월, 일의 세 가지 정보를 바탕으로 144가지의 괘(卦)를 만들어 일 년의 길흉화복을 점치는 방식입니다.
+                당시 백성들이 삶의 불확실성 속에서 희망을 찾고자 했던 마음을 달래주기 위해 만들어졌다고 전해지며,
+                민간에 널리 보급되어 조선 후기부터 현대에 이르기까지 한국인들의 대표적인 새해맞이 풍속으로 깊이 자리 잡았습니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <h4
+                style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">
+                사주팔자(四柱八字) 보는 법</h4>
+            <div style="color: var(--text-muted); line-height: 1.7; font-size: 0.95rem;">
+                <p style="margin-bottom: 1rem; text-align: justify;">
+                    사주팔자는 사람이 태어난 연(年), 월(月), 일(日), 시(時)의 네 가지 기둥(四柱)을 의미하며,
+                    각 기둥은 천간(天干)과 지지(地支) 두 글자로 이루어져 총 여덟 글자(八字)가 됩니다.
+                    이 여덟 글자의 음양오행(화, 수, 목, 금, 토)의 조화와 상생, 상극을 분석하여 인생의 길흉화복을 예측합니다.
+                </p>
+                <ul
+                    style="list-style: none; padding-left: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <li style="background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 8px;">
+                        <strong style="color: var(--gold-secondary); display: block; margin-bottom: 0.4rem;">연주
+                            (年柱)</strong>
+                        조상과 가문을 상징하며, 나의 뿌리와 초년운을 봅니다.
+                    </li>
+                    <li style="background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 8px;">
+                        <strong style="color: var(--gold-secondary); display: block; margin-bottom: 0.4rem;">월주
+                            (月柱)</strong>
+                        부모와 형제, 사회적 환경을 상징하며, 청년운을 봅니다.
+                    </li>
+                    <li style="background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 8px;">
+                        <strong style="color: var(--gold-secondary); display: block; margin-bottom: 0.4rem;">일주
+                            (日柱)</strong>
+                        나 자신과 배우자를 상징하며, 중년운과 본질적 성향을 봅니다.
+                    </li>
+                    <li style="background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 8px;">
+                        <strong style="color: var(--gold-secondary); display: block; margin-bottom: 0.4rem;">시주
+                            (時柱)</strong>
+                        자녀와 말년을 상징하며, 노년운과 숨겨진 내면을 봅니다.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            <h4
+                style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">
+                운세담의 분석 방식</h4>
+            <p style="color: var(--text-muted); line-height: 1.7; font-size: 0.95rem; text-align: justify;">
+                운세담은 고전 토정비결의 원문을 현대적인 언어로 재해석하고, 사주명리학의 정교한 분석 이론을 결합하여 더욱 깊이 있는 운세 풀이를 제공합니다.
+                단순히 '좋다', '나쁘다' 식의 이분법적 길흉만을 논하는 것이 아니라,
+                현재 나의 기운이 어떤 흐름 속에 있는지 정확히 이해하고, 이를 바탕으로 주체적으로 삶을 설계할 수 있도록 돕는 실질적인 조언을 목표로 합니다.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 토정비결 컨테이너 (항상 렌더링, 초기에는 숨김) -->
+    <div class="glass-card" id="tojeong-container"
+        style="{% if not processed or not pillars_data %}display: none;{% endif %}">
+        <div class="section-header" id="tojeong-title">
+            <span>📜</span> <span id="user-name">{{ user_name or '' }}</span>님의 <span id="current-year">{{ current_year
+                or '' }}</span>년 토정비결
+        </div>
+
+        <!-- 로딩 표시 -->
+        <div id="tojeong-loading" style="text-align: center; padding: 2rem; display: none;">
+            <div class="spinner"
+                style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;">
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-muted);">토정비결을 계산하고 있습니다...</p>
+        </div>
+
+        <!-- 토정비결 결과 영역 -->
+        <div id="tojeong-result" style="display: none;">
+            <!-- 기본 정보 (간지 정보) -->
+            <div id="tojeong-basic-info"
+                style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                <!-- 동적으로 채워짐 -->
+            </div>
+
+            <!-- AI 분석 결과 영역 -->
+            <div id="tojeong-ai-analysis" style="display: none;">
+                <!-- 동적으로 채워짐 -->
+            </div>
+
+            <!-- 기본 운세 표시 영역 -->
+            <div id="tojeong-basic-fortune" style="display: none;">
+                <!-- 동적으로 채워짐 -->
+            </div>
+
+            <!-- 공유하기 버튼 영역 -->
+            {% include "includes/share_buttons.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/app.js"></script>
+<script>
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('토정비결 페이지 로드됨');
+
+        // 나이 계산 및 표시
+        document.getElementById('birth_date')?.addEventListener('change', function () {
+            const birthDate = this.value;
+            if (birthDate) {
+                const today = new Date();
+                const birth = new Date(birthDate);
+                const currentAge = today.getFullYear() - birth.getFullYear() -
+                    ((today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) ? 1 : 0);
+                const koreanAge = today.getFullYear() - birth.getFullYear() + 1;
+
+                const ageInfo = document.getElementById('age-info');
+                if (ageInfo) {
+                    ageInfo.style.display = 'block';
+                    ageInfo.textContent = `현재 나이: 만 ${currentAge}세 (한국나이 ${koreanAge}세)`;
+                }
+            }
+        });
+
+        // 폼 제출 처리 (메인 페이지와 동일한 로직)
+        const inputForm = document.getElementById('input-form');
+        if (inputForm) {
+            console.log('토정비결 input-form 이벤트 리스너 등록');
+            inputForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                console.log('토정비결 폼 제출됨');
+
+                const formData = new FormData(this);
+                const errorDiv = document.getElementById('form-error');
+                const submitBtn = this.querySelector('button[type="submit"]');
+
+                // 로딩 상태
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '처리 중...';
+                }
+                if (errorDiv) {
+                    errorDiv.style.display = 'none';
+                }
+
+                try {
+                    const response = await fetch('/api/calculate', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        // 세션 데이터를 localStorage에 저장 (다른 페이지로 이동 시 사용)
+                        if (data.data && data.data.session_data) {
+                            saveSessionDataToLocalStorage(data.data);
+                        } else {
+                            // session_data가 없으면 FormData에서 직접 저장
+                            const sessionData = {
+                                user_name: formData.get('name') || '',
+                                user_gender: formData.get('gender') || '',
+                                birth_date: formData.get('birth_date') || '',
+                                birth_time: formData.get('birth_time') || '',
+                                is_lunar: formData.get('is_lunar') === 'on' || formData.get('is_lunar') === 'true',
+                                _timestamp: Date.now() // 타임스탬프 추가
+                            };
+                            localStorage.setItem('user_session_data', JSON.stringify(sessionData));
+                        }
+
+                        // 폼 값을 FormData에서 직접 업데이트하여 즉시 반영
+                        const form = document.getElementById('input-form');
+                        if (form) {
+                            const nameInput = form.querySelector('[name="name"]');
+                            const birthDateInput = form.querySelector('[name="birth_date"]');
+                            const birthTimeInput = form.querySelector('[name="birth_time"]');
+                            const genderSelect = form.querySelector('[name="gender"]');
+                            const isLunarCheckbox = form.querySelector('[name="is_lunar"]');
+
+                            if (nameInput) nameInput.value = formData.get('name') || '';
+                            if (birthDateInput) birthDateInput.value = formData.get('birth_date') || '';
+                            if (birthTimeInput) birthTimeInput.value = formData.get('birth_time') || '';
+                            if (genderSelect) genderSelect.value = formData.get('gender') || '';
+                            if (isLunarCheckbox) {
+                                const isLunarValue = formData.get('is_lunar');
+                                isLunarCheckbox.checked = isLunarValue === 'on' || isLunarValue === 'true' || isLunarValue === true;
+                            }
+                        }
+
+                        // 버튼 상태 복원
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '결과보기';
+                        }
+
+                        // 토정비결 자동 계산 (계산된 데이터를 직접 전달)
+                        // 플래그 리셋 후 계산 시작
+                        window.tojeongCalculating = false;
+                        window.tojeongAIAnalyzing = false;
+                        console.log('토정비결 계산 시작:', { has_data: !!data.data, has_pillars_data: !!(data.data?.pillars_data) });
+                        setTimeout(() => {
+                            calculateTojeong(data.data);
+                        }, 200);
+                    } else {
+                        // 에러 표시
+                        if (errorDiv) {
+                            errorDiv.textContent = data.detail || '오류가 발생했습니다.';
+                            errorDiv.style.display = 'block';
+                        }
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '결과보기';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    if (errorDiv) {
+                        errorDiv.textContent = '네트워크 오류가 발생했습니다.';
+                        errorDiv.style.display = 'block';
+                    }
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '결과보기';
+                    }
+                }
+            });
+        } else {
+            console.error('토정비결 input-form을 찾을 수 없습니다!');
+        }
+
+        // API Key 자동 저장 (메인 페이지와 동일한 로직)
+        let apiKeyDebounceTimer;
+        const apiKeyInput = document.getElementById('api-key-input');
+        if (apiKeyInput) {
+            apiKeyInput.addEventListener('input', function () {
+                clearTimeout(apiKeyDebounceTimer);
+                const apiKey = this.value.trim();
+                const statusDiv = document.getElementById('api-key-status');
+
+                // API Key는 저장하지 않고 입력값만 사용
+                apiKeyDebounceTimer = setTimeout(() => {
+                    if (apiKey) {
+                        if (statusDiv) {
+                            statusDiv.textContent = '✅ API Key가 입력되었습니다. AI 분석을 자동으로 실행합니다...';
+                            statusDiv.style.color = '#86EFAC';
+                            statusDiv.style.display = 'block';
+                        }
+
+                        // API Key 입력 후, 토정비결 결과가 이미 표시되어 있으면 AI 분석 자동 실행
+                        const tojeongResultDiv = document.getElementById('tojeong-result');
+                        const tojeongBasicInfoDiv = document.getElementById('tojeong-basic-info');
+                        const aiAnalysisDiv = document.getElementById('tojeong-ai-analysis');
+
+                        if (tojeongResultDiv && tojeongResultDiv.style.display !== 'none' &&
+                            tojeongBasicInfoDiv && tojeongBasicInfoDiv.innerHTML.trim() !== '' &&
+                            aiAnalysisDiv && window.lastTojeongData) {
+                            // API Key가 입력되면 자동으로 AI 분석 시작
+                            setTimeout(() => {
+                                aiAnalysisDiv.style.display = 'block';
+                                aiAnalysisDiv.innerHTML = `
+                                <div style="text-align: center; padding: 2rem;">
+                                    <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                    <p style="margin-top: 1rem; color: var(--text-muted);">토정비결을 상세하게 분석하고 있습니다... (약 10-15초 소요)</p>
+                                </div>
+                            `;
+                                runTojeongAIAnalysis();
+                            }, 500);
+                        }
+                    } else {
+                        if (statusDiv) {
+                            statusDiv.style.display = 'none';
+                        }
+                    }
+                }, 1000);
+            });
+        }
+
+        // localStorage에서 읽어와서 폼에 채우기 (세션 값보다 우선)
+        fillFormFromLocalStorage('input-form');
+
+        // 폼에 값이 있으면 자동으로 결과 계산 및 표시 (세션 데이터 여부와 무관하게)
+        // setTimeout을 사용하여 fillFormFromLocalStorage 완료 후 실행 보장
+        setTimeout(() => {
+            const form = document.getElementById('input-form');
+            if (form) {
+                const nameInput = form.querySelector('[name="name"]');
+                const birthDateInput = form.querySelector('[name="birth_date"]');
+                const genderSelect = form.querySelector('[name="gender"]');
+
+                // 폼에 필수 값이 있으면 자동 로드
+                if (nameInput?.value && birthDateInput?.value && genderSelect?.value) {
+                    console.log('토정비결 자동 로드 시작');
+                    autoLoadTojeong();
+                }
+            }
+        }, 100);
+    });
+
+    // 세션 데이터로 자동 토정비결 로드
+    async function autoLoadTojeong() {
+        // 이미 로드 중이면 중복 호출 방지
+        if (window.tojeongAutoLoading) {
+            console.log('토정비결 자동 로드가 이미 진행 중입니다.');
+            return;
+        }
+
+        window.tojeongAutoLoading = true;
+
+        // 폼에서 직접 값을 읽어와서 사용 (localStorage에서 채워진 최신 값)
+        const form = document.getElementById('input-form');
+        if (!form) {
+            window.tojeongAutoLoading = false;
+            return;
+        }
+
+        const nameInput = form.querySelector('[name="name"]');
+        const birthDateInput = form.querySelector('[name="birth_date"]');
+        const birthTimeInput = form.querySelector('[name="birth_time"]');
+        const genderSelect = form.querySelector('[name="gender"]');
+        const isLunarCheckbox = form.querySelector('[name="is_lunar"]');
+
+        // 폼 값이 없으면 자동 로드하지 않음
+        if (!nameInput?.value || !birthDateInput?.value || !genderSelect?.value) {
+            window.tojeongAutoLoading = false;
+            return;
+        }
+
+        // 먼저 사주 계산 API를 호출하여 최신 데이터 가져오기
+        const formData = new FormData();
+        formData.append('name', nameInput.value);
+        formData.append('birth_date', birthDateInput.value);
+        formData.append('birth_time', birthTimeInput.value || '');
+        formData.append('gender', genderSelect.value);
+        if (isLunarCheckbox?.checked) {
+            formData.append('is_lunar', 'true');
+        }
+
+        try {
+            // 사주 계산 먼저 수행
+            const calculateResponse = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const calculateData = await calculateResponse.json();
+
+            if (calculateResponse.ok && calculateData.success) {
+                // 계산된 데이터로 토정비결 계산
+                calculateTojeong(calculateData.data);
+            } else {
+                // 사주 계산 실패 시 에러 표시
+                console.error('사주 계산 실패:', calculateData);
+                window.tojeongAutoLoading = false;
+            }
+            window.tojeongAutoLoading = false;
+        } catch (error) {
+            console.error('자동 토정비결 로드 오류:', error);
+            window.tojeongAutoLoading = false;
+        }
+    }
+
+    // 토정비결 계산 (계산된 데이터를 직접 받아서 사용)
+    async function calculateTojeong(calculatedData = null) {
+        console.log('calculateTojeong 함수 시작:', { has_calculatedData: !!calculatedData });
+
+        // 초기 안내 메시지 숨기기
+        const initialMessage = document.getElementById('tojeong-initial-message');
+        if (initialMessage) {
+            initialMessage.style.display = 'none';
+        }
+
+        // SEO 컨텐츠 숨기기 (결과 나오면 사라짐)
+        const seoRichContent = document.getElementById('seo-rich-content');
+        if (seoRichContent) {
+            seoRichContent.style.display = 'none';
+        }
+
+        // 컨테이너 표시
+        const container = document.getElementById('tojeong-container');
+        if (container) {
+            container.style.display = 'block';
+        }
+
+        const loadingDiv = document.getElementById('tojeong-loading');
+        const resultDiv = document.getElementById('tojeong-result');
+
+        console.log('토정비결 DOM 요소 확인:', {
+            has_loadingDiv: !!loadingDiv,
+            has_resultDiv: !!resultDiv,
+            has_container: !!container,
+            has_initialMessage: !!initialMessage
+        });
+
+        if (!loadingDiv || !resultDiv) {
+            console.error('토정비결: loadingDiv 또는 resultDiv를 찾을 수 없습니다!');
+            return;
+        }
+
+        // 계산된 데이터가 없으면 에러
+        if (!calculatedData || !calculatedData.pillars_data || !calculatedData.pillars_info) {
+            console.error('토정비결 계산: 계산된 데이터가 없습니다.', {
+                has_calculatedData: !!calculatedData,
+                has_pillars_data: !!(calculatedData?.pillars_data),
+                has_pillars_info: !!(calculatedData?.pillars_info)
+            });
+            loadingDiv.innerHTML = `<div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">⚠️ 사주 데이터가 없습니다. 먼저 사주를 계산해주세요.</div>`;
+            return;
+        }
+
+        // 이미 계산 중이면 중복 호출 방지
+        if (window.tojeongCalculating) {
+            console.log('토정비결 계산이 이미 진행 중입니다.');
+            return;
+        }
+
+        window.tojeongCalculating = true;
+        console.log('토정비결 계산 시작 - 플래그 설정됨');
+
+        // 로딩 표시
+        loadingDiv.style.display = 'block';
+        resultDiv.style.display = 'none';
+        console.log('토정비결 로딩 표시 완료');
+
+        try {
+            // 계산된 데이터를 직접 전달
+            // calculatedData는 /api/calculate의 응답 data.data이므로 pillars_data와 pillars_info가 포함되어 있음
+            const requestBody = {
+                calculated_data: {
+                    pillars_data: calculatedData.pillars_data,
+                    pillars_info: calculatedData.pillars_info
+                }
+            };
+
+            // 디버깅: 전달되는 데이터 확인
+            if (calculatedData) {
+                console.log('토정비결 계산 - calculatedData 전달:', {
+                    has_pillars_data: !!calculatedData.pillars_data,
+                    has_pillars_info: !!calculatedData.pillars_info,
+                    pillars_data_length: calculatedData.pillars_data?.length || 0,
+                    birth_datetime: calculatedData.pillars_info?.birth_datetime
+                });
+            }
+
+            console.log('토정비결 API 호출 시작:', {
+                url: '/api/tojeong',
+                has_requestBody: !!requestBody,
+                has_calculated_data: !!(requestBody.calculated_data)
+            });
+
+            const response = await fetch('/api/tojeong', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log('토정비결 API 응답 받음:', {
+                status: response.status,
+                ok: response.ok,
+                statusText: response.statusText
+            });
+
+            // Content-Type 확인
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('토정비결 API 응답이 JSON이 아닙니다:', { contentType, text: text.substring(0, 200) });
+                throw new Error('서버 응답 형식이 올바르지 않습니다.');
+            }
+
+            const data = await response.json();
+            console.log('토정비결 API 응답 데이터:', {
+                success: data.success,
+                has_data: !!data.data,
+                has_tojeong_result: !!(data.data?.tojeong_result),
+                detail: data.detail
+            });
+
+            if (response.ok && data.success) {
+                // 디버깅: 받은 결과 확인
+                console.log('토정비결 계산 완료:', {
+                    has_tojeong_result: !!data.data.tojeong_result,
+                    current_year: data.data.current_year,
+                    fortune_level: data.data.tojeong_result?.fortune_level,
+                    relationship: data.data.tojeong_result?.relationship
+                });
+
+                console.log('토정비결 결과 렌더링 시작');
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+
+                console.log('renderTojeongResult 호출:', {
+                    has_tojeong_result: !!data.data.tojeong_result,
+                    current_year: data.data.current_year
+                });
+                renderTojeongResult(data.data.tojeong_result, data.data.current_year);
+                console.log('renderTojeongResult 완료');
+
+                // 기본 운세 표시 (AI 분석 전에 먼저 표시)
+                const basicFortuneDiv = document.getElementById('tojeong-basic-fortune');
+                if (basicFortuneDiv) {
+                    basicFortuneDiv.style.display = 'block';
+                }
+
+                // 토정비결 결과와 사주 데이터를 전역 변수에 저장 (AI 분석 시 사용)
+                window.lastTojeongData = {
+                    tojeong_result: data.data.tojeong_result,
+                    pillars_data: calculatedData.pillars_data,
+                    pillars_info: calculatedData.pillars_info
+                };
+
+                // AI 분석은 사용자가 명시적으로 요청할 때만 실행
+                // API Key 확인 후 버튼 표시
+                const aiAnalysisDiv = document.getElementById('tojeong-ai-analysis');
+
+                // API Key 확인 - 입력 필드에서 직접 가져옴 (저장하지 않음)
+                const apiKeyInput = document.getElementById('api-key-input');
+                const currentApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+                if (aiAnalysisDiv) {
+                    if (currentApiKey) {
+                        // API Key가 있으면 자동으로 AI 분석 시작
+                        aiAnalysisDiv.style.display = 'block';
+                        aiAnalysisDiv.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                            <p style="margin-top: 1rem; color: var(--text-muted);">토정비결을 상세하게 분석하고 있습니다... (약 10-15초 소요)</p>
+                        </div>
+                    `;
+
+                        // 스트리밍으로 변경했으므로 자동으로 AI 분석 시작
+                        setTimeout(() => {
+                            runTojeongAIAnalysis();
+                        }, 500);
+                    } else {
+                        // API Key가 없으면 기본 토정비결 분석 결과를 AI 분석 섹션에 표시
+                        aiAnalysisDiv.style.display = 'block';
+                        if (window.lastTojeongData && window.lastTojeongData.tojeong_result) {
+                            aiAnalysisDiv.innerHTML = generateBasicTojeongAnalysis(
+                                window.lastTojeongData.tojeong_result,
+                                data.data.current_year || new Date().getFullYear()
+                            );
+                        } else {
+                            aiAnalysisDiv.innerHTML = '';
+                        }
+                    }
+                }
+
+                window.tojeongCalculating = false;
+            } else {
+                loadingDiv.innerHTML = `<div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">⚠️ ${data.detail || '토정비결 계산 중 오류가 발생했습니다.'}</div>`;
+                window.tojeongCalculating = false;
+            }
+        } catch (error) {
+            console.error('Tojeong Calculation Error:', error);
+            loadingDiv.innerHTML = `<div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">⚠️ 네트워크 오류가 발생했습니다.</div>`;
+            window.tojeongCalculating = false;
+        }
+    }
+
+    // 토정비결 결과 렌더링
+    function renderTojeongResult(tojeongResult, currentYear) {
+        console.log('renderTojeongResult 함수 시작:', {
+            has_tojeongResult: !!tojeongResult,
+            currentYear: currentYear
+        });
+
+        const basicInfoDiv = document.getElementById('tojeong-basic-info');
+        const basicFortuneDiv = document.getElementById('tojeong-basic-fortune');
+
+        console.log('토정비결 DOM 요소 확인:', {
+            has_basicInfoDiv: !!basicInfoDiv,
+            has_basicFortuneDiv: !!basicFortuneDiv
+        });
+
+        // 정보입력란에서 이름 가져오기 (최신 값)
+        const nameInput = document.getElementById('name');
+        const userName = nameInput?.value || '';
+
+        // 올해 연도 가져오기
+        const displayYear = currentYear || new Date().getFullYear();
+
+        // 상단 타이틀 업데이트
+        const titleDiv = document.getElementById('tojeong-title');
+        if (titleDiv) {
+            const userNameSpan = titleDiv.querySelector('#user-name');
+            const currentYearSpan = titleDiv.querySelector('#current-year');
+            if (userNameSpan && userName) userNameSpan.textContent = userName;
+            if (currentYearSpan) currentYearSpan.textContent = displayYear;
+        }
+
+        // 디버깅: 렌더링되는 결과 확인
+        console.log('토정비결 결과 렌더링:', {
+            birth_year_ganji: tojeongResult.birth_year_ganji,
+            current_year_ganji: tojeongResult.current_year_ganji,
+            relationship: tojeongResult.relationship,
+            fortune_level: tojeongResult.fortune_level,
+            currentYear: displayYear,
+            userName: userName
+        });
+
+        if (!basicInfoDiv || !basicFortuneDiv) {
+            console.error('토정비결 결과 렌더링 실패: DOM 요소를 찾을 수 없습니다.');
+            return;
+        }
+
+        // 기본 정보 (간지 정보)
+        basicInfoDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+            <div>
+                <div style="color: #A0AEC0; font-size: 0.9em; margin-bottom: 0.5rem;">생년 간지</div>
+                <div style="font-size: 1.5em; font-weight: bold; color: #D4AF37;">${tojeongResult.birth_year_ganji || ''}</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="color: #A0AEC0; font-size: 0.9em; margin-bottom: 0.5rem;">${currentYear}년 간지</div>
+                <div style="font-size: 1.5em; font-weight: bold; color: #D4AF37;">${tojeongResult.current_year_ganji || ''}</div>
+            </div>
+        </div>
+        <div style="padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div style="color: #A0AEC0; font-size: 0.9em; margin-bottom: 0.5rem;">관계</div>
+            <div style="font-size: 1.2em; font-weight: bold; color: #F9E79F;">${tojeongResult.relationship || ''}</div>
+            <div style="color: #A0AEC0; font-size: 0.85em; margin-top: 0.3rem;">${tojeongResult.relationship_desc || ''}</div>
+        </div>
+    `;
+
+        // 기본 운세 표시 (AI 분석이 없을 때만 표시)
+        const fortuneColor = {
+            "좋음": "#2ecc71",
+            "양호": "#3498db",
+            "보통": "#f1c40f",
+            "주의": "#e74c3c"
+        }[tojeongResult.fortune_level] || "#f1c40f";
+
+        // 기본 운세를 더 풍부하게 표시
+        basicFortuneDiv.innerHTML = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-left: 4px solid ${fortuneColor}; border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="color: #A0AEC0; font-size: 0.9em; margin-bottom: 0.5rem;">올해 운세</div>
+            <div style="font-size: 1.3em; font-weight: bold; color: ${fortuneColor}; margin-bottom: 1rem;">${tojeongResult.fortune_level || ''}</div>
+            <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em; margin-bottom: 1rem;">${tojeongResult.fortune_message || ''}</div>
+            ${getRelationshipDetail(tojeongResult.relationship)}
+        </div>
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="color: #D4AF37; font-size: 1.1em; font-weight: bold; margin-bottom: 0.8rem;">월별 가이드</div>
+            <div style="color: #C0C8D0; line-height: 1.8;">${tojeongResult.monthly_guidance || ''}</div>
+        </div>
+        ${getYearlyGuidance(tojeongResult.relationship, tojeongResult.fortune_level)}
+    `;
+
+        // AI 분석 섹션에도 기본 분석 결과 표시 (API Key가 없을 때)
+        const aiAnalysisDiv = document.getElementById('tojeong-ai-analysis');
+        if (aiAnalysisDiv) {
+            const apiKeyInput = document.getElementById('api-key-input');
+            const currentApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+
+            if (!currentApiKey) {
+                aiAnalysisDiv.style.display = 'block';
+                aiAnalysisDiv.innerHTML = generateBasicTojeongAnalysis(tojeongResult, currentYear);
+            }
+        }
+
+        // 공유 데이터 설정
+        const shareTitle = `${currentYear}년 토정비결 결과 - 운세담`;
+        const shareDesc = `${userName}님의 ${currentYear}년 토정비결 결과입니다. 관계: ${tojeongResult.relationship}, 운세: ${tojeongResult.fortune_level}`;
+
+        window.currentShareData = {
+            title: shareTitle,
+            description: shareDesc,
+            url: window.location.href, // 공유 시 현재 페이지로 이동
+            text: `${shareTitle}\n${shareDesc}\n\n지금 바로 확인해보세요!`
+        };
+    }
+
+    // 관계별 상세 설명 생성
+    function getRelationshipDetail(relationship) {
+        const relationshipDetails = {
+            "삼합": {
+                desc: "생년 지지와 올해 지지가 삼합 관계입니다. 삼합은 인연, 협력, 조화를 의미하는 좋은 관계입니다.",
+                color: "#2ecc71"
+            },
+            "육합": {
+                desc: "생년 지지와 올해 지지가 육합 관계입니다. 육합은 완벽한 조화와 협력을 의미하는 매우 좋은 관계입니다.",
+                color: "#3498db"
+            },
+            "충": {
+                desc: "생년 지지와 올해 지지가 충 관계입니다. 충은 변화와 변동을 의미하므로 신중한 판단이 필요합니다.",
+                color: "#e74c3c"
+            },
+            "형": {
+                desc: "생년 지지와 올해 지지가 형 관계입니다. 형은 약간의 어려움이나 경쟁을 의미하므로 인내와 노력이 필요합니다.",
+                color: "#f1c40f"
+            },
+            "평상": {
+                desc: "생년 지지와 올해 지지가 평상 관계입니다. 특별한 변화 없이 안정적으로 진행되는 시기입니다.",
+                color: "#95a5a6"
+            }
+        };
+
+        const detail = relationshipDetails[relationship] || relationshipDetails["평상"];
+        return `
+        <div style="padding: 1rem; background: rgba(212,175,55,0.05); border-radius: 6px; margin-top: 1rem;">
+            <div style="color: ${detail.color}; font-weight: bold; margin-bottom: 0.5rem;">${relationship} 관계 상세</div>
+            <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${detail.desc}</div>
+        </div>
+    `;
+    }
+
+    // 연간 가이드 생성
+    function getYearlyGuidance(relationship, fortuneLevel) {
+        let guidance = '';
+
+        if (fortuneLevel === "좋음" || fortuneLevel === "양호") {
+            guidance = `
+            <div style="padding: 1.5rem; background: rgba(46, 204, 113, 0.1); border-left: 4px solid #2ecc71; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="color: #2ecc71; font-size: 1.1em; font-weight: bold; margin-bottom: 0.8rem;">✨ 올해의 기회</div>
+                <div style="color: #E2E8F0; line-height: 1.8;">
+                    <p style="margin-bottom: 0.5rem;">• 새로운 도전과 목표 설정에 유리한 시기입니다.</p>
+                    <p style="margin-bottom: 0.5rem;">• 인연과 협력 관계가 좋아지는 시기입니다.</p>
+                    <p>• 중요한 결정을 내리기에 적합한 시기입니다.</p>
+                </div>
+            </div>
+        `;
+        } else if (fortuneLevel === "주의") {
+            guidance = `
+            <div style="padding: 1.5rem; background: rgba(231, 76, 60, 0.1); border-left: 4px solid #e74c3c; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="color: #e74c3c; font-size: 1.1em; font-weight: bold; margin-bottom: 0.8rem;">⚠️ 주의사항</div>
+                <div style="color: #E2E8F0; line-height: 1.8;">
+                    <p style="margin-bottom: 0.5rem;">• 중요한 결정은 신중하게 검토 후 진행하세요.</p>
+                    <p style="margin-bottom: 0.5rem;">• 급하게 서두르지 말고 차근차근 진행하세요.</p>
+                    <p>• 건강과 안전에 특히 주의를 기울이세요.</p>
+                </div>
+            </div>
+        `;
+        } else {
+            guidance = `
+            <div style="padding: 1.5rem; background: rgba(241, 196, 15, 0.1); border-left: 4px solid #f1c40f; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="color: #f1c40f; font-size: 1.1em; font-weight: bold; margin-bottom: 0.8rem;">💡 올해의 조언</div>
+                <div style="color: #E2E8F0; line-height: 1.8;">
+                    <p style="margin-bottom: 0.5rem;">• 꾸준한 노력과 계획을 통해 목표를 달성하세요.</p>
+                    <p style="margin-bottom: 0.5rem;">• 인내심을 가지고 차근차근 진행하세요.</p>
+                    <p>• 긍정적인 마음가짐을 유지하세요.</p>
+                </div>
+            </div>
+        `;
+        }
+
+        return guidance;
+    }
+
+    // 점수 바 시각화 함수 (10점 만점)
+    function renderScoreBar(label, score, maxScore = 10) {
+        const percentage = (score / maxScore) * 100;
+        const color = score >= 8 ? '#2ecc71' : score >= 6 ? '#3498db' : score >= 4 ? '#f1c40f' : '#e74c3c';
+
+        return `
+        <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="color: var(--text-primary); font-weight: 500;">${label}</span>
+                <span style="color: ${color}; font-weight: bold; font-size: 1.1em;">${score}점</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden;">
+                <div style="width: ${percentage}%; height: 100%; background: ${color}; transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+    `;
+    }
+
+    // 기본 토정비결 분석 결과 생성 (API Key가 없을 때 AI 분석 섹션에 표시)
+    function generateBasicTojeongAnalysis(tojeongResult, currentYear) {
+        const fortuneColor = {
+            "좋음": "#2ecc71",
+            "양호": "#3498db",
+            "보통": "#f1c40f",
+            "주의": "#e74c3c"
+        }[tojeongResult.fortune_level] || "#f1c40f";
+
+        // 기본 정보 섹션
+        let basicInfoHtml = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-left: 4px solid ${fortuneColor}; border-radius: 8px; margin-bottom: 1.5rem;">
+            <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">📜 ${currentYear}년 토정비결 분석</h3>
+            <div style="line-height: 1.8; color: var(--text-primary);">
+                <p style="margin-bottom: 0.8rem;"><strong>생년 간지:</strong> ${tojeongResult.birth_year_ganji || ''}</p>
+                <p style="margin-bottom: 0.8rem;"><strong>${currentYear}년 간지:</strong> ${tojeongResult.current_year_ganji || ''}</p>
+                <p style="margin-bottom: 0.8rem;"><strong>관계:</strong> <span style="color: ${fortuneColor}; font-weight: bold;">${tojeongResult.relationship || ''}</span></p>
+                <p style="margin-bottom: 0.8rem;"><strong>올해 운세:</strong> <span style="color: ${fortuneColor}; font-weight: bold;">${tojeongResult.fortune_level || ''}</span></p>
+                <p style="margin-top: 1rem;">${tojeongResult.relationship_desc || ''}</p>
+            </div>
+        </div>
+    `;
+
+        // 상단 요약 카드: 점수 시각화
+        let summaryCardHtml = '';
+        if (tojeongResult.fortune_scores) {
+            const scores = tojeongResult.fortune_scores;
+            summaryCardHtml = `
+            <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%); border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem; text-align: center;">✨ 올해 운세 지수 (10점 만점)</h3>
+                ${renderScoreBar('종합운', scores.overall || 6)}
+                ${renderScoreBar('재물운', scores.wealth || 6)}
+                ${renderScoreBar('연애·인간관계', scores.love || 6)}
+                ${renderScoreBar('건강운', scores.health || 6)}
+                ${renderScoreBar('직장·사업운', scores.career || 6)}
+            </div>
+        `;
+        }
+
+        // 키워드 섹션
+        let keywordsHtml = '';
+        if (tojeongResult.keywords && tojeongResult.keywords.length > 0) {
+            const keywordColors = ['#3498db', '#2ecc71', '#f1c40f'];
+            keywordsHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">🏷️ 올해의 키워드</h4>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    ${tojeongResult.keywords.map((keyword, idx) => `
+                        <span style="padding: 0.5rem 1rem; background: ${keywordColors[idx % keywordColors.length]}; color: white; border-radius: 20px; font-weight: bold; font-size: 0.95em;">${keyword}</span>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        }
+
+        // 연운(年運) 상세 섹션
+        let yearlyFortuneHtml = '';
+        if (tojeongResult.yearly_fortune) {
+            const yf = tojeongResult.yearly_fortune;
+            yearlyFortuneHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">📖 연운(年運) 상세</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                        <strong style="color: var(--gold-primary);">전통적 의미:</strong>
+                        <p style="margin-top: 0.5rem;">${yf.traditional || ''}</p>
+                    </div>
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                        <strong style="color: var(--gold-primary);">해석 포인트:</strong>
+                        <p style="margin-top: 0.5rem;">${yf.interpretation || ''}</p>
+                    </div>
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                        <strong style="color: var(--gold-primary);">현실 조언:</strong>
+                        <p style="margin-top: 0.5rem;">${yf.advice || ''}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        } else {
+            // 기존 호환성 유지
+            yearlyFortuneHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">올해 운세 해석</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <p>${tojeongResult.fortune_message || ''}</p>
+                    ${getRelationshipDetail(tojeongResult.relationship)}
+                </div>
+            </div>
+        `;
+        }
+
+        // 월별 운세 그리드
+        let monthlyFortunesHtml = '';
+        if (tojeongResult.monthly_fortunes && tojeongResult.monthly_fortunes.length > 0) {
+            const monthNames = ['', '1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+            monthlyFortunesHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1.5rem;">📅 월별 운세 (1~12월)</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                    ${tojeongResult.monthly_fortunes.map(month => {
+                const bgColor = month.good_period ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.1)';
+                const borderColor = month.good_period ? '#2ecc71' : '#e74c3c';
+                const icon = month.good_period ? '✅' : '⚠️';
+                return `
+                            <div style="padding: 1rem; background: ${bgColor}; border-left: 3px solid ${borderColor}; border-radius: 6px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: bold; color: var(--gold-primary); margin-right: 0.5rem;">${monthNames[month.month]}</span>
+                                    <span style="font-size: 1.2em;">${icon}</span>
+                                </div>
+                                <p style="color: var(--text-primary); font-size: 0.9em; margin-bottom: 0.8rem; line-height: 1.6;">${month.summary || ''}</p>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    ${(month.themes || []).map(theme => `
+                                        <span style="padding: 0.25rem 0.5rem; background: rgba(212,175,55,0.2); color: var(--text-primary); border-radius: 12px; font-size: 0.8em;">#${theme}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+            }).join('')}
+                </div>
+            </div>
+        `;
+        } else {
+            // 기존 호환성 유지
+            monthlyFortunesHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">월별 가이드</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <p>${tojeongResult.monthly_guidance || ''}</p>
+                </div>
+            </div>
+        `;
+        }
+
+        // 재테크/커리어 특화 조언 섹션
+        let careerAdviceHtml = '';
+        if (tojeongResult.career_advice) {
+            const ca = tojeongResult.career_advice;
+            careerAdviceHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">💼 재테크·커리어 특화 조언</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                        <strong style="color: var(--gold-primary); display: block; margin-bottom: 0.5rem;">💰 재테크:</strong>
+                        <p>${ca.investment || ''}</p>
+                    </div>
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                        <strong style="color: var(--gold-primary); display: block; margin-bottom: 0.5rem;">👔 커리어:</strong>
+                        <p>${ca.career || ''}</p>
+                    </div>
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                        <strong style="color: var(--gold-primary); display: block; margin-bottom: 0.5rem;">🏢 사업:</strong>
+                        <p>${ca.business || ''}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        }
+
+        // 행동 체크리스트/TODO 섹션
+        let checklistHtml = '';
+        if (tojeongResult.action_checklist) {
+            const checklist = tojeongResult.action_checklist;
+            checklistHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">✅ 올해 실천 체크리스트</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    ${['relationship', 'wealth', 'health', 'career'].map(category => {
+                const categoryNames = {
+                    'relationship': '인간관계',
+                    'wealth': '재물',
+                    'health': '건강',
+                    'career': '커리어'
+                };
+                const categoryIcons = {
+                    'relationship': '👥',
+                    'wealth': '💰',
+                    'health': '🏃',
+                    'career': '💼'
+                };
+                if (!checklist[category] || !Array.isArray(checklist[category])) return '';
+                return `
+                            <div style="padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                                <h5 style="color: var(--gold-primary); margin-bottom: 0.8rem; font-size: 1em;">
+                                    ${categoryIcons[category]} ${categoryNames[category]}
+                                </h5>
+                                <ul style="list-style: none; padding: 0; margin: 0;">
+                                    ${checklist[category].map(item => `
+                                        <li style="padding: 0.5rem 0; color: var(--text-primary); font-size: 0.9em; line-height: 1.6; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                            <span style="color: var(--gold-primary); margin-right: 0.5rem;">☐</span> ${item}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        `;
+            }).join('')}
+                </div>
+            </div>
+        `;
+        }
+
+        // 종합 해석 섹션 (기존 호환성 유지)
+        const overallInterpretationHtml = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px;">
+            <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">💡 종합 해석</h4>
+            <div style="line-height: 1.8; color: var(--text-primary);">
+                ${getOverallInterpretation(tojeongResult)}
+            </div>
+        </div>
+    `;
+
+        // 최종 HTML 조합
+        let html = `
+        <div class="basic-tojeong-analysis" style="margin-top: 1.5rem;">
+            ${basicInfoHtml}
+            ${summaryCardHtml}
+            ${keywordsHtml}
+            ${yearlyFortuneHtml}
+            ${monthlyFortunesHtml}
+            ${careerAdviceHtml}
+            ${checklistHtml}
+            ${overallInterpretationHtml}
+            ${getYearlyGuidance(tojeongResult.relationship, tojeongResult.fortune_level)}
+        </div>
+    `;
+
+        return html;
+    }
+
+    // 종합 해석 생성
+    function getOverallInterpretation(tojeongResult) {
+        const relationship = tojeongResult.relationship || '';
+        const fortuneLevel = tojeongResult.fortune_level || '';
+
+        let interpretation = '';
+
+        if (relationship === "삼합" || relationship === "육합") {
+            interpretation = `
+            <p style="margin-bottom: 0.8rem;">생년 간지와 올해 간지가 ${relationship} 관계로, 매우 좋은 조화를 이루고 있습니다. 올해는 인연과 협력이 중요하며, 새로운 시작이나 중요한 결정을 내리기에 좋은 시기입니다.</p>
+            <p style="margin-bottom: 0.8rem;">특히 인적 네트워크를 넓히고 협력 관계를 강화하는 것이 도움이 될 것입니다. 기회가 오면 적극적으로 활용하되, 신중하게 판단하는 것도 중요합니다.</p>
+        `;
+        } else if (relationship === "충") {
+            interpretation = `
+            <p style="margin-bottom: 0.8rem;">생년 간지와 올해 간지가 충 관계로, 변화와 변동이 많은 시기입니다. 이는 나쁜 것만은 아니며, 오히려 새로운 전환점을 맞이할 수 있는 기회이기도 합니다.</p>
+            <p style="margin-bottom: 0.8rem;">중요한 결정을 내릴 때는 충분한 시간을 가지고 신중하게 검토하세요. 급하게 서두르지 말고, 차근차근 준비하며 진행하는 것이 좋습니다.</p>
+        `;
+        } else if (relationship === "형") {
+            interpretation = `
+            <p style="margin-bottom: 0.8rem;">생년 간지와 올해 간지가 형 관계로, 약간의 어려움이나 경쟁이 있을 수 있습니다. 하지만 이는 성장의 계기가 될 수 있으므로 긍정적으로 받아들이는 것이 중요합니다.</p>
+            <p style="margin-bottom: 0.8rem;">인내와 노력을 통해 어려움을 극복할 수 있으며, 이를 통해 더욱 성숙한 모습을 갖출 수 있을 것입니다. 건강과 안전에 특히 주의를 기울이세요.</p>
+        `;
+        } else {
+            interpretation = `
+            <p style="margin-bottom: 0.8rem;">생년 간지와 올해 간지가 평상 관계로, 특별한 변화 없이 안정적으로 진행되는 시기입니다. 이는 나쁜 것이 아니며, 꾸준한 노력과 계획을 통해 목표를 달성할 수 있는 시기입니다.</p>
+            <p style="margin-bottom: 0.8rem;">무리한 변화를 추구하기보다는 현재 상황을 안정적으로 유지하면서 점진적으로 발전시켜 나가는 것이 좋습니다. 긍정적인 마음가짐을 유지하세요.</p>
+        `;
+        }
+
+        return interpretation;
+    }
+
+    // 토정비결 AI 분석 실행
+    async function runTojeongAIAnalysis() {
+        const aiAnalysisDiv = document.getElementById('tojeong-ai-analysis');
+        const basicFortuneDiv = document.getElementById('tojeong-basic-fortune');
+        const submitBtn = document.querySelector('button[type="submit"]');
+
+        if (!aiAnalysisDiv) return;
+
+        // 이미 분석 중이면 중복 호출 방지
+        if (window.tojeongAIAnalyzing) {
+            console.log('토정비결 AI 분석이 이미 진행 중입니다.');
+            return;
+        }
+
+        window.tojeongAIAnalyzing = true;
+
+        // 버튼 비활성화
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'AI 분석중...';
+        }
+
+        try {
+            // 저장된 토정비결 데이터 가져오기
+            const tojeongData = window.lastTojeongData;
+            if (!tojeongData || !tojeongData.tojeong_result) {
+                console.error('토정비결 데이터가 없습니다.');
+                window.tojeongAIAnalyzing = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+                return;
+            }
+
+            console.log('토정비결 AI 분석 요청:', {
+                has_tojeong_result: !!tojeongData.tojeong_result,
+                has_pillars_data: !!tojeongData.pillars_data,
+                has_pillars_info: !!tojeongData.pillars_info
+            });
+
+            // API Key는 입력 필드에서 직접 가져옴 (저장하지 않음)
+            const apiKeyInput = document.getElementById('api-key-input');
+            const currentApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+
+            // API Key가 없으면 기본 토정비결 분석 결과 표시
+            if (!currentApiKey) {
+                if (tojeongData && tojeongData.tojeong_result) {
+                    const currentYear = new Date().getFullYear();
+                    aiAnalysisDiv.innerHTML = generateBasicTojeongAnalysis(
+                        tojeongData.tojeong_result,
+                        currentYear
+                    );
+                    aiAnalysisDiv.style.display = 'block';
+                } else {
+                    aiAnalysisDiv.innerHTML = '';
+                }
+                window.tojeongAIAnalyzing = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+                return;
+            }
+
+            const response = await fetch('/api/tojeong-ai-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    api_key: currentApiKey,  // API Key를 요청 본문에 포함
+                    tojeong_result: tojeongData.tojeong_result,
+                    pillars_data: tojeongData.pillars_data,
+                    pillars_info: tojeongData.pillars_info
+                })
+            });
+
+            // 스트리밍 응답 처리
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('text/event-stream')) {
+                // SSE 스트리밍 처리
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let accumulatedText = '';
+                let fullData = null;
+
+                aiAnalysisDiv.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">토정비결을 상세하게 분석하고 있습니다... (약 10-15초 소요)</p>
+                </div>
+            `;
+
+                try {
+                    let buffer = '';
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        // 마지막 줄은 완전하지 않을 수 있으므로 버퍼에 유지
+                        buffer = lines.pop() || '';
+
+                        for (const line of lines) {
+                            // 빈 줄 무시
+                            if (!line.trim()) continue;
+
+                            // SSE 형식: "data: {json}"
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const jsonStr = line.substring(6).trim();
+                                    if (!jsonStr) continue;
+
+                                    const data = JSON.parse(jsonStr);
+
+                                    if (data.type === 'start') {
+                                        accumulatedText = '';
+                                        console.log('스트리밍 시작');
+                                    } else if (data.type === 'chunk') {
+                                        if (data.content) {
+                                            accumulatedText += data.content;
+                                        }
+                                    } else if (data.type === 'complete') {
+                                        fullData = data.data;
+                                        console.log('스트리밍 완료:', fullData ? '데이터 수신' : '데이터 없음');
+                                    } else if (data.type === 'error') {
+                                        throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.');
+                                    }
+                                } catch (parseError) {
+                                    console.error('스트리밍 데이터 파싱 오류:', parseError, 'Line:', line);
+                                    // JSON 파싱 오류가 발생해도 계속 진행 (불완전한 청크일 수 있음)
+                                }
+                            }
+                        }
+                    }
+
+                    // 버퍼에 남은 데이터 처리
+                    if (buffer.trim() && buffer.startsWith('data: ')) {
+                        try {
+                            const jsonStr = buffer.substring(6).trim();
+                            if (jsonStr) {
+                                const data = JSON.parse(jsonStr);
+                                if (data.type === 'complete') {
+                                    fullData = data.data;
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.');
+                                }
+                            }
+                        } catch (e) {
+                            console.error('버퍼 데이터 파싱 오류:', e);
+                        }
+                    }
+
+                    // 최종 결과 렌더링
+                    if (fullData) {
+                        renderTojeongAIAnalysis(fullData);
+                        if (basicFortuneDiv) {
+                            basicFortuneDiv.style.display = 'none';
+                        }
+                        // 스트리밍 처리가 성공적으로 완료되었으므로 함수 종료
+                        window.tojeongAIAnalyzing = false;
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '결과보기';
+                        }
+                        return;
+                    } else if (accumulatedText) {
+                        // accumulatedText가 있으면 JSON 파싱 시도
+                        try {
+                            const parsed = JSON.parse(accumulatedText);
+                            renderTojeongAIAnalysis(parsed);
+                            if (basicFortuneDiv) {
+                                basicFortuneDiv.style.display = 'none';
+                            }
+                            // 스트리밍 처리가 성공적으로 완료되었으므로 함수 종료
+                            window.tojeongAIAnalyzing = false;
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = '결과보기';
+                            }
+                            return;
+                        } catch (e) {
+                            console.error('누적 텍스트 파싱 오류:', e);
+                            throw new Error('AI 분석 결과를 파싱할 수 없습니다.');
+                        }
+                    } else {
+                        throw new Error('AI 분석 결과를 받지 못했습니다.');
+                    }
+                } catch (streamError) {
+                    console.error('스트리밍 처리 오류:', streamError);
+                    throw streamError;
+                }
+            } else if (contentType && contentType.includes('application/json')) {
+                // 기존 JSON 응답 처리 (하위 호환성)
+                const data = await response.json();
+
+                console.log('토정비결 AI 분석 응답:', {
+                    success: data.success,
+                    is_ai_analysis: data.data?.is_ai_analysis,
+                    has_error: !!data.detail,
+                    status: response.status
+                });
+
+                if (response.ok && data.success) {
+                    if (data.data.is_ai_analysis) {
+                        // AI 분석 결과 렌더링
+                        renderTojeongAIAnalysis(data.data.ai_analysis_result);
+                        // 기본 운세 숨기기
+                        if (basicFortuneDiv) {
+                            basicFortuneDiv.style.display = 'none';
+                        }
+                    } else {
+                        // API Key가 없을 때는 기본 토정비결 분석 결과 표시
+                        if (window.lastTojeongData && window.lastTojeongData.tojeong_result) {
+                            const currentYear = new Date().getFullYear();
+                            aiAnalysisDiv.innerHTML = generateBasicTojeongAnalysis(
+                                window.lastTojeongData.tojeong_result,
+                                currentYear
+                            );
+                            aiAnalysisDiv.style.display = 'block';
+                        } else {
+                            aiAnalysisDiv.style.display = 'none';
+                        }
+                    }
+                    window.tojeongAIAnalyzing = false;
+                } else {
+                    // 에러 발생 시 기본 운세 표시
+                    if (basicFortuneDiv) {
+                        basicFortuneDiv.style.display = 'block';
+                    }
+                    aiAnalysisDiv.style.display = 'none';
+                    console.error('Tojeong AI Analysis Error:', data.detail);
+                    window.tojeongAIAnalyzing = false;
+                }
+            } else {
+                // JSON이 아닌 응답 (예: HTML 에러 페이지) 처리
+                const text = await response.text();
+                console.error('Non-JSON response from /api/tojeong-ai-analysis:', text);
+
+                // 503 에러에 대한 특별 처리
+                if (response.status === 503) {
+                    throw new Error('서버가 현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                }
+
+                throw new Error(`서버 응답 형식이 올바르지 않습니다. (HTTP ${response.status})`);
+            }
+        } catch (error) {
+            console.error('Tojeong AI Analysis Error:', error);
+
+            // 에러 메시지 결정
+            let errorMessage = error.message || '알 수 없는 오류';
+            if (errorMessage.includes('503') || errorMessage.includes('Service Unavailable')) {
+                errorMessage = '서버가 현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.';
+            } else if (errorMessage.includes('네트워크')) {
+                errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.';
+            }
+
+            window.tojeongAIAnalyzing = false;
+
+            // 에러 발생 시 기본 운세 표시
+            if (basicFortuneDiv) {
+                basicFortuneDiv.style.display = 'block';
+            }
+
+            // AI 분석 영역에 에러 메시지 표시
+            aiAnalysisDiv.style.display = 'block';
+            // 에러 발생 시 기본 토정비결 분석 결과 표시
+            if (window.lastTojeongData && window.lastTojeongData.tojeong_result) {
+                const currentYear = new Date().getFullYear();
+                aiAnalysisDiv.innerHTML = generateBasicTojeongAnalysis(
+                    window.lastTojeongData.tojeong_result,
+                    currentYear
+                );
+            } else {
+                aiAnalysisDiv.innerHTML = `
+                <div style="padding: 1.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">
+                    <div style="font-weight: bold; margin-bottom: 0.5rem;">⚠️ AI 분석 중 오류가 발생했습니다</div>
+                    <div style="font-size: 0.9em; line-height: 1.6;">${errorMessage}</div>
+                </div>
+            `;
+            }
+        } finally {
+            // 버튼 활성화
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+        }
+    }
+
+    // 토정비결 AI 분석 결과 렌더링
+    function renderTojeongAIAnalysis(aiAnalysis) {
+        const aiAnalysisDiv = document.getElementById('tojeong-ai-analysis');
+
+        if (!aiAnalysis || aiAnalysis.error) {
+            return;
+        }
+
+        const overview = aiAnalysis.overview || {};
+        const detailed = aiAnalysis.detailedAnalysis || {};
+        const monthly = aiAnalysis.monthlyFortune || {};
+        const lifeAspects = aiAnalysis.lifeAspects || {};
+        const lucky = aiAnalysis.luckyElements || {};
+        const advice = aiAnalysis.advice || {};
+
+        let html = '';
+
+        // 전체 요약
+        if (overview.summary) {
+            html += `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-left: 4px solid #D4AF37; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="color: #D4AF37; font-size: 1.1em; font-weight: bold; margin-bottom: 1rem;">📋 올해의 핵심 테마: ${overview.keyTheme || ''}</div>
+                <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em; margin-bottom: 1rem;">${overview.summary}</div>
+                <div style="color: #F9E79F; font-size: 0.95em; font-weight: bold;">전체 운세: ${overview.overallFortune || ''}</div>
+            </div>
+        `;
+        }
+
+        // 상세 분석
+        if (detailed.mainMessage) {
+            html += '<hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">';
+            html += '<h3 style="color: var(--gold-primary); margin-bottom: 1rem;">🔮 상세 분석</h3>';
+            html += `<div style="padding: 1rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1rem;"><strong>올해의 주요 메시지</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${detailed.mainMessage}</div></div>`;
+
+            html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">';
+            html += `<div style="padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: 8px;"><strong>✨ 올해의 기회</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${detailed.opportunities || ''}</div></div>`;
+            html += `<div style="padding: 1rem; background: rgba(251, 191, 36, 0.1); border-radius: 8px;"><strong>⚠️ 주의사항</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${detailed.challenges || ''}</div></div>`;
+            html += '</div>';
+
+            html += `<div style="padding: 1rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1rem;"><strong>💡 실천 가이드</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${detailed.guidance || ''}</div></div>`;
+        }
+
+        // 월별 운세
+        if (monthly && (monthly.spring || monthly.summer || monthly.fall || monthly.winter)) {
+            html += '<hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">';
+            html += '<h3 style="color: var(--gold-primary); margin-bottom: 1rem;">📅 계절별 운세</h3>';
+            html += '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">';
+            html += `<div style="padding: 1rem; background: rgba(212,175,55,0.05); border-radius: 8px;"><strong>🌱 봄 (3-5월)</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8; font-size: 0.9em;">${monthly.spring || ''}</div></div>`;
+            html += `<div style="padding: 1rem; background: rgba(212,175,55,0.05); border-radius: 8px;"><strong>☀️ 여름 (6-8월)</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8; font-size: 0.9em;">${monthly.summer || ''}</div></div>`;
+            html += `<div style="padding: 1rem; background: rgba(212,175,55,0.05); border-radius: 8px;"><strong>🍂 가을 (9-11월)</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8; font-size: 0.9em;">${monthly.fall || ''}</div></div>`;
+            html += `<div style="padding: 1rem; background: rgba(212,175,55,0.05); border-radius: 8px;"><strong>❄️ 겨울 (12-2월)</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8; font-size: 0.9em;">${monthly.winter || ''}</div></div>`;
+            html += '</div>';
+        }
+
+        // 생활 영역별 운세
+        if (lifeAspects && (lifeAspects.career || lifeAspects.wealth || lifeAspects.relationships || lifeAspects.health || lifeAspects.family)) {
+            html += '<hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">';
+            html += '<h3 style="color: var(--gold-primary); margin-bottom: 1rem;">🎯 생활 영역별 운세</h3>';
+            html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">';
+            html += '<div>';
+            if (lifeAspects.career) html += `<div style="margin-bottom: 1rem;"><strong>💼 직업/사업 운</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${lifeAspects.career}</div></div>`;
+            if (lifeAspects.wealth) html += `<div style="margin-bottom: 1rem;"><strong>💰 재물/금전 운</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${lifeAspects.wealth}</div></div>`;
+            if (lifeAspects.relationships) html += `<div style="margin-bottom: 1rem;"><strong>❤️ 인간관계/애정 운</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${lifeAspects.relationships}</div></div>`;
+            html += '</div>';
+            html += '<div>';
+            if (lifeAspects.health) html += `<div style="margin-bottom: 1rem;"><strong>🏥 건강 운</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${lifeAspects.health}</div></div>`;
+            if (lifeAspects.family) html += `<div style="margin-bottom: 1rem;"><strong>👨‍👩‍👧‍👦 가족 운</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${lifeAspects.family}</div></div>`;
+            html += '</div>';
+            html += '</div>';
+        }
+
+        // 행운의 요소
+        if (lucky && (lucky.colors || lucky.directions || lucky.numbers || lucky.season)) {
+            html += '<hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">';
+            html += '<h3 style="color: var(--gold-primary); margin-bottom: 1rem;">🍀 행운의 요소</h3>';
+            html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">';
+            html += '<div>';
+            if (lucky.colors) html += `<div style="margin-bottom: 0.5rem;"><strong>색상:</strong> ${lucky.colors.join(', ')}</div>`;
+            if (lucky.directions) html += `<div style="margin-bottom: 0.5rem;"><strong>방위:</strong> ${lucky.directions.join(', ')}</div>`;
+            html += '</div>';
+            html += '<div>';
+            if (lucky.numbers) html += `<div style="margin-bottom: 0.5rem;"><strong>숫자:</strong> ${lucky.numbers.map(String).join(', ')}</div>`;
+            if (lucky.season) html += `<div style="margin-bottom: 0.5rem;"><strong>유리한 계절:</strong> ${lucky.season}</div>`;
+            html += '</div>';
+            html += '</div>';
+        }
+
+        // 조언
+        if (advice && (advice.do || advice.avoid || advice.specialNote)) {
+            html += '<hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">';
+            html += '<h3 style="color: var(--gold-primary); margin-bottom: 1rem;">💭 올해를 위한 조언</h3>';
+            if (advice.do && advice.do.length > 0) {
+                html += '<div style="margin-bottom: 1rem;"><strong>✅ 권장 사항:</strong><ul style="margin-top: 0.5rem; padding-left: 1.5rem; color: var(--text-primary); line-height: 1.8;">';
+                advice.do.forEach(item => {
+                    html += `<li>${item}</li>`;
+                });
+                html += '</ul></div>';
+            }
+            if (advice.avoid && advice.avoid.length > 0) {
+                html += '<div style="margin-bottom: 1rem;"><strong>❌ 피해야 할 일:</strong><ul style="margin-top: 0.5rem; padding-left: 1.5rem; color: var(--text-primary); line-height: 1.8;">';
+                advice.avoid.forEach(item => {
+                    html += `<li>${item}</li>`;
+                });
+                html += '</ul></div>';
+            }
+            if (advice.specialNote) {
+                html += `<div style="padding: 1rem; background: rgba(251, 191, 36, 0.1); border-radius: 8px;"><strong>📌 특별 주의사항</strong><div style="margin-top: 0.5rem; color: var(--text-primary); line-height: 1.8;">${advice.specialNote}</div></div>`;
+            }
+        }
+
+        aiAnalysisDiv.innerHTML = html;
+    }
+</script>
+{% endblock %}

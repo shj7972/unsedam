@@ -1,0 +1,1309 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{% include "includes/sidebar_input.html" %}
+
+<!-- Sidebar Banner -->
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<!-- 우측: 궁합 입력 및 결과 -->
+<div class="result-container">
+    <!-- 컨텐츠 상단 배너 -->
+
+
+    <!-- 첫 번째 사람 정보 입력 -->
+    <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+            <span>👤</span> 첫 번째 사람 정보 입력
+        </div>
+
+        <form id="person1-form">
+            <div style="margin-bottom: 1rem;">
+                <label for="person1_name"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">성함</label>
+                <input type="text" id="person1_name" name="name" placeholder="첫 번째 사람의 성함을 입력해주세요"
+                    value="{{ user_name }}" required autocomplete="off"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label for="person1_birth_date"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">생년월일</label>
+                <input type="date" id="person1_birth_date" name="birth_date" min="1900-01-01" required
+                    value="{{ birth_date }}"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label for="person1_birth_time"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">태어난 시각 (선택사항)</label>
+                <input type="time" id="person1_birth_time" name="birth_time" value="{{ birth_time }}"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label for="person1_gender"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">성별</label>
+                <select id="person1_gender" name="gender" required
+                    style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); box-sizing: border-box;">
+                    <option value="">선택해주세요</option>
+                    <option value="남성" {% if user_gender=='남성' %}selected{% endif %}>남성</option>
+                    <option value="여성" {% if user_gender=='여성' %}selected{% endif %}>여성</option>
+                    <option value="기타" {% if user_gender=='기타' %}selected{% endif %}>기타</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: center; color: var(--text-primary);">
+                    <input type="checkbox" id="person1_is_lunar" name="is_lunar" style="margin-right: 0.5rem;" {% if
+                        is_lunar %}checked{% endif %}>
+                    음력 (Lunar Calendar)
+                </label>
+            </div>
+        </form>
+    </div>
+
+    <!-- 두 번째 사람 정보 입력 -->
+    <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+            <span>💑</span> 두 번째 사람 정보 입력
+        </div>
+
+        <form id="person2-form">
+            <div style="margin-bottom: 1rem;">
+                <label for="person2_name"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">성함</label>
+                <input type="text" id="person2_name" name="name" placeholder="두 번째 사람의 성함을 입력해주세요" required
+                    autocomplete="off"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label for="person2_birth_date"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">생년월일</label>
+                <input type="date" id="person2_birth_date" name="birth_date" min="1900-01-01" required
+                    style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label for="person2_birth_time"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">태어난 시각 (선택사항)</label>
+                <input type="time" id="person2_birth_time" name="birth_time"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label for="person2_gender"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">성별</label>
+                <select id="person2_gender" name="gender" required
+                    style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary); box-sizing: border-box;">
+                    <option value="">선택해주세요</option>
+                    <option value="남성">남성</option>
+                    <option value="여성">여성</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: center; color: var(--text-primary);">
+                    <input type="checkbox" id="person2_is_lunar" name="is_lunar" style="margin-right: 0.5rem;">
+                    음력 (Lunar Calendar)
+                </label>
+            </div>
+
+            <button type="button" id="calculate-btn"
+                style="width: 100%; padding: 1rem; background: var(--gold-gradient); border: none; border-radius: 8px; color: var(--bg-dark); font-weight: bold; cursor: pointer; font-size: 1rem;">
+                궁합보기
+            </button>
+        </form>
+
+        <div id="form-error"
+            style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5; display: none;">
+        </div>
+    </div>
+
+    <!-- 궁합 결과 -->
+    <div id="result-container" style="display: none;">
+        <!-- 결과가 여기에 동적으로 표시됩니다 -->
+    </div>
+
+    <!-- 공유하기 버튼 영역 -->
+    <div id="gonghap-share" style="display: none;">
+        {% include "includes/share_buttons.html" %}
+    </div>
+
+    <div id="empty-state" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+        <div style="font-size: 3em; margin-bottom: 1rem;">💕</div>
+        <p>두 사람의 정보를 입력하고 "궁합보기" 버튼을 클릭하세요.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 페이지 로드 시 localStorage에서 폼 값 복원 및 첫 번째 사람 정보 설정
+    // API Key는 저장하지 않고 입력 필드에서 직접 가져옴
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fillFormFromLocalStorage('input-form');
+
+        // 좌측 정보입력란의 값을 첫 번째 사람 입력란에 복사
+        setTimeout(() => {
+            const inputForm = document.getElementById('input-form');
+            const person1Form = document.getElementById('person1-form');
+
+            if (inputForm && person1Form) {
+                const nameInput = inputForm.querySelector('[name="name"]');
+                const birthDateInput = inputForm.querySelector('[name="birth_date"]');
+                const birthTimeInput = inputForm.querySelector('[name="birth_time"]');
+                const genderSelect = inputForm.querySelector('[name="gender"]');
+                const isLunarCheckbox = inputForm.querySelector('[name="is_lunar"]');
+
+                const person1NameInput = person1Form.querySelector('[name="name"]');
+                const person1BirthDateInput = person1Form.querySelector('[name="birth_date"]');
+                const person1BirthTimeInput = person1Form.querySelector('[name="birth_time"]');
+                const person1GenderSelect = person1Form.querySelector('[name="gender"]');
+                const person1IsLunarCheckbox = person1Form.querySelector('[name="is_lunar"]');
+
+                // 좌측 정보입력란에 값이 있으면 첫 번째 사람 입력란에 복사
+                if (nameInput?.value && person1NameInput) {
+                    person1NameInput.value = nameInput.value;
+                }
+                if (birthDateInput?.value && person1BirthDateInput) {
+                    person1BirthDateInput.value = birthDateInput.value;
+                }
+                if (birthTimeInput?.value && person1BirthTimeInput) {
+                    person1BirthTimeInput.value = birthTimeInput.value;
+                }
+                if (genderSelect?.value && person1GenderSelect) {
+                    person1GenderSelect.value = genderSelect.value;
+                }
+                if (person1IsLunarCheckbox) {
+                    person1IsLunarCheckbox.checked = isLunarCheckbox?.checked || false;
+                }
+            }
+        }, 100);
+    });
+
+    // 좌측 정보입력란 폼 제출 처리 (사주 계산)
+    document.getElementById('input-form')?.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        // 버튼이 비활성화되어 있으면 처리하지 않음
+        if (submitBtn && submitBtn.disabled) {
+            return;
+        }
+
+        const formData = new FormData(this);
+        const errorDiv = document.getElementById('form-error');
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '처리 중...';
+        }
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+
+        try {
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // 세션 데이터를 localStorage에 저장 (다른 페이지로 이동 시 사용)
+                if (data.data && data.data.session_data) {
+                    saveSessionDataToLocalStorage(data.data);
+                } else {
+                    const sessionData = {
+                        user_name: formData.get('name') || '',
+                        user_gender: formData.get('gender') || '',
+                        birth_date: formData.get('birth_date') || '',
+                        birth_time: formData.get('birth_time') || '',
+                        is_lunar: formData.get('is_lunar') === 'on' || formData.get('is_lunar') === 'true',
+                        _timestamp: Date.now() // 타임스탬프 추가
+                    };
+                    localStorage.setItem('user_session_data', JSON.stringify(sessionData));
+                }
+
+                // 폼 값을 FormData에서 직접 업데이트하여 즉시 반영
+                const form = document.getElementById('input-form');
+                if (form) {
+                    const nameInput = form.querySelector('[name="name"]');
+                    const birthDateInput = form.querySelector('[name="birth_date"]');
+                    const birthTimeInput = form.querySelector('[name="birth_time"]');
+                    const genderSelect = form.querySelector('[name="gender"]');
+                    const isLunarCheckbox = form.querySelector('[name="is_lunar"]');
+
+                    if (nameInput) nameInput.value = formData.get('name') || '';
+                    if (birthDateInput) birthDateInput.value = formData.get('birth_date') || '';
+                    if (birthTimeInput) birthTimeInput.value = formData.get('birth_time') || '';
+                    if (genderSelect) genderSelect.value = formData.get('gender') || '';
+                    if (isLunarCheckbox) {
+                        const isLunarValue = formData.get('is_lunar');
+                        isLunarCheckbox.checked = isLunarValue === 'on' || isLunarValue === 'true' || isLunarValue === true;
+                    }
+                }
+
+                // 첫 번째 사람 정보 입력란에 자동으로 채우기
+                document.getElementById('person1_name').value = formData.get('name') || '';
+                document.getElementById('person1_birth_date').value = formData.get('birth_date') || '';
+                document.getElementById('person1_birth_time').value = formData.get('birth_time') || '';
+                document.getElementById('person1_gender').value = formData.get('gender') || '';
+                const person1IsLunarValue = formData.get('is_lunar');
+                document.getElementById('person1_is_lunar').checked = person1IsLunarValue === 'on' || person1IsLunarValue === 'true' || person1IsLunarValue === true;
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+            } else {
+                if (errorDiv) {
+                    errorDiv.textContent = data.detail || '오류가 발생했습니다.';
+                    errorDiv.style.display = 'block';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            if (errorDiv) {
+                errorDiv.textContent = '네트워크 오류가 발생했습니다.';
+                errorDiv.style.display = 'block';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+        }
+    });
+
+    // API Key 입력 처리 (저장하지 않고 입력값만 사용)
+    // 디바운스를 위해 setTimeout 사용
+    let apiKeyInputTimeout = null;
+    document.getElementById('api-key-input')?.addEventListener('input', function () {
+        const apiKey = this.value.trim();
+        const statusDiv = document.getElementById('api-key-status');
+
+        // 디바운스: 입력이 멈춘 후 500ms 후에 처리
+        if (apiKeyInputTimeout) {
+            clearTimeout(apiKeyInputTimeout);
+        }
+
+        apiKeyInputTimeout = setTimeout(() => {
+            if (apiKey) {
+                if (statusDiv) {
+                    statusDiv.textContent = '✓ API Key가 입력되었습니다. 궁합을 다시 계산하면 AI 분석이 실행됩니다.';
+                    statusDiv.style.color = '#2ecc71';
+                    statusDiv.style.display = 'block';
+                }
+
+                // API Key 입력 후, 궁합 결과가 이미 표시되어 있으면 다시 계산
+                const resultContainer = document.getElementById('result-container');
+                const calculateBtn = document.getElementById('calculate-btn');
+                if (resultContainer && resultContainer.style.display !== 'none' && calculateBtn) {
+                    setTimeout(() => {
+                        calculateBtn.click();
+                    }, 500);
+                }
+            } else {
+                if (statusDiv) {
+                    statusDiv.style.display = 'none';
+                }
+            }
+        }, 500);
+    });
+
+    // 궁합 계산 버튼 클릭 이벤트
+    document.getElementById('calculate-btn')?.addEventListener('click', async function () {
+        const errorDiv = document.getElementById('form-error');
+        const resultContainer = document.getElementById('result-container');
+        const emptyState = document.getElementById('empty-state');
+        const calculateBtn = this;
+
+        // 유효성 검사
+        const person1_name = document.getElementById('person1_name').value.trim();
+        const person1_gender = document.getElementById('person1_gender').value;
+        const person2_name = document.getElementById('person2_name').value.trim();
+        const person2_gender = document.getElementById('person2_gender').value;
+
+        if (!person1_name || person1_gender === '') {
+            if (errorDiv) {
+                errorDiv.textContent = '첫 번째 사람의 이름과 성별을 입력해주세요.';
+                errorDiv.style.display = 'block';
+            }
+            return;
+        }
+
+        if (!person2_name || person2_gender === '') {
+            if (errorDiv) {
+                errorDiv.textContent = '두 번째 사람의 이름과 성별을 입력해주세요.';
+                errorDiv.style.display = 'block';
+            }
+            return;
+        }
+
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+
+        // 로딩 표시
+        calculateBtn.disabled = true;
+        calculateBtn.textContent = '계산 중...';
+        if (emptyState) emptyState.style.display = 'none';
+        if (resultContainer) {
+            resultContainer.style.display = 'block';
+            resultContainer.innerHTML = `
+            <div class="glass-card">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">궁합을 계산하고 있습니다...</p>
+                </div>
+            </div>
+        `;
+        }
+
+        try {
+            // 첫 번째 사람 사주 계산
+            const form1 = document.getElementById('person1-form');
+            const formData1 = new FormData(form1);
+
+            const response1 = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData1,
+                credentials: 'same-origin'
+            });
+
+            const data1 = await response1.json();
+            if (!response1.ok || !data1.success) {
+                throw new Error(data1.detail || '첫 번째 사람의 사주 계산 중 오류가 발생했습니다.');
+            }
+
+            // 두 번째 사람 사주 계산
+            const form2 = document.getElementById('person2-form');
+            const formData2 = new FormData(form2);
+
+            const response2 = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData2,
+                credentials: 'same-origin'
+            });
+
+            const data2 = await response2.json();
+            if (!response2.ok || !data2.success) {
+                throw new Error(data2.detail || '두 번째 사람의 사주 계산 중 오류가 발생했습니다.');
+            }
+
+            // 궁합 계산
+            const gonghapResponse = await fetch('/api/gonghap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    person1_pillars_data: data1.data.pillars_data,
+                    person1_pillars_info: data1.data.pillars_info,
+                    person1_gender: person1_gender,
+                    person2_pillars_data: data2.data.pillars_data,
+                    person2_pillars_info: data2.data.pillars_info,
+                    person2_gender: person2_gender
+                })
+            });
+
+            let gonghapData;
+            const contentType = gonghapResponse.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                gonghapData = await gonghapResponse.json();
+            } else {
+                // JSON이 아닌 응답 (예: HTML 에러 페이지) 처리
+                const text = await gonghapResponse.text();
+                console.error('Non-JSON response from /api/gonghap:', text);
+
+                // 503 에러에 대한 특별 처리
+                if (gonghapResponse.status === 503) {
+                    throw new Error('서버가 현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                }
+
+                throw new Error(`서버 응답 형식이 올바르지 않습니다. (HTTP ${gonghapResponse.status})`);
+            }
+
+            if (!gonghapResponse.ok || !gonghapData.success) {
+                let errorMessage = gonghapData.detail || '궁합 계산 중 오류가 발생했습니다.';
+                if (gonghapResponse.status === 503) {
+                    errorMessage = '서버가 현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.';
+                }
+                throw new Error(errorMessage);
+            }
+
+            // 결과 표시
+            renderGonghapResult(person1_name, person2_name, data1.data.pillars_data, data2.data.pillars_data, gonghapData.data);
+
+            // 기본 궁합 결과 저장 (AI 분석용)
+            window.lastGonghapData = {
+                gonghap_data: gonghapData.data,
+                person1_pillars_data: data1.data.pillars_data,
+                person1_pillars_info: data1.data.pillars_info,
+                person2_pillars_data: data2.data.pillars_data,
+                person2_pillars_info: data2.data.pillars_info
+            };
+
+            // API Key가 있으면 자동으로 AI 분석 시작 (스트리밍으로 타임아웃 문제 해결)
+            // API Key는 입력 필드에서 직접 가져옴 (저장하지 않음)
+            const apiKeyInput = document.getElementById('api-key-input');
+            const currentApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+            if (currentApiKey) {
+                setTimeout(() => {
+                    runGonghapAIAnalysis();
+                }, 500);
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            if (errorDiv) {
+                errorDiv.textContent = error.message || '네트워크 오류가 발생했습니다.';
+                errorDiv.style.display = 'block';
+            }
+            if (resultContainer) {
+                resultContainer.style.display = 'none';
+            }
+            if (emptyState) emptyState.style.display = 'block';
+        } finally {
+            calculateBtn.disabled = false;
+            calculateBtn.textContent = '궁합보기';
+        }
+    });
+
+    // 궁합 결과 렌더링
+    function renderGonghapResult(person1_name, person2_name, person1_pillars_data, person2_pillars_data, gonghap_result) {
+        const resultContainer = document.getElementById('result-container');
+        const emptyState = document.getElementById('empty-state');
+
+        if (!resultContainer) return;
+
+        if (emptyState) emptyState.style.display = 'none';
+        resultContainer.style.display = 'block';
+
+
+
+        const overall_score = gonghap_result.overall_score || 75;
+        const overall_level = gonghap_result.overall_level || '보통';
+        const overall_desc = gonghap_result.overall_desc || '';
+
+        // 공유 버튼 표시
+        const shareDiv = document.getElementById('gonghap-share');
+        if (shareDiv) shareDiv.style.display = 'block';
+
+        // 공유 데이터 설정
+        const shareTitle = `${person1_name}님과 ${person2_name}님의 궁합 결과 - 운세담`;
+        const shareDesc = `두 분의 궁합 점수는 ${overall_score}점입니다! ${overall_level} - ${overall_desc}`;
+
+        window.currentShareData = {
+            title: shareTitle,
+            description: shareDesc,
+            url: window.location.href,
+            text: `${shareTitle}\n${shareDesc}\n\n지금 바로 확인해보세요!`
+        };
+
+        // 점수에 따른 색상
+        let score_color, level_icon;
+        if (overall_score >= 85) {
+            score_color = "#2ecc71";
+            level_icon = "🌟";
+        } else if (overall_score >= 75) {
+            score_color = "#3498db";
+            level_icon = "✨";
+        } else if (overall_score >= 65) {
+            score_color = "#f1c40f";
+            level_icon = "💫";
+        } else if (overall_score >= 50) {
+            score_color = "#e67e22";
+            level_icon = "⭐";
+        } else {
+            score_color = "#e74c3c";
+            level_icon = "⚠️";
+        }
+
+        let html = `
+        <div class="glass-card">
+            <div class="section-header">
+                <span>💕</span> ${person1_name}님과 ${person2_name}님의 궁합
+            </div>
+            
+            <!-- 전체 점수 및 레벨 -->
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 3em; font-weight: bold; color: ${score_color}; margin-bottom: 0.5rem;">${overall_score}점</div>
+                <div style="font-size: 1.5em; font-weight: bold; color: #D4AF37; margin-bottom: 1rem;">${level_icon} ${overall_level}</div>
+                <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em;">${overall_desc}</div>
+            </div>
+            
+            <!-- 사주 비교 테이블 -->
+            <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">📊 사주 비교</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem;">
+                <thead>
+                    <tr style="background: rgba(212,175,55,0.1);">
+                        <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid var(--border-gold); color: var(--gold-primary);">구분</th>
+                        <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid var(--border-gold); color: var(--gold-primary);">${person1_name}</th>
+                        <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid var(--border-gold); color: var(--gold-primary);">${person2_name}</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+        const pillar_names = ["년주", "월주", "일주", "시주"];
+        for (let i = 0; i < 4; i++) {
+            const p1_stem = person1_pillars_data[i]?.Heavenly_Stem || person1_pillars_data[i]?.['Heavenly Stem (천간)'] || '-';
+            const p1_branch = person1_pillars_data[i]?.Earthly_Branch || person1_pillars_data[i]?.['Earthly Branch (지지)'] || '-';
+            const p2_stem = person2_pillars_data[i]?.Heavenly_Stem || person2_pillars_data[i]?.['Heavenly Stem (천간)'] || '-';
+            const p2_branch = person2_pillars_data[i]?.Earthly_Branch || person2_pillars_data[i]?.['Earthly Branch (지지)'] || '-';
+
+            html += `
+            <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
+                <td style="padding: 0.75rem; color: var(--text-primary);">${pillar_names[i]}</td>
+                <td style="padding: 0.75rem; color: var(--text-primary);">${p1_stem}${p1_branch}</td>
+                <td style="padding: 0.75rem; color: var(--text-primary);">${p2_stem}${p2_branch}</td>
+            </tr>
+        `;
+        }
+
+        html += `
+                </tbody>
+            </table>
+            
+            <!-- 기둥별 상세 궁합 분석 -->
+            <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">🔍 기둥별 궁합 분석</h3>
+    `;
+
+        // 기둥별 궁합 분석
+        if (gonghap_result.pillar_compatibilities && gonghap_result.pillar_compatibilities.length > 0) {
+            for (const pillar_compat of gonghap_result.pillar_compatibilities) {
+                const score = pillar_compat.score || 50;
+                const level = pillar_compat.level || '보통';
+                const analysis = pillar_compat.analysis || '';
+
+                let bg_color, border_color;
+                if (score >= 85) {
+                    bg_color = "rgba(46, 204, 113, 0.2)";
+                    border_color = "#2ecc71";
+                } else if (score >= 75) {
+                    bg_color = "rgba(52, 152, 219, 0.2)";
+                    border_color = "#3498db";
+                } else if (score >= 65) {
+                    bg_color = "rgba(241, 196, 15, 0.2)";
+                    border_color = "#f1c40f";
+                } else if (score >= 50) {
+                    bg_color = "rgba(230, 126, 34, 0.2)";
+                    border_color = "#e67e22";
+                } else {
+                    bg_color = "rgba(231, 76, 60, 0.2)";
+                    border_color = "#e74c3c";
+                }
+
+                html += `
+                <div style="padding: 1rem; margin: 0.5rem 0; background: ${bg_color}; border-left: 4px solid ${border_color}; border-radius: 6px;">
+                    <div style="font-weight: bold; font-size: 1.1em; color: #D4AF37; margin-bottom: 0.5rem;">
+                        ${pillar_compat.pillar} 궁합: ${score}점 (${level})
+                    </div>
+                    <div style="color: #E2E8F0; line-height: 1.6; font-size: 0.95em;">
+                        ${analysis}
+                    </div>
+                </div>
+            `;
+            }
+        }
+
+        // 지지 관계 분석
+        if (gonghap_result.branch_relationships && gonghap_result.branch_relationships.length > 0) {
+            html += `
+            <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">🔗 지지 관계 분석</h3>
+        `;
+            for (const relation of gonghap_result.branch_relationships) {
+                html += `
+                <div style="padding: 0.75rem; margin: 0.5rem 0; background: rgba(52, 152, 219, 0.1); border-radius: 6px; color: #E2E8F0;">
+                    • ${relation}
+                </div>
+            `;
+            }
+        }
+
+        // 십성 분석
+        if (gonghap_result.ten_god_analysis && gonghap_result.ten_god_analysis.length > 0) {
+            html += `
+            <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">🎯 십성 관계 분석</h3>
+        `;
+            for (const ten_god of gonghap_result.ten_god_analysis) {
+                html += `
+                <div style="padding: 0.75rem; margin: 0.5rem 0; color: #E2E8F0;">
+                    • ${ten_god}
+                </div>
+            `;
+            }
+        }
+
+        // 강점과 약점
+        if (gonghap_result.strengths && gonghap_result.strengths.length > 0) {
+            html += `
+            <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">✅ 장점</h3>
+        `;
+            for (const strength of gonghap_result.strengths) {
+                html += `
+                <div style="padding: 0.75rem; margin: 0.5rem 0; background: rgba(46, 204, 113, 0.1); border-radius: 6px; color: #E2E8F0;">
+                    • ${strength}
+                </div>
+            `;
+            }
+        }
+
+        if (gonghap_result.weaknesses && gonghap_result.weaknesses.length > 0) {
+            html += `
+            <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">⚠️ 주의사항</h3>
+        `;
+            for (const weakness of gonghap_result.weaknesses) {
+                html += `
+                <div style="padding: 0.75rem; margin: 0.5rem 0; background: rgba(241, 196, 15, 0.1); border-radius: 6px; color: #E2E8F0;">
+                    • ${weakness}
+                </div>
+            `;
+            }
+        }
+
+        // 상세 가이드
+        if (gonghap_result.detailed_guidance) {
+            const guidance = gonghap_result.detailed_guidance;
+            html += `
+            <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">💡 관계 가이드</h3>
+            <h4 style="color: var(--gold-primary); margin-top: 1rem; margin-bottom: 0.5rem;">💬 소통</h4>
+            <div style="padding: 0.75rem; margin: 0.5rem 0; background: rgba(52, 152, 219, 0.1); border-radius: 6px; color: #E2E8F0;">
+                ${guidance.communication || ''}
+            </div>
+            <h4 style="color: var(--gold-primary); margin-top: 1rem; margin-bottom: 0.5rem;">🤝 관계 유지</h4>
+            <div style="padding: 0.75rem; margin: 0.5rem 0; background: rgba(52, 152, 219, 0.1); border-radius: 6px; color: #E2E8F0;">
+                ${guidance.relationship || ''}
+            </div>
+            <h4 style="color: var(--gold-primary); margin-top: 1rem; margin-bottom: 0.5rem;">🛠️ 갈등 해결</h4>
+            <div style="padding: 0.75rem; margin: 0.5rem 0; background: rgba(52, 152, 219, 0.1); border-radius: 6px; color: #E2E8F0;">
+                ${guidance.conflict_resolution || ''}
+            </div>
+            <h4 style="color: var(--gold-primary); margin-top: 1rem; margin-bottom: 0.5rem;">📈 함께 성장하기</h4>
+            <div style="padding: 0.75rem; margin: 0.5rem 0; background: rgba(52, 152, 219, 0.1); border-radius: 6px; color: #E2E8F0;">
+                ${guidance.growth || ''}
+            </div>
+        `;
+        }
+
+        // 조언
+        if (gonghap_result.advice) {
+            html += `
+            <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">🌟 종합 조언</h3>
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.15); border-radius: 8px; border-left: 4px solid #D4AF37;">
+                <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em;">
+                    ${gonghap_result.advice}
+                </div>
+            </div>
+        `;
+        }
+
+        // AI 분석 결과 표시
+        if (gonghap_result.is_ai_analysis && gonghap_result.ai_analysis && !gonghap_result.ai_analysis.error) {
+            const aiAnalysis = gonghap_result.ai_analysis;
+            html += `
+            <div id="gonghap-ai-analysis" style="margin-top: 2rem;">
+                <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🤖 AI 상세 분석</h3>
+        `;
+
+            // Overview
+            if (aiAnalysis.overview) {
+                html += `
+                <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                    <h4 style="color: #D4AF37; margin-bottom: 1rem;">📋 전체 요약</h4>
+                    <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em; margin-bottom: 1rem;">
+                        ${aiAnalysis.overview.summary || ''}
+                    </div>
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">핵심 테마: ${aiAnalysis.overview.keyTheme || ''}</div>
+                    <div style="color: #E2E8F0;">전체 평가: ${aiAnalysis.overview.overallLevel || ''}</div>
+                </div>
+            `;
+            }
+
+            // Detailed Analysis
+            if (aiAnalysis.detailedAnalysis) {
+                html += `
+                <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                    <h4 style="color: #D4AF37; margin-bottom: 1rem;">🔍 상세 분석</h4>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">💪 관계의 강점</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.detailedAnalysis.strengths || ''}</div>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">⚠️ 도전과제</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.detailedAnalysis.challenges || ''}</div>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">🔄 호환성</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.detailedAnalysis.compatibility || ''}</div>
+                    </div>
+                    <div>
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">📈 성장 가능성</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.detailedAnalysis.growthPotential || ''}</div>
+                    </div>
+                </div>
+            `;
+            }
+
+            // Life Aspects
+            if (aiAnalysis.lifeAspects) {
+                html += `
+                <h4 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">🎯 생활 영역별 궁합</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            `;
+                if (aiAnalysis.lifeAspects.career) {
+                    html += `
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">💼 직업/사업</div>
+                        <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.career}</div>
+                    </div>
+                `;
+                }
+                if (aiAnalysis.lifeAspects.wealth) {
+                    html += `
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">💰 재물/금전</div>
+                        <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.wealth}</div>
+                    </div>
+                `;
+                }
+                if (aiAnalysis.lifeAspects.relationships) {
+                    html += `
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">❤️ 인간관계/애정</div>
+                        <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.relationships}</div>
+                    </div>
+                `;
+                }
+                if (aiAnalysis.lifeAspects.health) {
+                    html += `
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">🏥 건강</div>
+                        <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.health}</div>
+                    </div>
+                `;
+                }
+                if (aiAnalysis.lifeAspects.family) {
+                    html += `
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">👨‍👩‍👧‍👦 가족</div>
+                        <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.family}</div>
+                    </div>
+                `;
+                }
+                html += `</div>`;
+            }
+
+            // Communication
+            if (aiAnalysis.communication) {
+                html += `
+                <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                    <h4 style="color: #D4AF37; margin-bottom: 1rem;">💬 소통 분석</h4>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">소통 스타일</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.communication.style || ''}</div>
+                    </div>
+                    <div>
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">소통 팁</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.communication.tips || ''}</div>
+                    </div>
+                </div>
+            `;
+            }
+
+            // Relationship Guidance
+            if (aiAnalysis.relationshipGuidance) {
+                html += `
+                <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                    <h4 style="color: #D4AF37; margin-bottom: 1rem;">💡 관계 가이드</h4>
+            `;
+                if (aiAnalysis.relationshipGuidance.do && aiAnalysis.relationshipGuidance.do.length > 0) {
+                    html += `
+                    <div style="margin-bottom: 1rem;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">✅ 해야 할 일</div>
+                        <ul style="color: #E2E8F0; line-height: 1.8; padding-left: 1.5rem;">
+                            ${aiAnalysis.relationshipGuidance.do.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                }
+                if (aiAnalysis.relationshipGuidance.avoid && aiAnalysis.relationshipGuidance.avoid.length > 0) {
+                    html += `
+                    <div style="margin-bottom: 1rem;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">⚠️ 피해야 할 일</div>
+                        <ul style="color: #E2E8F0; line-height: 1.8; padding-left: 1.5rem;">
+                            ${aiAnalysis.relationshipGuidance.avoid.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                }
+                if (aiAnalysis.relationshipGuidance.specialAdvice) {
+                    html += `
+                    <div>
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">🌟 특별 조언</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.relationshipGuidance.specialAdvice}</div>
+                    </div>
+                `;
+                }
+                html += `</div>`;
+            }
+
+            // Long Term Outlook
+            if (aiAnalysis.longTermOutlook) {
+                html += `
+                <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                    <h4 style="color: #D4AF37; margin-bottom: 1rem;">📅 장기 전망</h4>
+            `;
+                if (aiAnalysis.longTermOutlook.shortTerm) {
+                    html += `
+                    <div style="margin-bottom: 1rem;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">📆 단기 전망 (1-2년)</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.longTermOutlook.shortTerm}</div>
+                    </div>
+                `;
+                }
+                if (aiAnalysis.longTermOutlook.mediumTerm) {
+                    html += `
+                    <div style="margin-bottom: 1rem;">
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">📅 중기 전망 (3-5년)</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.longTermOutlook.mediumTerm}</div>
+                    </div>
+                `;
+                }
+                if (aiAnalysis.longTermOutlook.longTerm) {
+                    html += `
+                    <div>
+                        <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">🔮 장기 전망 (5년 이상)</div>
+                        <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.longTermOutlook.longTerm}</div>
+                    </div>
+                `;
+                }
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+        }
+
+        html += `
+        </div>
+    `;
+
+        resultContainer.innerHTML = html;
+
+        // API Key가 없고 AI 분석 결과도 없을 때만 안내 메시지 표시
+        // (API Key가 있으면 자동으로 AI 분석이 시작되므로 안내 문구를 표시하지 않음)
+        // API Key는 입력 필드에서 직접 가져옴 (저장하지 않음)
+        if (!gonghap_result.is_ai_analysis) {
+            const apiKeyInput = document.getElementById('api-key-input');
+            const currentApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+            if (!currentApiKey) {
+                const apiKeyMessage = document.createElement('div');
+                apiKeyMessage.style.cssText = 'margin-top: 2rem; padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; border-left: 4px solid #D4AF37;';
+                apiKeyMessage.innerHTML = `
+                <div style="color: #F9E79F; line-height: 1.8; font-size: 1.05em;">
+                    💡 더 상세한 AI 분석을 받으시려면 좌측 메뉴에서 OpenAI API Key를 입력해주세요.
+                </div>
+            `;
+                resultContainer.appendChild(apiKeyMessage);
+            }
+        }
+    }
+
+    // 궁합 AI 분석 실행
+    async function runGonghapAIAnalysis() {
+        const aiAnalysisContainer = document.getElementById('gonghap-ai-analysis-container') || document.getElementById('result-container');
+        if (!aiAnalysisContainer) return;
+
+        const gonghapData = window.lastGonghapData;
+        if (!gonghapData || !gonghapData.gonghap_data) {
+            console.error('궁합 데이터가 없습니다.');
+            return;
+        }
+
+        // AI 분석 영역 생성
+        let aiAnalysisDiv = document.getElementById('gonghap-ai-analysis');
+        if (!aiAnalysisDiv) {
+            aiAnalysisDiv = document.createElement('div');
+            aiAnalysisDiv.id = 'gonghap-ai-analysis';
+            aiAnalysisDiv.style.marginTop = '2rem';
+
+            if (aiAnalysisContainer.id === 'gonghap-ai-analysis-container') {
+                aiAnalysisContainer.appendChild(aiAnalysisDiv);
+            } else {
+                // result-container에 추가
+                aiAnalysisContainer.insertAdjacentElement('beforeend', aiAnalysisDiv);
+            }
+        }
+
+        // 로딩 표시
+        aiAnalysisDiv.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p style="margin-top: 1rem; color: var(--text-muted);">궁합을 상세하게 분석하고 있습니다... (약 15-20초 소요)</p>
+        </div>
+    `;
+
+        try {
+            console.log('궁합 AI 분석 요청:', {
+                has_gonghap_data: !!gonghapData.gonghap_data,
+                has_person1_pillars: !!gonghapData.person1_pillars_data,
+                has_person2_pillars: !!gonghapData.person2_pillars_data
+            });
+
+            // API Key는 입력 필드에서 직접 가져옴 (저장하지 않음)
+            const apiKeyInput = document.getElementById('api-key-input');
+            const currentApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+
+            if (!currentApiKey) {
+                throw new Error('OpenAI API Key를 입력해주세요.');
+            }
+
+            const response = await fetch('/api/gonghap-ai-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    api_key: currentApiKey,  // API Key를 요청 본문에 포함
+                    gonghap_data: gonghapData.gonghap_data,
+                    person1_pillars_data: gonghapData.person1_pillars_data,
+                    person1_pillars_info: gonghapData.person1_pillars_info,
+                    person2_pillars_data: gonghapData.person2_pillars_data,
+                    person2_pillars_info: gonghapData.person2_pillars_info
+                })
+            });
+
+            // 스트리밍 응답 처리
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('text/event-stream')) {
+                // SSE 스트리밍 처리
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let accumulatedText = '';
+                let fullData = null;
+
+                try {
+                    let buffer = '';
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';
+
+                        for (const line of lines) {
+                            if (!line.trim()) continue;
+
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const jsonStr = line.substring(6).trim();
+                                    if (!jsonStr) continue;
+
+                                    const data = JSON.parse(jsonStr);
+
+                                    if (data.type === 'start') {
+                                        accumulatedText = '';
+                                        console.log('궁합 스트리밍 시작');
+                                    } else if (data.type === 'chunk') {
+                                        if (data.content) {
+                                            accumulatedText += data.content;
+                                        }
+                                    } else if (data.type === 'complete') {
+                                        fullData = data.data;
+                                        console.log('궁합 스트리밍 완료:', fullData ? '데이터 수신' : '데이터 없음');
+                                    } else if (data.type === 'error') {
+                                        throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.');
+                                    }
+                                } catch (parseError) {
+                                    console.error('스트리밍 데이터 파싱 오류:', parseError, 'Line:', line);
+                                }
+                            }
+                        }
+                    }
+
+                    // 버퍼에 남은 데이터 처리
+                    if (buffer.trim() && buffer.startsWith('data: ')) {
+                        try {
+                            const jsonStr = buffer.substring(6).trim();
+                            if (jsonStr) {
+                                const data = JSON.parse(jsonStr);
+                                if (data.type === 'complete') {
+                                    fullData = data.data;
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.');
+                                }
+                            }
+                        } catch (e) {
+                            console.error('버퍼 데이터 파싱 오류:', e);
+                        }
+                    }
+
+                    // 최종 결과 렌더링
+                    if (fullData) {
+                        renderGonghapAIAnalysis(fullData);
+                    } else if (accumulatedText) {
+                        try {
+                            const parsed = JSON.parse(accumulatedText);
+                            renderGonghapAIAnalysis(parsed);
+                        } catch (e) {
+                            console.error('누적 텍스트 파싱 오류:', e);
+                            throw new Error('AI 분석 결과를 파싱할 수 없습니다.');
+                        }
+                    } else {
+                        throw new Error('AI 분석 결과를 받지 못했습니다.');
+                    }
+                } catch (streamError) {
+                    console.error('스트리밍 처리 오류:', streamError);
+                    throw streamError;
+                }
+            } else if (contentType && contentType.includes('application/json')) {
+                // 기존 JSON 응답 처리 (하위 호환성)
+                const data = await response.json();
+                if (response.ok && data.success && data.data && data.data.is_ai_analysis) {
+                    // JSON 응답에서 AI 분석 결과 렌더링
+                    // 이 경우는 없을 것 같지만, 안전하게 처리
+                } else {
+                    throw new Error(data.detail || 'AI 분석 중 오류가 발생했습니다.');
+                }
+            } else {
+                const text = await response.text();
+                console.error('Non-JSON response from /api/gonghap-ai-analysis:', text);
+                if (response.status === 503) {
+                    throw new Error('서버가 현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                }
+                throw new Error(`서버 응답 형식이 올바르지 않습니다. (HTTP ${response.status})`);
+            }
+        } catch (error) {
+            console.error('궁합 AI 분석 오류:', error);
+            let errorMessage = error.message || '알 수 없는 오류';
+            if (errorMessage.includes('503') || errorMessage.includes('Service Unavailable')) {
+                errorMessage = '서버가 현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.';
+            }
+
+            aiAnalysisDiv.innerHTML = `
+            <div style="padding: 1.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">
+                <div style="font-weight: bold; margin-bottom: 0.5rem;">⚠️ AI 분석 중 오류가 발생했습니다</div>
+                <div style="font-size: 0.9em; line-height: 1.6;">${errorMessage}</div>
+                <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3); border-radius: 6px; color: #F9E79F; font-size: 0.85em;">
+                    💡 기본 궁합 결과는 위에 표시되어 있습니다. AI 분석은 나중에 다시 시도해주세요.
+                </div>
+            </div>
+        `;
+        }
+    }
+
+    // 궁합 AI 분석 결과 렌더링
+    function renderGonghapAIAnalysis(aiAnalysis) {
+        const aiAnalysisDiv = document.getElementById('gonghap-ai-analysis');
+        if (!aiAnalysisDiv || !aiAnalysis || aiAnalysis.error) {
+            return;
+        }
+
+        let html = `
+        <h3 style="color: var(--gold-primary); margin-top: 2rem; margin-bottom: 1rem;">🤖 AI 상세 분석</h3>
+    `;
+
+        // Overview
+        if (aiAnalysis.overview) {
+            html += `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: #D4AF37; margin-bottom: 1rem;">📋 전체 요약</h4>
+                <div style="color: #E2E8F0; line-height: 1.8; font-size: 1.05em; margin-bottom: 1rem;">
+                    ${aiAnalysis.overview.summary || ''}
+                </div>
+                <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">핵심 테마: ${aiAnalysis.overview.keyTheme || ''}</div>
+                <div style="color: #E2E8F0;">전체 평가: ${aiAnalysis.overview.overallLevel || ''}</div>
+            </div>
+        `;
+        }
+
+        // Detailed Analysis
+        if (aiAnalysis.detailedAnalysis) {
+            html += `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: #D4AF37; margin-bottom: 1rem;">🔍 상세 분석</h4>
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">💪 관계의 강점</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.detailedAnalysis.strengths || ''}</div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">⚠️ 도전과제</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.detailedAnalysis.challenges || ''}</div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">🔄 호환성</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.detailedAnalysis.compatibility || ''}</div>
+                </div>
+                <div>
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">📈 성장 가능성</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.detailedAnalysis.growthPotential || ''}</div>
+                </div>
+            </div>
+        `;
+        }
+
+        // Life Aspects
+        if (aiAnalysis.lifeAspects) {
+            html += `
+            <h4 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">🎯 생활 영역별 궁합</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        `;
+            if (aiAnalysis.lifeAspects.career) {
+                html += `
+                <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">💼 직업/사업</div>
+                    <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.career}</div>
+                </div>
+            `;
+            }
+            if (aiAnalysis.lifeAspects.wealth) {
+                html += `
+                <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">💰 재물/금전</div>
+                    <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.wealth}</div>
+                </div>
+            `;
+            }
+            if (aiAnalysis.lifeAspects.relationships) {
+                html += `
+                <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">❤️ 인간관계/애정</div>
+                    <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.relationships}</div>
+                </div>
+            `;
+            }
+            if (aiAnalysis.lifeAspects.health) {
+                html += `
+                <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">🏥 건강</div>
+                    <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.health}</div>
+                </div>
+            `;
+            }
+            if (aiAnalysis.lifeAspects.family) {
+                html += `
+                <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 8px;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">👨‍👩‍👧‍👦 가족</div>
+                    <div style="color: #E2E8F0; line-height: 1.8; font-size: 0.95em;">${aiAnalysis.lifeAspects.family}</div>
+                </div>
+            `;
+            }
+            html += `</div>`;
+        }
+
+        // Communication
+        if (aiAnalysis.communication) {
+            html += `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: #D4AF37; margin-bottom: 1rem;">💬 소통 분석</h4>
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">소통 스타일</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.communication.style || ''}</div>
+                </div>
+                <div>
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">소통 팁</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.communication.tips || ''}</div>
+                </div>
+            </div>
+        `;
+        }
+
+        // Relationship Guidance
+        if (aiAnalysis.relationshipGuidance) {
+            html += `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: #D4AF37; margin-bottom: 1rem;">💡 관계 가이드</h4>
+        `;
+            if (aiAnalysis.relationshipGuidance.do && aiAnalysis.relationshipGuidance.do.length > 0) {
+                html += `
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">✅ 해야 할 일</div>
+                    <ul style="color: #E2E8F0; line-height: 1.8; padding-left: 1.5rem;">
+                        ${aiAnalysis.relationshipGuidance.do.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            }
+            if (aiAnalysis.relationshipGuidance.avoid && aiAnalysis.relationshipGuidance.avoid.length > 0) {
+                html += `
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">⚠️ 피해야 할 일</div>
+                    <ul style="color: #E2E8F0; line-height: 1.8; padding-left: 1.5rem;">
+                        ${aiAnalysis.relationshipGuidance.avoid.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            }
+            if (aiAnalysis.relationshipGuidance.specialAdvice) {
+                html += `
+                <div>
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">🌟 특별 조언</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.relationshipGuidance.specialAdvice}</div>
+                </div>
+            `;
+            }
+            html += `</div>`;
+        }
+
+        // Long Term Outlook
+        if (aiAnalysis.longTermOutlook) {
+            html += `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: #D4AF37; margin-bottom: 1rem;">📅 장기 전망</h4>
+        `;
+            if (aiAnalysis.longTermOutlook.shortTerm) {
+                html += `
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">📆 단기 전망 (1-2년)</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.longTermOutlook.shortTerm}</div>
+                </div>
+            `;
+            }
+            if (aiAnalysis.longTermOutlook.mediumTerm) {
+                html += `
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">📅 중기 전망 (3-5년)</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.longTermOutlook.mediumTerm}</div>
+                </div>
+            `;
+            }
+            if (aiAnalysis.longTermOutlook.longTerm) {
+                html += `
+                <div>
+                    <div style="color: #D4AF37; font-weight: bold; margin-bottom: 0.5rem;">🔮 장기 전망 (5년 이상)</div>
+                    <div style="color: #E2E8F0; line-height: 1.8;">${aiAnalysis.longTermOutlook.longTerm}</div>
+                </div>
+            `;
+            }
+            html += `</div>`;
+        }
+
+        aiAnalysisDiv.innerHTML = html;
+    }
+
+    // 스피너 애니메이션
+    const style = document.createElement('style');
+    style.textContent = `
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

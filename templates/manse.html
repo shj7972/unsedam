@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{% include "includes/sidebar_input.html" %}
+
+<!-- Sidebar Banner -->
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<!-- 우측: 만세력 달력 -->
+<div class="result-container">
+    <!-- 컨텐츠 상단 배너 -->
+
+
+    <div class="glass-card">
+        <div class="section-header">
+            <span>📅</span> 만세력
+        </div>
+
+        <!-- 년월 선택 및 네비게이션 -->
+        <div
+            style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 0.5rem; margin-bottom: 1.5rem; align-items: center;">
+            <button id="today-btn"
+                style="padding: 0.75rem; background: var(--gold-gradient); border: none; border-radius: 8px; color: var(--bg-dark); font-weight: bold; cursor: pointer;">
+                오늘
+            </button>
+
+            <div style="display: grid; grid-template-columns: 1fr 3fr 1fr; gap: 0.5rem; align-items: center;">
+                <button id="prev-month-btn"
+                    style="padding: 0.75rem; background: rgba(212,175,55,0.2); border: 1px solid var(--border-gold); border-radius: 8px; color: var(--gold-primary); font-weight: bold; cursor: pointer;">
+                    ◀
+                </button>
+                <div id="year-month-display"
+                    style="text-align: center; font-size: 1.2em; font-weight: bold; color: #D4AF37; padding: 0.5rem;">
+                    {{ year }}.{{ "%02d"|format(month) }}
+                </div>
+                <button id="next-month-btn"
+                    style="padding: 0.75rem; background: rgba(212,175,55,0.2); border: 1px solid var(--border-gold); border-radius: 8px; color: var(--gold-primary); font-weight: bold; cursor: pointer;">
+                    ▶
+                </button>
+            </div>
+
+            <div></div>
+        </div>
+
+        <!-- 옵션 체크박스 -->
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <label style="display: flex; align-items: center; color: var(--text-primary);">
+                <input type="checkbox" id="show-lunar" checked style="margin-right: 0.5rem;">
+                음력
+            </label>
+            <label style="display: flex; align-items: center; color: var(--text-primary);">
+                <input type="checkbox" id="show-ganji" checked style="margin-right: 0.5rem;">
+                간지(干支)
+            </label>
+        </div>
+
+        <!-- 달력 표시 영역 -->
+        <div id="calendar-container">
+            <!-- 달력이 여기에 동적으로 로드됩니다 -->
+        </div>
+
+        <!-- 공유하기 버튼 영역 -->
+        <div id="manse-share" style="display: none; margin-top: 1.5rem;">
+            {% include "includes/share_buttons.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 페이지 초기 설정
+    window.MANSE_CONFIG = {
+        initialYear: {{ year }},
+    initialMonth: { { month } }
+    };
+
+    // 사주 데이터 업데이트 시 달력 리로드
+    document.addEventListener('sajuUpdated', function (e) {
+        if (e.detail.success) {
+            loadCalendar();
+        }
+    });
+
+    // 스피너 애니메이션 (이미 app.js에 있거나 스타일로 정의된 경우 중복일 수 있으나 안전을 위해 유지)
+    // 하지만 app.js나 다른 곳에 전역으로 있다면 제거 가능. 여기선 일단 둡니다.
+</script>
+<script src="/static/js/pages/manse.js?v=1.1"></script>
+{% endblock %}

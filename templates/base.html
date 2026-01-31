@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5L9BYCWJXE"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2947913248390883"
+        crossorigin="anonymous"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-5L9BYCWJXE');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon.png">
+    <link rel="shortcut icon" href="/static/images/favicon.png">
+    <link rel="apple-touch-icon" href="/static/images/favicon.png">
+
+    <!-- SEO 메타 태그 -->
+    <title>{{ meta.title }}</title>
+    <meta name="description" content="{{ meta.description }}">
+    <meta name="keywords" content="{{ meta.keywords }}">
+    <meta name="author" content="{{ meta.author }}">
+    <meta name="robots" content="index, follow">
+
+    <!-- 네이버 웹마스터 도구 -->
+    <meta name="naver-site-verification" content="43dc017823a9c46420c367e23e62c5a3f0e0d99c" />
+
+    <!-- 다음 웹마스터 도구 -->
+    <meta name="daum-site-verification"
+        content="42858a913fc55df5e2dc9371b659ac47ba48ec6bb332cb43322f947d6e1ac763:1hrba1lpzexyTL25MI8THg==" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ meta.title }}">
+    <meta property="og:description" content="{{ meta.description }}">
+    <meta property="og:url" content="{{ meta.url }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ site_info.name }}">
+    <meta property="og:image" content="{{ site_info.url }}/static/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ site_info.name }} - {{ meta.title }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ meta.title }}">
+    <meta name="twitter:description" content="{{ meta.description }}">
+    <meta name="twitter:image" content="{{ site_info.url }}/static/images/og-image.png">
+    <meta name="twitter:image:alt" content="{{ site_info.name }} - {{ meta.title }}">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ meta.url }}">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}?v=2.0">
+    {% if page == 'ai_saju' or page == 'tojeong' %}
+    <style>
+        /* Streamlit 스타일 호환성을 위한 추가 스타일 */
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+    </style>
+    {% endif %}
+
+    <!-- 구조화된 데이터 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "{{ site_info.name }}",
+        "url": "{{ site_info.url }}",
+        "description": "{{ site_info.description }}",
+        "inLanguage": "{{ site_info.language }}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "{{ site_info.url }}/?page={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+</head>
+
+<body class="app-root">
+    <div class="app-layout">
+        <!-- Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar (Left) -->
+        <aside class="app-sidebar" id="app-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-circle">
+                    <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 40 L50 20 L80 40 M30 40 L30 55 M70 40 L70 55 M40 40 L40 55 M60 40 L60 55"
+                            stroke="#D4AF37" stroke-width="4" stroke-linecap="round" />
+                        <path d="M50 45 C30 55, 70 65, 50 85" stroke="#D4AF37" stroke-width="6" stroke-linecap="round"
+                            fill="none" />
+                        <circle cx="65" cy="45" r="3" fill="#D4AF37" />
+                    </svg>
+                    <div class="logo-text" style="font-size: 1.5rem; margin-top: 10px;">운세담</div>
+                </div>
+            </div>
+
+
+
+            <!-- Page Specific Sidebar Content (Input Forms etc) -->
+            {% block sidebar %}{% endblock %}
+
+
+        </aside>
+
+        <!-- Main Content Area (Right) -->
+        <main class="app-main">
+            <!-- Header (Sticky Top) -->
+            <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="메뉴 열기">
+                ☰
+            </button>
+            <header class="app-header">
+
+                <div class="mobile-header-logo">
+                    운세담
+                </div>
+
+                <nav class="app-nav nav-menu">
+                    {% for page_key, page_name in page_names.items() %}
+                    <a href="/{{ page_key if page_key != 'ai_saju' else '' }}"
+                        class="nav-item {% if page == page_key %}active{% endif %}"
+                        style="text-decoration: none; display: block;">
+                        {{ page_name }}
+                    </a>
+                    {% endfor %}
+                </nav>
+            </header>
+
+            <!-- Page Content -->
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+
+            <!-- Banner Exchange Section -->
+            <!-- Banner Exchange Section -->
+            <div
+                style="text-align: center; padding: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                {% for banner in get_random_banners() %}
+                <a href="{{ banner.href }}" target="_blank" {% if banner.title %}title="{{ banner.title }}" {% endif %}>
+                    <img src="{{ banner.img_src }}" alt="{{ banner.alt }}" width="{{ banner.width }}"
+                        height="{{ banner.height }}" style="{{ banner.style }}">
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Footer -->
+            <div class="footer"
+                style="padding: 2rem 1rem; text-align: center; color: var(--text-dim); font-size: 0.8rem; margin-top: auto;">
+                © 2025 운세담<br>AI 프리미엄 사주 명리
+                <div style="margin-top: 0.5rem; font-size: 0.75rem;">
+                    <a href="/about" style="color: var(--text-dim); text-decoration: none; margin-right: 0.5rem;">사이트
+                        소개</a> |
+                    <a href="/faq"
+                        style="color: var(--text-dim); text-decoration: none; margin-right: 0.5rem; margin-left: 0.5rem;">자주
+                        묻는 질문</a> |
+                    <a href="/privacy"
+                        style="color: var(--text-dim); text-decoration: none; margin-right: 0.5rem; margin-left: 0.5rem;">개인정보처리방침</a>
+                    |
+                    <a href="/terms"
+                        style="color: var(--text-dim); text-decoration: none; margin-left: 0.5rem;">이용약관</a>
+                </div>
+                <div
+                    style="margin-top: 1rem; font-size: 0.7rem; line-height: 1.5; color: var(--text-dim); max-width: 600px; margin-left: auto; margin-right: auto;">
+                    본 서비스는 사주명리학적 데이터를 기반으로 한 AI 분석 결과를 제공하며, 사용자의 선택과 판단에 참고용으로만 활용하시기 바랍니다. 분석 결과에 대한 최종적인 책임은 사용자
+                    본인에게 있습니다.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/js/app.js"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+        integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2txfDWp1HsF3+TEuxocSF9"
+        crossorigin="anonymous"></script>
+    <script src="/static/js/share.js"></script>
+    <script>
+        // Sidebar Toggle Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('app-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', toggleSidebar);
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', toggleSidebar);
+            }
+        });
+    </script>
+</body>
+{% block scripts %}{% endblock %}
+
+</html>

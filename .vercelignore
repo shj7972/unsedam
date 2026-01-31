@@ -1,0 +1,13 @@
+# Aggressively exclude ALL images to stay under 250MB serverless function limit
+static/images/
+
+# Exclude local environments
+venv/
+.env
+.env.local
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+node_modules/

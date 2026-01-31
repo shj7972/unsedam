@@ -1,0 +1,88 @@
+<div class="share-container">
+    <div class="share-title">친구에게 공유하기</div>
+    <div class="share-buttons">
+        <!-- Kakao Share -->
+        <button class="share-btn kakao" onclick="handleShare('kakao')" aria-label="카카오톡 공유">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 3C6.477 3 2 6.477 2 10.765C2 13.618 3.774 16.096 6.49 17.433L5.592 20.73C5.534 20.947 5.764 21.127 5.955 21.01L10.96 17.71C11.3 17.747 11.647 17.765 12 17.765C17.523 17.765 22 14.288 22 10 22 5.712 17.523 3 12 3Z"
+                    fill="#3A1D1D" />
+            </svg>
+        </button>
+
+        <!-- Twitter (X) Share -->
+        <button class="share-btn twitter" onclick="handleShare('twitter')" aria-label="트위터 공유">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M18.244 2.25H21.552L14.325 10.51L22.827 21.75H16.17L10.956 14.933L4.99003 21.75H1.68003L9.41003 12.915L1.25403 2.25H8.08003L12.793 8.481L18.244 2.25ZM17.087 19.769H18.921L7.08403 4.126H5.11403L17.087 19.769Z"
+                    fill="white" />
+            </svg>
+        </button>
+
+        <!-- Copy Link -->
+        <button class="share-btn link" onclick="handleShare('link')" aria-label="링크 복사">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M13.0001 10.9999C13.5222 10.4772 14.1509 10.0815 14.8436 9.83842C15.5363 9.59535 16.2764 9.51065 17.0135 9.59005C17.7505 9.66946 18.4674 9.91113 19.1157 10.2989C19.7641 10.6866 20.3289 11.2113 20.7719 11.8373C21.2149 12.4633 21.5258 13.1764 21.6835 13.9282C21.8413 14.6801 21.8421 15.4533 21.6861 16.1956C21.5301 16.9379 21.2209 17.6321 20.7792 18.2312C20.3375 18.8303 19.7738 19.3204 19.1261 19.6681M10.9999 13.0001C10.4771 13.5228 9.84838 13.9185 9.15571 14.1616C8.46303 14.4046 7.72291 14.4893 6.98587 14.4099C6.24883 14.3305 5.53193 14.0889 4.88359 13.7011C4.23526 13.3134 3.67041 12.7887 3.22742 12.1627C2.78442 11.5367 2.47348 10.8236 2.31575 10.0717C2.15802 9.31989 2.15714 8.54673 2.31317 7.8044C2.4692 7.06207 2.77838 6.36792 3.22008 5.76878C3.66179 5.16964 4.22549 4.67954 4.87321 4.33189M8.00014 16.0001L16.0001 8.00012"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+
+        <!-- Native Share (Mobile) -->
+        <button class="share-btn native" onclick="handleShare('native')" id="native-share-btn" style="display: none;"
+            aria-label="더보기">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M4 12V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V12M16 6L12 2M12 2L8 6M12 2V15"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<script>
+    // 네이티브 공유 지원 여부 확인
+    if (navigator.share) {
+        document.getElementById('native-share-btn').style.display = 'flex';
+    }
+
+    /**
+     * 공유 핸들러 (페이지별로 오버라이드 가능하도록 구성하거나, 여기서 기본 로직 구현)
+     * 실제 사용하는 페이지(예: tojeong.html)에서 window.currentShareData를 설정해야 함.
+     */
+    function handleShare(type) {
+        // 기본 공유 데이터 (현재 페이지 정보)
+        const defaultData = {
+            title: document.title,
+            description: document.querySelector('meta[name="description"]')?.content || '',
+            url: window.location.href,
+            text: document.title + '\n' + (document.querySelector('meta[name="description"]')?.content || '')
+        };
+
+        // 페이지별 커스텀 데이터가 있으면 병합
+        const shareData = window.currentShareData ? { ...defaultData, ...window.currentShareData } : defaultData;
+
+        switch (type) {
+            case 'kakao':
+                ShareUtils.shareKakao({
+                    title: shareData.title,
+                    description: shareData.description,
+                    linkUrl: shareData.url
+                });
+                break;
+            case 'twitter':
+                ShareUtils.shareTwitter(shareData.text, shareData.url);
+                break;
+            case 'link':
+                ShareUtils.copyLink(shareData.url);
+                break;
+            case 'native':
+                ShareUtils.shareNative({
+                    title: shareData.title,
+                    text: shareData.text,
+                    url: shareData.url
+                });
+                break;
+        }
+    }
+</script>

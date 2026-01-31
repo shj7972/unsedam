@@ -1,0 +1,1790 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{% include "includes/sidebar_input.html" %}
+
+<!-- Sidebar Banner -->
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<!-- 우측: 결과 표시 -->
+<div class="result-container">
+    <!-- 컨텐츠 상단 배너 (결과 영역에만 위치) -->
+
+
+    {% if processed and pillars_data %}
+    <!-- 기본 사주 정보 (항상 표시) -->
+    <div id="saju-basic-info">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">사주팔자</h3>
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            {% for pillar in pillars_data %}
+            <div
+                style="padding: 1rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold);">
+                <div style="font-weight: bold; color: var(--gold-primary); margin-bottom: 0.5rem;">
+                    {{ pillar.get('Pillar', '') }}
+                </div>
+                <div style="color: var(--text-primary);">
+                    {{ pillar.get('Heavenly Stem (천간)', '') }} {{ pillar.get('Earthly Branch (지지)', '') }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- AI Result Container -->
+    <div id="ai-result"></div>
+
+    {% else %}
+    <div class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+        <h2 style="color: var(--gold-primary); margin-bottom: 1rem;">당신의 운명 차트를 펼쳐보세요</h2>
+        <p id="hero-subtitle" style="color: var(--text-muted); line-height: 1.8; min-height: 1.8em; font-size: 1.1rem;">
+            <!-- Typing effect will render here -->
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const text = "성함과 생년월일을 입력하시면 프리미엄 AI 사주 분석이 시작됩니다.";
+            const element = document.getElementById('hero-subtitle');
+            let i = 0;
+
+            if (element) {
+                element.innerHTML = '<span class="typing-text"></span><span class="typing-cursor">|</span>';
+                const textSpan = element.querySelector('.typing-text');
+
+                function typeWriter() {
+                    if (i < text.length) {
+                        textSpan.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 50);
+                    } else {
+                        // Blink cursor after typing done
+                        const cursor = element.querySelector('.typing-cursor');
+                        if (cursor) cursor.style.animation = 'blink 1s infinite';
+                    }
+                }
+
+                // Add cursor blink animation style
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+                    .typing-cursor { color: var(--gold-primary); font-weight: bold; margin-left: 5px; }
+                `;
+                document.head.appendChild(style);
+
+                setTimeout(typeWriter, 500);
+            }
+        });
+    </script>
+
+    <!-- SEO Rich Content (초기 화면에만 표시, 결과 렌더링 시 덮어써짐) -->
+    <div id="seo-rich-content-main" class="glass-card"
+        style="margin-top: 2rem; padding: 2rem; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem; font-size: 1.3rem;">💡 AI 사주 분석 가이드</h3>
+
+        <div style="margin-bottom: 2rem;">
+            <h4
+                style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">
+                AI 사주(AI Saju) 분석이란?</h4>
+            <p style="color: var(--text-muted); line-height: 1.7; font-size: 0.95rem; text-align: justify;">
+                운세담의 <strong>AI 사주 분석</strong>은 수천 년간 축적된 동양의 명리학(命理學) 데이터를 최신 인공지능 기술로 재해석한 차세대 운세 서비스입니다.
+                복잡한 만세력 계산과 오행의 상생상극 원리를 AI가 0.1초 만에 정밀하게 분석하여, 기존의 정형화된 풀이를 넘어 사용자의 성향과 운의 흐름에 최적화된 맞춤형 인생 가이드를 제공합니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <h4
+                style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">
+                사주명리학의 기초</h4>
+            <div style="color: var(--text-muted); line-height: 1.7; font-size: 0.95rem;">
+                <p style="margin-bottom: 1rem; text-align: justify;">
+                    사주(四柱)는 사람이 태어난 연(年), 월(月), 일(日), 시(時)의 네 가지 기둥을, 팔자(八字)는 각 기둥의 천간(天干)과 지지(地支)를 합친 8개의 글자를 의미합니다.
+                    이는 단순한 점술이 아니라, 우주의 기운이 개인에게 미치는 영향을 분석하는 통계학적 성격을 지닙니다.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div style="background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 8px;">
+                        <strong style="color: var(--gold-secondary); display: block; margin-bottom: 0.4rem;">천간
+                            (10자)</strong>
+                        하늘의 기운으로 정신적인 측면을 상징합니다.<br>
+                        (갑, 을, 병, 정, 무, 기, 경, 신, 임, 계)
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 8px;">
+                        <strong style="color: var(--gold-secondary); display: block; margin-bottom: 0.4rem;">지지
+                            (12자)</strong>
+                        땅의 기운으로 현실적인 측면을 상징합니다.<br>
+                        (자, 축, 인, 묘, 진, 사, 오, 미, 신, 유, 술, 해)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h4
+                style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">
+                운세담이 지향하는 가치</h4>
+            <p style="color: var(--text-muted); line-height: 1.7; font-size: 0.95rem; text-align: justify;">
+                "운명은 정해진 것이 아니라 만들어가는 것입니다."<br>
+                사주 분석의 진정한 목적은 단순히 미래를 예언하는 것이 아닙니다.
+                자신의 타고난 기질과 다가오는 운의 흐름을 미리 파악하여, 좋은 운은 더 크게 키우고 나쁜 운은 슬기롭게 피해가는 지혜를 얻는 데 있습니다.
+                운세담은 고대 명리학의 지혜를 현대적인 알고리즘으로 풀어내어, 여러분의 삶에 실질적인 도움이 되는 가이드를 제공하고자 노력합니다.
+            </p>
+        </div>
+
+        <div
+            style="margin-top: 2rem; padding: 1rem; background: rgba(212, 175, 55, 0.05); border-radius: 8px; font-size: 0.85rem;">
+            <p style="color: var(--gold-secondary); margin-bottom: 0.5rem; font-weight: bold;">⚠️ 이용 시 주의사항</p>
+            <p style="color: var(--text-dim); line-height: 1.6;">
+                운세 정보는 개인의 생년월일시를 기반으로 한 통계적 분석 결과입니다. 이는 과학적 증명보다는 동양 철학적 관점에서의 해석이므로, 삶의 중요한 결정 시에는 참고용으로만 활용하시고 주체적인
+                판단을 내리시길 권장합니다.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+    <!-- 공유하기 버튼 템플릿 (renderResults에서 동적으로 복제하여 사용) -->
+</div>
+<!-- 공유하기 버튼 템플릿 (renderResults에서 동적으로 복제하여 사용) -->
+<template id="share-buttons-template">
+    <div id="ai-saju-share" style="margin-top: 2rem;">
+        {% include "includes/share_buttons.html" %}
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 나이 계산 및 표시
+    document.getElementById('birth_date')?.addEventListener('change', function () {
+        const birthDate = this.value;
+        if (birthDate) {
+            const today = new Date();
+            const birth = new Date(birthDate);
+            const currentAge = today.getFullYear() - birth.getFullYear() -
+                ((today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) ? 1 : 0);
+            const koreanAge = today.getFullYear() - birth.getFullYear() + 1;
+
+            const ageInfo = document.getElementById('age-info');
+            if (ageInfo) {
+                ageInfo.style.display = 'block';
+                ageInfo.textContent = `현재 나이: 만 ${currentAge}세 (한국나이 ${koreanAge}세)`;
+            }
+        }
+    });
+
+    // 태어난 시각 입력 필드는 브라우저 기본 동작 사용 (외부 클릭 시에만 닫힘)
+    // JavaScript로 세부적인 제어가 어려우므로 자동 닫기 기능 제거
+
+    // 폼 제출 처리
+    document.getElementById('input-form')?.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const errorDiv = document.getElementById('form-error');
+        const submitBtn = this.querySelector('button[type="submit"]');
+
+        // 로딩 상태
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '처리 중...';
+        }
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+
+        try {
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'  // 세션 쿠키 포함
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // 세션 데이터를 localStorage에 저장 (다른 페이지로 이동 시 사용)
+                if (data.data && data.data.session_data) {
+                    saveSessionDataToLocalStorage(data.data);
+                } else {
+                    // session_data가 없으면 FormData에서 직접 저장
+                    const sessionData = {
+                        user_name: formData.get('name') || '',
+                        user_gender: formData.get('gender') || '',
+                        birth_date: formData.get('birth_date') || '',
+                        birth_time: formData.get('birth_time') || '',
+                        is_lunar: formData.get('is_lunar') === 'on' || formData.get('is_lunar') === 'true',
+                        _timestamp: Date.now() // 타임스탬프 추가
+                    };
+                    localStorage.setItem('user_session_data', JSON.stringify(sessionData));
+                }
+
+                // 폼 값을 FormData에서 직접 업데이트하여 즉시 반영
+                const form = document.getElementById('input-form');
+                if (form) {
+                    const nameInput = form.querySelector('[name="name"]');
+                    const birthDateInput = form.querySelector('[name="birth_date"]');
+                    const birthTimeInput = form.querySelector('[name="birth_time"]');
+                    const genderSelect = form.querySelector('[name="gender"]');
+                    const isLunarCheckbox = form.querySelector('[name="is_lunar"]');
+
+                    if (nameInput) nameInput.value = formData.get('name') || '';
+                    if (birthDateInput) birthDateInput.value = formData.get('birth_date') || '';
+                    if (birthTimeInput) birthTimeInput.value = formData.get('birth_time') || '';
+                    if (genderSelect) genderSelect.value = formData.get('gender') || '';
+                    if (isLunarCheckbox) {
+                        const isLunarValue = formData.get('is_lunar');
+                        isLunarCheckbox.checked = isLunarValue === 'on' || isLunarValue === 'true' || isLunarValue === true;
+                    }
+                }
+
+                // 결과를 동적으로 렌더링
+                renderResults(data.data);
+
+                // AI 분석 자동 시작 (계산된 데이터를 직접 전달)
+                setTimeout(() => {
+                    runAIAnalysis(data.data);
+                }, 300);
+
+                // 입력값 유지 (폼 리셋하지 않음)
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+            } else {
+                // 에러 표시
+                if (errorDiv) {
+                    errorDiv.textContent = data.detail || '오류가 발생했습니다.';
+                    errorDiv.style.display = 'block';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            if (errorDiv) {
+                errorDiv.textContent = '네트워크 오류가 발생했습니다.';
+                errorDiv.style.display = 'block';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+        }
+    });
+
+    // AI 분석 실행 (계산된 데이터를 직접 받아서 사용)
+    async function runAIAnalysis(calculatedData = null) {
+        // 중복 실행 방지
+        if (isAIAnalysisRunning) {
+            console.log('AI 분석이 이미 실행 중입니다. 중복 요청을 무시합니다.');
+            return;
+        }
+
+        const resultDiv = document.getElementById('ai-result');
+        const infoMessage = document.getElementById('ai-info-message');
+        const submitBtn = document.querySelector('button[type="submit"]');
+
+        if (!resultDiv) return;
+
+        // 실행 플래그 설정
+        isAIAnalysisRunning = true;
+
+        // 버튼 비활성화
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'AI 분석중...';
+        }
+
+        // 로딩 표시 (이미 renderResults에서 표시했지만, 혹시 모를 경우를 대비)
+        if (!resultDiv.innerHTML.includes('spinner')) {
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 2rem;"><div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 1rem; color: var(--text-muted);">AI 사주 분석 중...</p></div>';
+        }
+
+        try {
+            // API Key는 입력 필드에서 직접 가져옴 (저장하지 않음)
+            const apiKeyInput = document.getElementById('api-key-input');
+            const currentApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+
+            // API Key가 없으면 기본 사주 분석 결과 표시 (이미 renderResults에서 표시되었지만, AI 분석 영역에도 표시)
+            if (!currentApiKey) {
+                const aiResultDiv = document.getElementById('ai-result');
+                if (aiResultDiv && lastCalculatedData) {
+                    // 기본 사주 분석 결과를 AI 결과 영역에 표시
+                    const basicAnalysis = generateBasicAnalysis(
+                        lastCalculatedData.pillars_data || [],
+                        lastCalculatedData.pillars_info || {},
+                        lastCalculatedData.daeun || {},
+                        lastCalculatedData.fortunes || [],
+                        lastCalculatedData.sinsals || []
+                    );
+                    aiResultDiv.innerHTML = basicAnalysis;
+                }
+                // 키가 없어서 종료할 때도 버튼 복구
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '결과보기';
+                }
+                isAIAnalysisRunning = false;
+                return;
+            }
+
+            // 세션에서 데이터를 가져오는 대신, 계산된 데이터를 직접 전달
+            const requestBody = calculatedData ? {
+                calculated_data: calculatedData,
+                api_key: currentApiKey  // API Key를 요청 본문에 포함
+            } : { api_key: currentApiKey };
+
+            console.log('AI 분석 요청:', {
+                has_calculated_data: !!calculatedData,
+                has_ai_input_data: !!(calculatedData?.ai_input_data),
+                has_api_key: !!currentApiKey
+            });
+
+            const response = await fetch('/api/ai-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify(requestBody)
+            });
+
+            // 503 에러 처리
+            if (response.status === 503) {
+                throw new Error('서버가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.');
+            }
+
+            // 스트리밍 응답 처리
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('text/event-stream')) {
+                // SSE 스트리밍 처리
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let accumulatedText = '';
+                let fullData = null;
+
+                resultDiv.innerHTML = '<div style="text-align: center; padding: 2rem;"><div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 1rem; color: var(--text-muted);">AI 사주 분석 중...</p></div>';
+
+                try {
+                    let buffer = '';
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        // 마지막 줄은 완전하지 않을 수 있으므로 버퍼에 유지
+                        buffer = lines.pop() || '';
+
+                        for (const line of lines) {
+                            // 빈 줄 무시
+                            if (!line.trim()) continue;
+
+                            // SSE 형식: "data: {json}"
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const jsonStr = line.substring(6).trim();
+                                    if (!jsonStr) continue;
+
+                                    const data = JSON.parse(jsonStr);
+
+                                    if (data.type === 'start') {
+                                        accumulatedText = '';
+                                        console.log('스트리밍 시작');
+                                    } else if (data.type === 'chunk') {
+                                        if (data.content) {
+                                            accumulatedText += data.content;
+                                        }
+                                    } else if (data.type === 'complete') {
+                                        fullData = data.data;
+                                        console.log('스트리밍 완료:', fullData ? '데이터 수신' : '데이터 없음');
+                                    } else if (data.type === 'error') {
+                                        throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.');
+                                    }
+                                } catch (parseError) {
+                                    console.error('스트리밍 데이터 파싱 오류:', parseError, 'Line:', line);
+                                    // JSON 파싱 오류가 발생해도 계속 진행 (불완전한 청크일 수 있음)
+                                }
+                            }
+                        }
+                    }
+
+                    // 버퍼에 남은 데이터 처리
+                    if (buffer.trim() && buffer.startsWith('data: ')) {
+                        try {
+                            const jsonStr = buffer.substring(6).trim();
+                            if (jsonStr) {
+                                const data = JSON.parse(jsonStr);
+                                if (data.type === 'complete') {
+                                    fullData = data.data;
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.');
+                                }
+                            }
+                        } catch (e) {
+                            console.error('버퍼 데이터 파싱 오류:', e);
+                        }
+                    }
+
+                    // 최종 결과 렌더링
+                    if (fullData) {
+                        console.log('AI 분석 결과 렌더링 중...');
+                        resultDiv.innerHTML = formatAIResult(fullData);
+                        if (infoMessage) {
+                            infoMessage.style.display = 'none';
+                        }
+                    } else if (accumulatedText) {
+                        // accumulatedText가 있으면 JSON 파싱 시도
+                        try {
+                            const parsed = JSON.parse(accumulatedText);
+                            console.log('누적 텍스트에서 결과 파싱 성공');
+                            resultDiv.innerHTML = formatAIResult(parsed);
+                            if (infoMessage) {
+                                infoMessage.style.display = 'none';
+                            }
+                        } catch (e) {
+                            console.error('누적 텍스트 파싱 오류:', e);
+                            throw new Error('AI 분석 결과를 파싱할 수 없습니다.');
+                        }
+                    } else {
+                        throw new Error('AI 분석 결과를 받지 못했습니다.');
+                    }
+                } catch (streamError) {
+                    console.error('스트리밍 처리 오류:', streamError);
+                    throw streamError;
+                }
+            } else {
+                // 기존 JSON 응답 처리 (하위 호환성)
+                const text = await response.text();
+                if (!text) {
+                    throw new Error('서버 응답이 비어있습니다.');
+                }
+
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success && data.data) {
+                        if (data.data.is_ai_analysis) {
+                            resultDiv.innerHTML = formatAIResult(data.data);
+                            if (infoMessage) {
+                                infoMessage.style.display = 'none';
+                            }
+                        } else {
+                            // API Key가 없을 때는 기본 사주 분석 결과 표시
+                            if (lastCalculatedData) {
+                                const basicAnalysis = generateBasicAnalysis(
+                                    lastCalculatedData.pillars_data || [],
+                                    lastCalculatedData.pillars_info || {},
+                                    lastCalculatedData.daeun || {},
+                                    lastCalculatedData.fortunes || [],
+                                    lastCalculatedData.sinsals || []
+                                );
+                                resultDiv.innerHTML = basicAnalysis;
+                            } else {
+                                resultDiv.innerHTML = '<div style="padding: 1rem; color: var(--text-muted);">기본 사주 분석 결과를 불러올 수 없습니다.</div>';
+                            }
+                        }
+                    } else {
+                        throw new Error(data.detail || '알 수 없는 오류');
+                    }
+                } catch (parseError) {
+                    console.error('응답 파싱 오류:', parseError);
+                    throw new Error('서버 응답 형식이 올바르지 않습니다.');
+                }
+            }
+        } catch (error) {
+            console.error('AI Analysis Error:', error);
+
+            // 503 에러나 HTML 응답인 경우 처리
+            let errorMessage = '네트워크 오류가 발생했습니다.';
+            if (error.message && error.message.includes('Unexpected token')) {
+                errorMessage = '서버가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
+            resultDiv.innerHTML = `<div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5;">⚠️ ${errorMessage}</div>`;
+        } finally {
+            // 실행 플래그 해제
+            isAIAnalysisRunning = false;
+            // 버튼 활성화
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '결과보기';
+            }
+        }
+    }
+
+    // 마지막 계산된 데이터를 저장 (API Key 저장 후 AI 분석 재실행용)
+    let lastCalculatedData = null;
+
+    // AI 분석 중복 실행 방지 플래그
+    let isAIAnalysisRunning = false;
+
+    // 마지막으로 처리한 API Key 저장 (중복 요청 방지)
+    let lastProcessedApiKey = '';
+
+    // 결과 렌더링 함수
+    function renderResults(data) {
+        console.log('renderResults 호출됨:', {
+            has_data: !!data,
+            has_pillars_data: !!(data?.pillars_data),
+            pillars_data_length: data?.pillars_data?.length || 0
+        });
+
+        // 계산된 데이터 저장 (API Key 저장 후 AI 분석 재실행용)
+        lastCalculatedData = data;
+
+        let rightColumn = document.querySelector('div[style*="flex: 2"]');
+        if (!rightColumn) {
+            console.error('결과 컨테이너를 찾을 수 없습니다. 대체 선택자 시도...');
+            // 대체 선택자 시도
+            rightColumn = document.querySelector('.result-container');
+            if (rightColumn) {
+                console.log('대체 선택자로 결과 컨테이너 찾음');
+            } else {
+                console.error('결과 컨테이너를 찾을 수 없습니다.');
+                return;
+            }
+        }
+
+        const pillarsData = data.pillars_data || [];
+        const pillarsInfo = data.pillars_info || {};
+        const daeun = data.daeun || {};
+        const fortunes = data.fortunes || [];
+        const sinsals = data.sinsals || [];
+
+        // 오행 색상
+        const ELEM_COLORS = {
+            "木": "#2ecc71",  // Green
+            "火": "#e74c3c",  // Red
+            "土": "#f1c40f",  // Gold/Yellow
+            "金": "#ecf0f1",  // White/Silver
+            "水": "#3498db"   // Blue
+        };
+
+        // 천간 오행 매핑
+        const FIVE_ELEMENTS = {
+            "甲": "木", "乙": "木",
+            "丙": "火", "丁": "火",
+            "戊": "土", "己": "土",
+            "庚": "金", "辛": "金",
+            "壬": "水", "癸": "水"
+        };
+
+        // 지지 오행 매핑
+        const BRANCH_ELEMENTS = {
+            "寅": "木", "卯": "木",
+            "巳": "火", "午": "火",
+            "辰": "土", "戌": "土", "丑": "土", "未": "土",
+            "申": "金", "酉": "金",
+            "亥": "水", "子": "水"
+        };
+
+        // 색상 가져오기 함수
+        function getColor(char, isStem) {
+            if (!char) return "#D4AF37";
+
+            // 한자만 추출 (예: "甲 (갑)" -> "甲")
+            const charOnly = char.split(' ')[0].trim();
+
+            // 오행 찾기
+            const element = isStem ? FIVE_ELEMENTS[charOnly] : BRANCH_ELEMENTS[charOnly];
+
+            // 색상 반환 (오행이 없으면 기본 색상)
+            return element ? ELEM_COLORS[element] || "#D4AF37" : "#D4AF37";
+        }
+
+        // API Key 확인 (초기 로드 시)
+        const apiKeyInput = document.getElementById('api-key-input');
+        const hasApiKey = apiKeyInput ? apiKeyInput.value.trim().startsWith('sk-') && apiKeyInput.value.trim().length > 20 : false;
+
+        let html = '';
+
+        // AI 분석 섹션 항상 표시 (API Key 유무에 따라 내용이 달라짐)
+        html += `
+        <div class="glass-card result-card" style="margin-bottom: 2rem;">
+            <div class="section-header">
+                <span>🔮</span> AI 사주 분석
+            </div>
+            
+            <!-- AI 분석 결과 영역 -->
+            <div id="ai-result-container">
+                <div id="ai-analysis-section" style="margin-bottom: 2rem;">
+                    <div id="ai-result" style="margin-top: 1.5rem;">
+    `;
+
+        if (!hasApiKey) {
+            // API Key가 없을 때는 기본 사주 분석 결과 표시
+            html += generateBasicAnalysis(pillarsData, pillarsInfo, daeun, fortunes, sinsals);
+        } else {
+            // API Key가 있을 때는 로딩 표시 (AI 분석 진행 중)
+            html += `
+                        <div style="text-align: center; padding: 2rem;">
+                            <div class="spinner" style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border-gold); border-top-color: var(--gold-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                            <p style="margin-top: 1rem; color: var(--text-muted);">AI 사주 분석 중...</p>
+                        </div>
+        `;
+        }
+
+        html += `
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+        html += `
+        <!-- 사주팔자 테이블 -->
+        <div class="glass-card" style="margin-bottom: 2rem;">
+            <div class="section-header">
+                <span>🕯️</span> 사주팔자(四柱八字)
+            </div>
+            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 1.3em; border: 1px solid var(--border-gold);">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--gold-primary);">
+                        <th style="padding: 1rem; color: #D4AF37; border-right: 1px solid var(--border-gold);">구분</th>
+                        <th style="padding: 1rem; color: #D4AF37; border-right: 1px solid var(--border-gold);">년 (年)</th>
+                        <th style="padding: 1rem; color: #D4AF37; border-right: 1px solid var(--border-gold);">월 (月)</th>
+                        <th style="padding: 1rem; color: #D4AF37; border-right: 1px solid var(--border-gold);">일 (日)</th>
+                        <th style="padding: 1rem; color: #D4AF37;">시 (時)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid var(--border-gold);">
+                        <td style="padding: 1rem; color: #A0AEC0; border-right: 1px solid var(--border-gold);">천간</td>
+    `;
+
+        // 천간 행
+        pillarsData.forEach((pillar, idx) => {
+            const borderRight = idx < 3 ? '1px solid var(--border-gold)' : 'none';
+            html += `<td style="padding: 1rem; font-weight: bold; color: ${getColor(pillar['Heavenly Stem (천간)'], true)}; border-right: ${borderRight};">${pillar['Heavenly Stem (천간)'] || ''}</td>`;
+        });
+
+        html += `
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border-gold);">
+                        <td style="padding: 1rem; color: #A0AEC0; border-right: 1px solid var(--border-gold);">지지</td>
+    `;
+
+        // 지지 행
+        pillarsData.forEach((pillar, idx) => {
+            const borderRight = idx < 3 ? '1px solid var(--border-gold)' : 'none';
+            html += `<td style="padding: 1rem; font-weight: bold; color: ${getColor(pillar['Earthly Branch (지지)'], false)}; border-right: ${borderRight};">${pillar['Earthly Branch (지지)'] || ''}</td>`;
+        });
+
+        // 지장간 행들
+        const hiddenLists = pillarsData.map(p => p['Hidden Stems (지장간)'] || []);
+        const maxHidden = Math.max(...hiddenLists.map(h => h.length), 0);
+
+        for (let i = 0; i < maxHidden; i++) {
+            const label = i === 0 ? '지장간' : '';
+            const borderBottom = i === maxHidden - 1 ? '1px solid var(--border-gold)' : 'none';
+            html += `<tr style="border-bottom: ${borderBottom};"><td style="padding: 0.5rem 1rem; color: #A0AEC0; font-size: 0.7em; border-right: 1px solid var(--border-gold);">${label}</td>`;
+
+            hiddenLists.forEach((hidden, idx) => {
+                const borderRight = idx < 3 ? '1px solid var(--border-gold)' : 'none';
+                if (i < hidden.length) {
+                    const h = hidden[i];
+                    html += `<td style="padding: 0.2rem; font-size: 0.7em; color: ${getColor(h.stem, true)}; border-right: ${borderRight};">${h.stem}<span style="color: #A0AEC0;">(${h.ten_god})</span></td>`;
+                } else {
+                    html += `<td style="padding: 0.2rem; border-right: ${borderRight};"></td>`;
+                }
+            });
+            html += '</tr>';
+        }
+
+        // 십이운성 행
+        html += `<tr style="border-bottom: 1px solid var(--border-gold);"><td style="padding: 1rem; color: #A0AEC0; font-size: 0.8em; border-right: 1px solid var(--border-gold);">십이운성</td>`;
+        fortunes.forEach((fort, idx) => {
+            const borderRight = idx < 3 ? '1px solid var(--border-gold)' : 'none';
+            html += `<td style="padding: 0.5rem; font-size: 0.8em; color: #F9E79F; border-right: ${borderRight};">${fort || ''}</td>`;
+        });
+        html += '</tr>';
+
+        // 신살 행들
+        const sinsalLists = sinsals.map(sin => (sin || '').split(' ').filter(s => s));
+        const maxSinsal = Math.max(...sinsalLists.map(s => s.length), 0);
+
+        for (let i = 0; i < maxSinsal; i++) {
+            const label = i === 0 ? '신살' : '';
+            const borderBottom = i === maxSinsal - 1 ? '1px solid var(--border-gold)' : 'none';
+            html += `<tr style="border-bottom: ${borderBottom};"><td style="padding: 0.5rem 1rem; color: #A0AEC0; font-size: 0.7em; border-right: 1px solid var(--border-gold);">${label}</td>`;
+
+            sinsalLists.forEach((sinsal, idx) => {
+                const borderRight = idx < 3 ? '1px solid var(--border-gold)' : 'none';
+                if (i < sinsal.length) {
+                    html += `<td style="padding: 0.2rem; font-size: 0.8em; color: #D4AF37; border-right: ${borderRight};">${sinsal[i]}</td>`;
+                } else {
+                    html += `<td style="padding: 0.2rem; border-right: ${borderRight};"></td>`;
+                }
+            });
+            html += '</tr>';
+        }
+
+        html += `
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 대운 카드 -->
+        <div class="glass-card">
+            <div class="section-header">
+                <span>🌊</span> 대운 (大運)
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <strong>대운 방향:</strong> ${daeun.direction || ''} ( ${daeun.start_age || 0}세 주기 )
+            </div>
+            <div style="display: flex; flex-wrap: nowrap; gap: 0.5rem; overflow-x: auto;">
+    `;
+
+        // 대운 기간들
+        const today = new Date();
+        const birthDate = pillarsInfo.birth_datetime ? new Date(pillarsInfo.birth_datetime) : null;
+        let currentAge = 0;
+        if (birthDate) {
+            currentAge = today.getFullYear() - birthDate.getFullYear() -
+                ((today.getMonth() < birthDate.getMonth() ||
+                    (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) ? 1 : 0);
+        }
+
+        // 한문만 추출하는 함수 (ganji: "甲 (갑) 子 (자)" -> ["甲", "子"])
+        function extractGanjiHanja(ganjiText) {
+            if (!ganjiText) return ['', ''];
+            // 공백으로 분리하고 각 부분에서 한문만 추출
+            const parts = ganjiText.split(/\s+/);
+            const hanjaList = parts.map(part => {
+                // "甲 (갑)" 형식에서 한문만 추출
+                const match = part.match(/^([^\s(]+)/);
+                return match ? match[1] : '';
+            }).filter(part => part);
+            // 천간과 지지 반환 (없으면 빈 문자열)
+            return [hanjaList[0] || '', hanjaList[1] || ''];
+        }
+
+        (daeun.periods || []).forEach(period => {
+            const ageStart = parseFloat(period.age_start || 0);
+            const isCurrent = ageStart <= currentAge && currentAge < ageStart + 10;
+            const [stem, branch] = extractGanjiHanja(period.ganji || '');
+            html += `
+            <div style="min-width: 50px; padding: 0.5rem; border: 1px solid ${isCurrent ? '#D4AF37' : 'rgba(255,255,255,0.1)'}; 
+                        border-radius: 8px; background: ${isCurrent ? 'rgba(212,175,55,0.2)' : 'transparent'}; 
+                        text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 0.3rem;">
+                    <div style="font-size: 1.2em; font-weight: bold; color: ${isCurrent ? '#D4AF37' : 'white'}; line-height: 1.2;">${stem}</div>
+                    <div style="font-size: 1.2em; font-weight: bold; color: ${isCurrent ? '#D4AF37' : 'white'}; line-height: 1.2;">${branch}</div>
+                </div>
+                <div style="font-size: 0.7em; color: #A0AEC0; margin-top: 0.2rem;">${Math.floor(ageStart)}세</div>
+            </div>
+        `;
+        });
+
+        html += `
+            </div>
+        </div>
+    `;
+
+        // 결과 영역 업데이트
+        rightColumn.innerHTML = html;
+        console.log('결과 HTML 업데이트 완료');
+
+        // 공유 버튼 표시 (템플릿 복제 방식으로 변경)
+        const shareTemplate = document.getElementById('share-buttons-template');
+        if (shareTemplate) {
+            const shareContent = shareTemplate.content.cloneNode(true);
+            rightColumn.appendChild(shareContent);
+
+            // ID가 복제되었으므로 새로 선택
+            const shareDiv = document.getElementById('ai-saju-share');
+            if (shareDiv) shareDiv.style.display = 'block';
+        }
+
+        // 공유 데이터 설정 - 기본 사주 정보 기반
+        const gender = document.getElementById('person1_gender')?.value || '사용자';
+        const name = document.getElementById('person1_name')?.value || '나';
+        const shareBirthDate = pillarsInfo.birth_datetime ? new Date(pillarsInfo.birth_datetime) : new Date();
+        const year = shareBirthDate.getFullYear();
+
+        let shareTitle = "운세담 - 프리미엄 AI 사주 분석";
+        let shareDesc = "나의 사주팔자와 운세 분석 결과를 확인해보세요.";
+
+        // 일주 정보가 있으면 제목에 활용
+        const dayPillar = pillarsData.find(p => p.Pillar === '일주 (Day)');
+        if (dayPillar) {
+            const dayStem = dayPillar['Heavenly Stem (천간)'] || '';
+            const dayBranch = dayPillar['Earthly Branch (지지)'] || '';
+            shareTitle = `${year}년생 ${dayStem}${dayBranch}일주 사주 분석 - 운세담`;
+        }
+
+        window.currentShareData = {
+            title: shareTitle,
+            description: shareDesc,
+            url: window.location.href,
+            text: `${shareTitle}\n${shareDesc}\n\n지금 바로 확인해보세요!`
+        };
+    }
+
+    // 기본 사주 분석 결과 생성 (API Key가 없을 때)
+    // 점수 바 시각화 함수 (10점 만점)
+    function renderSajuScoreBar(label, score, maxScore = 10) {
+        const percentage = (score / maxScore) * 100;
+        const color = score >= 8 ? '#2ecc71' : score >= 6 ? '#3498db' : score >= 4 ? '#f1c40f' : '#e74c3c';
+
+        return `
+        <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="color: var(--text-primary); font-weight: 500;">${label}</span>
+                <span style="color: ${color}; font-weight: bold; font-size: 1.1em;">${score}점</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden;">
+                <div style="width: ${percentage}%; height: 100%; background: ${color}; transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+    `;
+    }
+
+    // 사주 점수 계산 함수
+    function calculateSajuScores(pillarsData, pillarsInfo, fortunes, sinsals, daeun) {
+        const dayFortune = fortunes[2] || '';
+        const allSinsals = sinsals.filter(s => s && s.trim()).join(' ').split(/\s+/);
+
+        // 기본 점수 (5점)
+        let overall = 5, personality = 5, wealth = 5, love = 5, health = 5, career = 5;
+
+        // 십이운성에 따른 조정
+        const fortuneScores = {
+            "제왕": { overall: 9, personality: 9, wealth: 8, love: 8, health: 7, career: 9 },
+            "건록": { overall: 8, personality: 8, wealth: 7, love: 7, health: 7, career: 8 },
+            "장생": { overall: 7, personality: 7, wealth: 6, love: 7, health: 7, career: 7 },
+            "관대": { overall: 7, personality: 8, wealth: 6, love: 7, health: 6, career: 8 },
+            "목욕": { overall: 6, personality: 7, wealth: 5, love: 8, health: 5, career: 5 },
+            "쇠": { overall: 5, personality: 5, wealth: 5, love: 5, health: 5, career: 5 },
+            "병": { overall: 4, personality: 4, wealth: 4, love: 4, health: 3, career: 4 },
+            "사": { overall: 4, personality: 4, wealth: 4, love: 4, health: 3, career: 4 },
+            "묘": { overall: 4, personality: 5, wealth: 4, love: 4, health: 4, career: 4 },
+            "절": { overall: 5, personality: 5, wealth: 5, love: 5, health: 5, career: 5 },
+            "태": { overall: 6, personality: 6, wealth: 6, love: 6, health: 6, career: 6 },
+            "양": { overall: 6, personality: 6, wealth: 6, love: 6, health: 6, career: 6 }
+        };
+
+        if (dayFortune && fortuneScores[dayFortune]) {
+            const fs = fortuneScores[dayFortune];
+            overall = fs.overall;
+            personality = fs.personality;
+            wealth = fs.wealth;
+            love = fs.love;
+            health = fs.health;
+            career = fs.career;
+        }
+
+        // 신살에 따른 조정
+        if (allSinsals.includes("천을귀인")) {
+            overall = Math.min(10, overall + 1);
+            love = Math.min(10, love + 1);
+            career = Math.min(10, career + 1);
+        }
+        if (allSinsals.includes("도화")) {
+            love = Math.min(10, love + 2);
+            personality = Math.min(10, personality + 1);
+        }
+        if (allSinsals.includes("화개")) {
+            career = Math.min(10, career + 1);
+            personality = Math.min(10, personality + 1);
+        }
+        if (allSinsals.includes("양인")) {
+            personality = Math.min(10, personality + 1);
+            career = Math.min(10, career + 1);
+        }
+        if (allSinsals.includes("역마")) {
+            overall = Math.max(4, overall - 1);
+            health = Math.max(4, health - 1);
+        }
+        if (allSinsals.includes("공망")) {
+            overall = Math.max(4, overall - 1);
+            love = Math.max(4, love - 1);
+        }
+
+        return { overall, personality, wealth, love, health, career };
+    }
+
+    // 키워드 생성 함수
+    function getSajuKeywords(dayElement, dayFortune, sinsals) {
+        const allSinsals = sinsals.filter(s => s && s.trim()).join(' ').split(/\s+/);
+
+        const elementKeywords = {
+            "木": ["성장", "발전", "창의"],
+            "火": ["열정", "활동", "사교"],
+            "土": ["안정", "신뢰", "실용"],
+            "金": ["결단", "정의", "추진"],
+            "水": ["유연", "지혜", "직관"]
+        };
+
+        const fortuneKeywords = {
+            "제왕": ["성공", "리더십", "권위"],
+            "건록": ["독립", "자신감", "의지"],
+            "장생": ["성장", "기회", "시작"],
+            "관대": ["인정", "사회성", "성장"],
+            "목욕": ["변화", "적응", "매력"],
+            "쇠": ["안정", "성숙", "인내"],
+            "병": ["주의", "휴식", "관리"],
+            "사": ["변화", "전환", "새로움"],
+            "묘": ["내면", "성찰", "은둔"],
+            "절": ["준비", "잠재", "기회"],
+            "태": ["잠재력", "가능성", "시작"],
+            "양": ["성장", "발전", "활동"]
+        };
+
+        let keywords = [];
+
+        // 일간 오행 기반 키워드
+        if (elementKeywords[dayElement]) {
+            keywords = keywords.concat(elementKeywords[dayElement].slice(0, 1));
+        }
+
+        // 십이운성 기반 키워드
+        if (dayFortune && fortuneKeywords[dayFortune]) {
+            keywords = keywords.concat(fortuneKeywords[dayFortune].slice(0, 1));
+        }
+
+        // 신살 기반 키워드
+        if (allSinsals.includes("천을귀인")) {
+            keywords.push("인복");
+        } else if (allSinsals.includes("도화")) {
+            keywords.push("예술");
+        } else if (allSinsals.includes("화개")) {
+            keywords.push("학문");
+        }
+
+        // 3개로 맞추기
+        if (keywords.length < 3) {
+            const defaultKeywords = ["균형", "성장", "발전", "협력", "독립", "창의"];
+            while (keywords.length < 3) {
+                const candidate = defaultKeywords[Math.floor(Math.random() * defaultKeywords.length)];
+                if (!keywords.includes(candidate)) {
+                    keywords.push(candidate);
+                }
+            }
+        }
+
+        return keywords.slice(0, 3);
+    }
+
+    function generateBasicAnalysis(pillarsData, pillarsInfo, daeun, fortunes, sinsals) {
+        const dayStem = pillarsInfo.day_stem || '';
+        const dayStemChar = dayStem.split(' ')[0] || '';
+        const dayBranch = pillarsInfo.day_branch || '';
+        const dayBranchChar = dayBranch.split(' ')[0] || '';
+
+        // 오행 이름
+        const elementNames = { "木": "목(木)", "火": "화(火)", "土": "토(土)", "金": "금(金)", "水": "수(水)" };
+
+        // 일간 오행 찾기
+        const FIVE_ELEMENTS = {
+            "甲": "木", "乙": "木",
+            "丙": "火", "丁": "火",
+            "戊": "土", "己": "土",
+            "庚": "金", "辛": "金",
+            "壬": "水", "癸": "水"
+        };
+        const dayElement = FIVE_ELEMENTS[dayStemChar] || '';
+        const dayElementName = elementNames[dayElement] || dayElement;
+
+        // 오행 균형 계산
+        const elementCount = { "木": 0, "火": 0, "土": 0, "金": 0, "水": 0 };
+        pillarsData.forEach(pillar => {
+            const stem = pillar['Heavenly Stem (천간)'] || '';
+            const stemChar = stem.split(' ')[0] || '';
+            if (FIVE_ELEMENTS[stemChar]) {
+                elementCount[FIVE_ELEMENTS[stemChar]] += 1;
+            }
+            const branch = pillar['Earthly Branch (지지)'] || '';
+            const branchChar = branch.split(' ')[0] || '';
+            const BRANCH_ELEMENTS = {
+                "寅": "木", "卯": "木",
+                "巳": "火", "午": "火",
+                "辰": "土", "戌": "土", "丑": "土", "未": "土",
+                "申": "金", "酉": "金",
+                "亥": "水", "子": "水"
+            };
+            if (BRANCH_ELEMENTS[branchChar]) {
+                elementCount[BRANCH_ELEMENTS[branchChar]] += 0.5;
+            }
+        });
+
+        const totalCount = Object.values(elementCount).reduce((a, b) => a + b, 0);
+        const dominantElement = Object.keys(elementCount).reduce((a, b) => elementCount[a] > elementCount[b] ? a : b, '木');
+        const dominantElementName = elementNames[dominantElement] || dominantElement;
+
+        // 십이운성 해석
+        const fortuneMeanings = {
+            "장생": "새로운 시작과 성장의 기운",
+            "목욕": "변화와 적응의 시기",
+            "관대": "사회적 인정과 성장",
+            "건록": "자신감과 독립성",
+            "제왕": "최고의 기운과 성공",
+            "쇠": "안정과 성숙",
+            "병": "주의와 휴식 필요",
+            "사": "변화와 전환점",
+            "묘": "은둔과 내면 성찰",
+            "절": "새로운 시작의 준비",
+            "태": "잠재력과 가능성",
+            "양": "성장과 발전"
+        };
+        const dayFortune = fortunes[2] || '';
+        const dayFortuneMeaning = fortuneMeanings[dayFortune] || '';
+
+        // 신살 해석
+        const sinsalMeanings = {
+            "천을귀인": "귀인의 도움과 인복",
+            "도화": "예술적 재능과 매력",
+            "화개": "학문과 지식에 대한 열정",
+            "양인": "강한 의지력과 추진력",
+            "역마": "변화와 이동이 많은 삶",
+            "공망": "허무와 공허함을 느낄 수 있음",
+            "장성": "리더십과 지휘 능력"
+        };
+        const allSinsals = sinsals.filter(s => s && s.trim()).join(' ').split(/\s+/).filter((v, i, a) => a.indexOf(v) === i);
+        const sinsalList = allSinsals.slice(0, 5).map(s => sinsalMeanings[s] ? `<strong>${s}</strong>: ${sinsalMeanings[s]}` : s).join(', ');
+
+        // 대운 정보
+        const daeunDirection = daeun.direction || '';
+        const today = new Date();
+        const birthDate = pillarsInfo.birth_datetime ? new Date(pillarsInfo.birth_datetime) : null;
+        let currentAge = 0;
+        let currentDaeun = null;
+        if (birthDate) {
+            currentAge = today.getFullYear() - birthDate.getFullYear() -
+                ((today.getMonth() < birthDate.getMonth() ||
+                    (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) ? 1 : 0);
+            currentDaeun = (daeun.periods || []).find(p => {
+                const ageStart = parseFloat(p.age_start || 0);
+                return ageStart <= currentAge && currentAge < ageStart + 10;
+            });
+        }
+
+        // 점수 계산
+        const scores = calculateSajuScores(pillarsData, pillarsInfo, fortunes, sinsals, daeun);
+
+        // 키워드 생성
+        const keywords = getSajuKeywords(dayElement, dayFortune, sinsals);
+
+        // 기본 정보 섹션
+        let basicInfoHtml = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-left: 4px solid var(--gold-primary); border-radius: 8px; margin-bottom: 1.5rem;">
+            <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">📜 기본 사주 분석</h3>
+            <div style="line-height: 1.8; color: var(--text-primary);">
+    `;
+
+        if (dayStemChar && dayElementName) {
+            basicInfoHtml += `<p style="margin-bottom: 0.8rem;"><strong>일간(日干):</strong> ${dayStemChar} (${dayElementName})</p>`;
+        }
+
+        if (dayBranchChar) {
+            basicInfoHtml += `<p style="margin-bottom: 0.8rem;"><strong>일지(日支):</strong> ${dayBranchChar}</p>`;
+        }
+
+        if (dayFortune && dayFortuneMeaning) {
+            basicInfoHtml += `<p style="margin-bottom: 0.8rem;"><strong>일주 운성:</strong> ${dayFortune} - ${dayFortuneMeaning}</p>`;
+        }
+
+        basicInfoHtml += `
+            </div>
+        </div>
+    `;
+
+        // 상단 요약 카드: 점수 시각화
+        let summaryCardHtml = `
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%); border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem; text-align: center;">✨ 사주 운세 지수 (10점 만점)</h3>
+            ${renderSajuScoreBar('종합운', scores.overall)}
+            ${renderSajuScoreBar('성격/특성', scores.personality)}
+            ${renderSajuScoreBar('재물운', scores.wealth)}
+            ${renderSajuScoreBar('연애·인간관계', scores.love)}
+            ${renderSajuScoreBar('건강운', scores.health)}
+            ${renderSajuScoreBar('직장·사업운', scores.career)}
+        </div>
+    `;
+
+        // 키워드 섹션
+        const keywordColors = ['#3498db', '#2ecc71', '#f1c40f'];
+        let keywordsHtml = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+            <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">🏷️ 사주 키워드</h4>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                ${keywords.map((keyword, idx) => `
+                    <span style="padding: 0.5rem 1rem; background: ${keywordColors[idx % keywordColors.length]}; color: white; border-radius: 20px; font-weight: bold; font-size: 0.95em;">${keyword}</span>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+        // 오행 균형 시각화
+        let elementBalanceHtml = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+            <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">⚖️ 오행(五行) 균형</h4>
+            <div style="line-height: 1.8; color: var(--text-primary);">
+    `;
+
+        if (totalCount > 0) {
+            const elementColors = { "木": "#2ecc71", "火": "#e74c3c", "土": "#f39c12", "金": "#95a5a6", "水": "#3498db" };
+            Object.entries(elementCount).forEach(([elem, count]) => {
+                if (count > 0) {
+                    const percentage = ((count / totalCount) * 100).toFixed(1);
+                    const color = elementColors[elem] || "#f1c40f";
+                    elementBalanceHtml += `
+                    <div style="margin-bottom: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                            <span style="font-weight: 500;">${elementNames[elem]}</span>
+                            <span style="color: ${color}; font-weight: bold;">${percentage}%</span>
+                        </div>
+                        <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden;">
+                            <div style="width: ${percentage}%; height: 100%; background: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+                }
+            });
+            elementBalanceHtml += `<p style="margin-top: 1rem; color: var(--gold-primary); font-weight: 500;">전체적으로 <strong>${dominantElementName}</strong>의 기운이 가장 강하게 나타납니다.</p>`;
+        }
+
+        elementBalanceHtml += `
+            </div>
+        </div>
+    `;
+
+        // 성격/특성 상세 분석
+        let personalityHtml = '';
+        if (dayFortune && dayFortuneMeaning) {
+            const personalityTraits = {
+                "제왕": { strengths: ["리더십", "추진력", "결단력"], weaknesses: ["독선적일 수 있음", "경직된 사고"], advice: "타인과의 협력을 중시하고, 다양한 의견을 수용하는 자세가 중요합니다." },
+                "건록": { strengths: ["독립성", "자신감", "의지력"], weaknesses: ["고집스러울 수 있음", "타협 부족"], advice: "혼자 모든 것을 해결하려 하지 말고, 필요시 도움을 요청하는 것도 지혜입니다." },
+                "장생": { strengths: ["활력", "성장 의지", "적응력"], weaknesses: ["경험 부족", "성급함"], advice: "급하게 서두르지 말고, 꾸준한 노력과 학습을 통해 실력을 쌓아가세요." },
+                "관대": { strengths: ["사회성", "협력", "인정욕구"], weaknesses: ["타인의 시선에 민감", "자기 확신 부족"], advice: "타인의 평가보다 자신의 가치를 인정하고, 내면의 확신을 키워가세요." },
+                "목욕": { strengths: ["매력", "예술성", "적응력"], weaknesses: ["변덕스러움", "집중력 부족"], advice: "한 가지에 집중하여 깊이 있게 발전시키는 것이 중요합니다." },
+                "쇠": { strengths: ["안정성", "성숙함", "인내"], weaknesses: ["보수적", "변화 거부"], advice: "새로운 시도와 변화를 두려워하지 말고, 점진적으로 발전시키세요." },
+                "병": { strengths: ["신중함", "관찰력", "반성"], weaknesses: ["소극적", "건강 관리 필요"], advice: "건강 관리에 특히 주의하고, 긍정적인 마음가짐을 유지하세요." },
+                "사": { strengths: ["변화 적응력", "융통성"], weaknesses: ["불안정", "집중력 부족"], advice: "변화를 두려워하지 말고, 새로운 기회를 적극적으로 활용하세요." },
+                "묘": { strengths: ["내면 성찰", "깊은 사고"], weaknesses: ["소통 부족", "은둔 경향"], advice: "타인과의 소통을 늘리고, 내면의 깨달음을 현실에 적용하세요." },
+                "절": { strengths: ["잠재력", "준비성"], weaknesses: ["행동력 부족", "기회 놓침"], advice: "준비가 중요하지만, 때로는 과감하게 도전하는 용기가 필요합니다." },
+                "태": { strengths: ["잠재력", "새로움"], weaknesses: ["불안정", "실행력 부족"], advice: "아이디어를 현실화하는 실행력과 인내력이 중요합니다." },
+                "양": { strengths: ["활동력", "적극성"], weaknesses: ["성급함", "인내 부족"], advice: "활동적인 면을 살리되, 신중함과 인내력을 함께 기르세요." }
+            };
+
+            const traits = personalityTraits[dayFortune] || { strengths: [], weaknesses: [], advice: "" };
+
+            personalityHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">👤 성격/특성 상세 분석</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(46, 204, 113, 0.1); border-radius: 6px;">
+                        <strong style="color: #2ecc71; display: block; margin-bottom: 0.5rem;">✨ 강점:</strong>
+                        <ul style="margin: 0; padding-left: 1.5rem;">
+                            ${traits.strengths.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(241, 196, 15, 0.1); border-radius: 6px;">
+                        <strong style="color: #f1c40f; display: block; margin-bottom: 0.5rem;">⚠️ 보완점:</strong>
+                        <ul style="margin: 0; padding-left: 1.5rem;">
+                            ${traits.weaknesses.map(w => `<li>${w}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 6px;">
+                        <strong style="color: var(--gold-primary); display: block; margin-bottom: 0.5rem;">💡 조언:</strong>
+                        <p style="margin: 0;">${traits.advice}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        }
+
+        // 십이운성 및 신살 분석
+        let fortuneSinsalHtml = '';
+        if (dayFortune && dayFortuneMeaning) {
+            fortuneSinsalHtml += `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">🌟 십이운성(十二運星) 분석</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <p>일주(日柱)의 운성은 <strong>${dayFortune}</strong>으로, ${dayFortuneMeaning}을 의미합니다.</p>
+                </div>
+            </div>
+        `;
+        }
+
+        if (sinsalList) {
+            fortuneSinsalHtml += `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">✨ 신살(神煞) 분석</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <p>${sinsalList}</p>
+                </div>
+            </div>
+        `;
+        }
+
+        // 대운 분석
+        let daeunHtml = '';
+        if (daeunDirection) {
+            daeunHtml = `
+            <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">🌊 대운(大運) 분석</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <p>대운 방향은 <strong>${daeunDirection}</strong>입니다.</p>
+        `;
+            if (currentDaeun) {
+                const ageStart = Math.floor(parseFloat(currentDaeun.age_start || 0));
+                const ageEnd = ageStart + 10;
+                daeunHtml += `<p style="margin-top: 0.5rem;">현재 ${ageStart}세부터 ${ageEnd}세까지의 대운이 진행 중입니다. 인생의 큰 흐름이 변화하는 중요한 시기입니다.</p>`;
+            }
+            daeunHtml += `
+                </div>
+            </div>
+        `;
+        }
+
+        // 재테크/커리어 특화 조언
+        const careerAdvice = getSajuCareerAdvice(dayElement, dayFortune, scores, allSinsals);
+        let careerAdviceHtml = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+            <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">💼 재테크·커리어 특화 조언</h4>
+            <div style="line-height: 1.8; color: var(--text-primary);">
+                <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                    <strong style="color: var(--gold-primary); display: block; margin-bottom: 0.5rem;">💰 재테크:</strong>
+                    <p>${careerAdvice.investment}</p>
+                </div>
+                <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                    <strong style="color: var(--gold-primary); display: block; margin-bottom: 0.5rem;">👔 커리어:</strong>
+                    <p>${careerAdvice.career}</p>
+                </div>
+                <div style="padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                    <strong style="color: var(--gold-primary); display: block; margin-bottom: 0.5rem;">🏢 사업:</strong>
+                    <p>${careerAdvice.business}</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+        // 행동 체크리스트
+        const checklist = getSajuActionChecklist(dayElement, dayFortune, scores);
+        let checklistHtml = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px; margin-bottom: 1.5rem;">
+            <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">✅ 실천 체크리스트</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+    `;
+
+        ['personality', 'wealth', 'health', 'career'].forEach(category => {
+            const categoryNames = {
+                'personality': '성격/관계',
+                'wealth': '재물',
+                'health': '건강',
+                'career': '커리어'
+            };
+            const categoryIcons = {
+                'personality': '👤',
+                'wealth': '💰',
+                'health': '🏃',
+                'career': '💼'
+            };
+            if (!checklist[category] || !Array.isArray(checklist[category])) return;
+            checklistHtml += `
+            <div style="padding: 1rem; background: rgba(212,175,55,0.03); border-radius: 6px;">
+                <h5 style="color: var(--gold-primary); margin-bottom: 0.8rem; font-size: 1em;">
+                    ${categoryIcons[category]} ${categoryNames[category]}
+                </h5>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    ${checklist[category].map(item => `
+                        <li style="padding: 0.5rem 0; color: var(--text-primary); font-size: 0.9em; line-height: 1.6; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span style="color: var(--gold-primary); margin-right: 0.5rem;">☐</span> ${item}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        `;
+        });
+
+        checklistHtml += `
+            </div>
+        </div>
+    `;
+
+        // 종합 해석
+        let overallHtml = `
+        <div style="padding: 1.5rem; background: rgba(212,175,55,0.05); border-radius: 8px;">
+            <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">💡 종합 해석</h4>
+            <div style="line-height: 1.8; color: var(--text-primary);">
+    `;
+
+        if (dayElement === dominantElement) {
+            overallHtml += `<p style="margin-bottom: 0.8rem;">일간과 전체 오행이 조화를 이루고 있어, 타고난 성향을 발휘하기에 유리한 사주입니다.</p>`;
+        } else {
+            overallHtml += `<p style="margin-bottom: 0.8rem;">일간과 전체 오행의 균형을 맞추는 것이 중요합니다. 부족한 오행을 보완하는 활동이나 환경을 선택하는 것이 도움이 됩니다.</p>`;
+        }
+
+        if (dayFortune === "제왕" || dayFortune === "건록" || dayFortune === "장생") {
+            overallHtml += `<p style="margin-bottom: 0.8rem;">강한 기운을 가지고 있어 목표를 달성하기에 유리한 시기입니다. 적극적으로 도전하고, 리더십을 발휘할 수 있는 기회를 찾아보세요.</p>`;
+        } else if (dayFortune === "쇠" || dayFortune === "병" || dayFortune === "사") {
+            overallHtml += `<p style="margin-bottom: 0.8rem;">신중한 판단과 인내가 필요한 시기입니다. 무리한 도전보다는 안정적인 발전을 추구하고, 건강 관리에 특히 주의하세요.</p>`;
+        } else {
+            overallHtml += `<p style="margin-bottom: 0.8rem;">꾸준한 노력과 계획을 통해 목표를 달성할 수 있는 시기입니다. 긍정적인 마음가짐을 유지하고, 작은 성과부터 쌓아가세요.</p>`;
+        }
+
+        overallHtml += `
+            </div>
+        </div>
+    `;
+
+        // 최종 HTML 조합
+        let html = `
+        <div class="basic-analysis-result" style="margin-top: 1.5rem;">
+            ${basicInfoHtml}
+            ${summaryCardHtml}
+            ${keywordsHtml}
+            ${elementBalanceHtml}
+            ${personalityHtml}
+            ${fortuneSinsalHtml}
+            ${daeunHtml}
+            ${careerAdviceHtml}
+            ${checklistHtml}
+            ${overallHtml}
+        </div>
+    `;
+
+        return html;
+    }
+
+    // 재테크/커리어 조언 생성 함수
+    function getSajuCareerAdvice(dayElement, dayFortune, scores, sinsals) {
+        const wealthScore = scores.wealth || 5;
+        const careerScore = scores.career || 5;
+
+        let investment = '', career = '', business = '';
+
+        if (wealthScore >= 8) {
+            investment = "재물운이 매우 좋습니다. 적극적인 투자와 새로운 재테크 방법을 시도해보세요. 다만 리스크 관리는 항상 중요합니다.";
+        } else if (wealthScore >= 6) {
+            investment = "재물운이 양호합니다. 안정적인 투자와 장기적인 관점에서 자산을 늘려가세요. 급격한 투자는 피하는 것이 좋습니다.";
+        } else {
+            investment = "재물운이 보통입니다. 저축에 집중하고, 안정적인 방법으로 자산을 늘려가세요. 불필요한 지출을 줄이는 것이 중요합니다.";
+        }
+
+        if (careerScore >= 8) {
+            career = "직장·사업운이 매우 좋습니다. 승진이나 새로운 기회가 올 수 있으니 적극적으로 도전하세요. 리더십을 발휘할 수 있는 기회를 찾아보세요.";
+        } else if (careerScore >= 6) {
+            career = "직장·사업운이 양호합니다. 현재 업무에 충실하면서 점진적으로 발전시켜 나가세요. 네트워킹과 자기계발에 투자하는 것이 좋습니다.";
+        } else {
+            career = "직장·사업운이 보통입니다. 안정적으로 현재 상황을 유지하면서 실력을 쌓아가세요. 인내심을 가지고 꾸준히 노력하시면 좋은 결과가 있을 것입니다.";
+        }
+
+        if (dayFortune === "제왕" || dayFortune === "건록") {
+            business = "창업이나 사업 확장에 유리한 시기입니다. 하지만 신중한 계획과 준비가 필수입니다. 파트너를 잘 선택하고, 장기적인 비전을 가져보세요.";
+        } else if (dayFortune === "장생" || dayFortune === "관대") {
+            business = "새로운 사업을 시작하기에는 좋은 시기입니다. 하지만 충분한 준비와 시장 조사를 먼저 하세요. 협력과 네트워킹이 성공의 열쇠입니다.";
+        } else {
+            business = "사업은 신중하게 접근해야 합니다. 기존 사업을 안정적으로 운영하면서 점진적으로 확장하는 것이 좋습니다. 무리한 도전은 피하세요.";
+        }
+
+        if (sinsals.includes("천을귀인")) {
+            career += " 특히 주변의 도움이나 조언을 적극적으로 활용하세요.";
+        }
+        if (sinsals.includes("화개")) {
+            career += " 학문이나 전문 지식을 쌓는 것이 커리어 발전에 도움이 될 것입니다.";
+        }
+
+        return { investment, career, business };
+    }
+
+    // 행동 체크리스트 생성 함수
+    function getSajuActionChecklist(dayElement, dayFortune, scores) {
+        const checklist = {
+            personality: [],
+            wealth: [],
+            health: [],
+            career: []
+        };
+
+        // 성격/관계
+        if (scores.personality >= 7) {
+            checklist.personality = [
+                "리더십을 발휘할 수 있는 기회 찾기",
+                "타인과의 협력 관계 강화하기",
+                "자신의 강점을 활용한 프로젝트 제안하기"
+            ];
+        } else {
+            checklist.personality = [
+                "자기계발을 위한 학습 계획 수립하기",
+                "타인과의 소통 기회 늘리기",
+                "긍정적인 마음가짐 유지하기"
+            ];
+        }
+
+        // 재물
+        if (scores.wealth >= 7) {
+            checklist.wealth = [
+                "투자 계획 수립 및 실행하기",
+                "재테크 관련 정보 수집 및 학습하기",
+                "월 저축 목표 금액 설정하기"
+            ];
+        } else {
+            checklist.wealth = [
+                "월별 지출 내역 정리하기",
+                "불필요한 지출 줄이기",
+                "안정적인 저축 계획 수립하기"
+            ];
+        }
+
+        // 건강
+        if (scores.health < 6) {
+            checklist.health = [
+                "정기적인 건강검진 받기",
+                "규칙적인 운동 습관 만들기",
+                "충분한 수면과 휴식 시간 확보하기"
+            ];
+        } else {
+            checklist.health = [
+                "건강한 식습관 유지하기",
+                "주 2-3회 운동하기",
+                "스트레스 관리 방법 찾기"
+            ];
+        }
+
+        // 커리어
+        if (scores.career >= 7) {
+            checklist.career = [
+                "직장 내 네트워킹 강화하기",
+                "자기계발 강좌나 세미나 참여하기",
+                "업무 목표와 계획 재점검하기"
+            ];
+        } else {
+            checklist.career = [
+                "현재 업무에 집중하며 성과 내기",
+                "새로운 스킬 학습하기",
+                "직장 내 협력 관계 개선하기"
+            ];
+        }
+
+        return checklist;
+    }
+
+    // AI 분석 결과 포맷팅
+    function formatAIResult(data) {
+        if (!data || typeof data !== 'object') {
+            return '<div>AI 분석 결과를 불러올 수 없습니다.</div>';
+        }
+
+        const summary = data.summary || {};
+        const personality = data.personality || {};
+        const wealth = data.wealth || {};
+        const career = data.career || {};
+        const relationships = data.relationships || {};
+        const health = data.health || {};
+        const lifeAdvice = data.lifeAdvice || {};
+        const currentFortune = data.currentFortune || {};
+
+        let html = `
+        <div class="ai-analysis-result" style="margin-top: 1.5rem;">
+            <!-- 종합 분석 -->
+            <div style="padding: 1.5rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 1.5rem;">
+                <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">📜 AI 종합 분석</h3>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <p style="margin-bottom: 0.5rem;"><strong>일간(日干):</strong> ${summary.dayMasterType || '-'}</p>
+                    <p style="margin-bottom: 0.5rem;"><strong>격국/용신:</strong> ${summary.gyeokguk || '-'} / ${summary.yongsin || '-'}</p>
+                    <hr style="border-color: rgba(255,255,255,0.1); margin: 1rem 0;">
+                    <p><strong>💡 총평:</strong><br>${summary.overallTone || '-'}</p>
+                </div>
+            </div>
+            
+            <!-- 성격/특성 -->
+            <div style="padding: 1.5rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">👤 성격과 심리</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <div style="margin-bottom: 1rem;">
+                        <span style="color: #A0AEC0; font-size: 0.9em;">핵심 키워드</span><br>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                            ${(personality.coreTraits || []).map(t => `<span style="padding: 0.3rem 0.8rem; background: rgba(255,255,255,0.1); border-radius: 20px; font-size: 0.9em;">${t}</span>`).join('') || '-'}
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="padding: 1rem; background: rgba(46, 204, 113, 0.1); border-radius: 6px;">
+                            <strong style="color: #2ecc71;">강점</strong>
+                            <ul style="margin: 0.5rem 0 0 0; padding-left: 1.2rem; font-size: 0.95em;">
+                                ${(personality.strengths || []).map(s => `<li>${s}</li>`).join('') || '-'}
+                            </ul>
+                        </div>
+                        <div style="padding: 1rem; background: rgba(241, 196, 15, 0.1); border-radius: 6px;">
+                            <strong style="color: #f1c40f;">보완점</strong>
+                            <ul style="margin: 0.5rem 0 0 0; padding-left: 1.2rem; font-size: 0.95em;">
+                                ${(personality.weaknesses || []).map(w => `<li>${w}</li>`).join('') || '-'}
+                            </ul>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1rem;">${personality.detailedAnalysis || '-'}</p>
+                </div>
+            </div>
+
+            <!-- 재물운 -->
+            <div style="padding: 1.5rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">💰 재물운 분석</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <p style="margin-bottom: 0.8rem;"><strong>재물운 흐름:</strong> ${wealth.wealthLuck || '-'}</p>
+                    <p style="margin-bottom: 0.8rem;"><strong>수입 스타일:</strong> ${wealth.incomeStyle || '-'}</p>
+                    <div style="padding: 1rem; background: rgba(212,175,55,0.05); border-radius: 6px; margin-top: 1rem;">
+                        <strong style="color: var(--gold-primary);">상세 조언</strong>
+                        <p style="margin-top: 0.5rem;">${wealth.detailedAnalysis || '-'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 직업/진로 -->
+            <div style="padding: 1.5rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">💼 직업과 진로</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <div style="margin-bottom: 1rem;">
+                        <strong style="display: block; margin-bottom: 0.5rem;">추천 분야</strong>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            ${(career.suitableFields || []).map(f => `<span style="padding: 0.3rem 0.8rem; background: rgba(52, 152, 219, 0.15); color: #3498db; border-radius: 6px; font-weight: 500;">${f}</span>`).join('') || '-'}
+                        </div>
+                    </div>
+                    <p>${career.detailedAnalysis || '-'}</p>
+                </div>
+            </div>
+
+            <!-- 인간관계/애정 -->
+            <div style="padding: 1.5rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">❤️ 인간관계와 애정</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <div style="margin-bottom: 1.5rem;">
+                        <strong style="color: #e74c3c;">연애/결혼:</strong> ${relationships.romantic?.loveStyle || '-'}
+                        <p style="margin-top: 0.5rem;">${relationships.romantic?.analysis || '-'}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #2ecc71;">가족/대인관계:</strong>
+                        <p style="margin-top: 0.5rem;">${relationships.family?.analysis || '-'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 건강 -->
+            <div style="padding: 1.5rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">🏥 건강 조언</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <p>${health.detailedAnalysis || '-'}</p>
+                </div>
+            </div>
+
+            <!-- 인생 조언 (개운법) -->
+            <div style="padding: 1.5rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">🍀 행운과 개운법</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 6px; text-align: center;">
+                        <div style="font-size: 0.9em; color: #A0AEC0; margin-bottom: 0.5rem;">행운의 색</div>
+                        <strong style="font-size: 1.1em;">${(lifeAdvice.luckyElements?.colors || []).join(', ') || '-'}</strong>
+                    </div>
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 6px; text-align: center;">
+                        <div style="font-size: 0.9em; color: #A0AEC0; margin-bottom: 0.5rem;">행운의 숫자</div>
+                        <strong style="font-size: 1.1em;">${(lifeAdvice.luckyElements?.numbers || []).join(', ') || '-'}</strong>
+                    </div>
+                </div>
+                <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-left: 3px solid var(--gold-primary); border-radius: 4px;">
+                    <p style="margin: 0; font-style: italic;">"${lifeAdvice.detailedGuidance || '-'}"</p>
+                </div>
+            </div>
+            
+            <!-- 현재 운세 -->
+            ${currentFortune.yearlyForecast ? `
+            <div style="padding: 1.5rem; background: var(--navy-glass); border-radius: 8px; border: 1px solid var(--border-gold);">
+                <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">📅 올해(세운)와 대운의 흐름</h4>
+                <div style="line-height: 1.8; color: var(--text-primary);">
+                    <div style="margin-bottom: 1rem;">
+                        <strong>대운:</strong> ${currentFortune.daeunPeriod || '-'} (${currentFortune.overallTrend || '-'})
+                    </div>
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong>올해 전망</strong>
+                        <p style="margin-top: 0.5rem;">${currentFortune.yearlyForecast}</p>
+                    </div>
+                    ${currentFortune.detailedAnalysis ? `<p style="margin-top: 1rem;">${currentFortune.detailedAnalysis}</p>` : ''}
+                </div>
+            </div>
+            ` : ''}
+        </div>
+    `;
+
+        return html;
+    }
+
+    // API Key 입력 처리 (저장하지 않고 입력값만 사용)
+    function setupApiKeyAutoSave() {
+        const apiKeyInput = document.getElementById('api-key-input');
+        const statusDiv = document.getElementById('api-key-status');
+
+        if (!apiKeyInput) {
+            return;
+        }
+
+        let inputTimeout = null;
+
+        // API Key 검증 및 AI 분석 실행 함수
+        function triggerAIAnalysisIfNeeded() {
+            // 이미 실행 중이면 무시
+            if (isAIAnalysisRunning) {
+                console.log('AI 분석이 이미 실행 중입니다. 중복 요청을 무시합니다.');
+                return;
+            }
+
+            const apiKey = apiKeyInput.value.trim();
+
+            // API Key가 유효하지 않으면 처리하지 않음
+            if (!apiKey || !apiKey.startsWith('sk-') || apiKey.length <= 20) {
+                if (!apiKey) {
+                    lastProcessedApiKey = ''; // API Key가 비워지면 리셋
+                    if (statusDiv) {
+                        statusDiv.style.display = 'none';
+                    }
+                }
+                return;
+            }
+
+            // 계산 데이터가 없으면 처리하지 않음
+            if (!lastCalculatedData) {
+                console.log('계산 데이터가 없습니다. 먼저 사주를 계산해주세요.');
+                return;
+            }
+
+            // 이미 처리한 API Key와 동일하면 무시
+            if (apiKey === lastProcessedApiKey) {
+                console.log('이미 처리한 API Key입니다. 중복 요청을 무시합니다.');
+                return;
+            }
+
+            // 조건을 통과했으므로 즉시 lastProcessedApiKey 업데이트 (중복 요청 방지)
+            // 이렇게 하면 blur와 input 이벤트가 동시에 발생해도 하나만 실행됨
+            lastProcessedApiKey = apiKey;
+
+            if (statusDiv) {
+                statusDiv.style.display = 'block';
+                statusDiv.style.color = '#86EFAC';
+                statusDiv.textContent = '✅ API Key가 입력되었습니다. AI 분석을 다시 실행합니다...';
+            }
+
+            // API Key 입력 후, AI 분석 섹션 표시 및 AI 분석 실행
+            const aiResultCard = document.querySelector('.result-card');
+            if (aiResultCard) {
+                aiResultCard.style.display = 'block';
+                setTimeout(() => {
+                    runAIAnalysis(lastCalculatedData);
+                }, 500);
+            }
+        }
+
+        // 입력 중 debounce (1초 후 처리)
+        apiKeyInput.addEventListener('input', function () {
+            const apiKey = apiKeyInput.value.trim();
+
+            if (inputTimeout) {
+                clearTimeout(inputTimeout);
+            }
+
+            inputTimeout = setTimeout(() => {
+                triggerAIAnalysisIfNeeded();
+                inputTimeout = null; // 실행 후 timeout 초기화
+            }, 1000);
+        });
+
+        // 포커스가 벗어날 때 처리 (input 이벤트의 debounce timeout이 있으면 취소하고 즉시 실행)
+        apiKeyInput.addEventListener('blur', function () {
+            // input 이벤트의 debounce timeout이 있으면 취소하고 즉시 실행
+            if (inputTimeout) {
+                clearTimeout(inputTimeout);
+                inputTimeout = null;
+                // blur에서 즉시 처리 (triggerAIAnalysisIfNeeded 내부에서 중복 체크)
+                triggerAIAnalysisIfNeeded();
+            }
+            // timeout이 null이면 이미 input 이벤트에서 처리되었거나 아직 debounce 시간이 지나지 않았으므로 무시
+        });
+    }
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('운세담 앱이 로드되었습니다.');
+        setupApiKeyAutoSave();
+
+        // localStorage에서 읽어와서 폼에 채우기 (세션 값보다 우선)
+        fillFormFromLocalStorage('input-form');
+
+        // 폼에 값이 있으면 자동으로 결과 계산 및 표시 (세션 데이터 여부와 무관하게)
+        // setTimeout을 사용하여 fillFormFromLocalStorage 완료 후 실행 보장
+        setTimeout(() => {
+            const form = document.getElementById('input-form');
+            if (form) {
+                const nameInput = form.querySelector('[name="name"]');
+                const birthDateInput = form.querySelector('[name="birth_date"]');
+                const genderSelect = form.querySelector('[name="gender"]');
+
+                // 폼에 필수 값이 있으면 자동 로드
+                if (nameInput?.value && birthDateInput?.value && genderSelect?.value) {
+                    autoLoadResults();
+                }
+            }
+        }, 100);
+    });
+
+    // 세션 데이터로 자동 결과 로드
+    async function autoLoadResults() {
+        const form = document.getElementById('input-form');
+        if (!form) return;
+
+        // 폼에서 직접 값을 읽어와서 사용 (localStorage에서 채워진 최신 값)
+        const nameInput = form.querySelector('[name="name"]');
+        const birthDateInput = form.querySelector('[name="birth_date"]');
+        const birthTimeInput = form.querySelector('[name="birth_time"]');
+        const genderSelect = form.querySelector('[name="gender"]');
+        const isLunarCheckbox = form.querySelector('[name="is_lunar"]');
+
+        // 폼 값이 없으면 자동 로드하지 않음
+        if (!nameInput?.value || !birthDateInput?.value || !genderSelect?.value) {
+            return;
+        }
+
+        // 폼 데이터 준비
+        const formData = new FormData();
+        formData.append('name', nameInput.value);
+        formData.append('birth_date', birthDateInput.value);
+        formData.append('birth_time', birthTimeInput.value || '');
+        formData.append('gender', genderSelect.value);
+        if (isLunarCheckbox?.checked) {
+            formData.append('is_lunar', 'true');
+        }
+
+        try {
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // 결과를 동적으로 렌더링
+                renderResults(data.data);
+
+                // AI 분석 자동 시작
+                setTimeout(() => {
+                    runAIAnalysis(data.data);
+                }, 300);
+            }
+        } catch (error) {
+            console.error('자동 결과 로드 오류:', error);
+        }
+    }
+
+    // 스피너 애니메이션
+    const style = document.createElement('style');
+    style.textContent = `
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

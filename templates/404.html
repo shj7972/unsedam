@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 2rem; min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <!-- 404 숫자 -->
+        <div style="font-size: 8rem; font-weight: 800; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem; line-height: 1; font-family: 'Nanum Myeongjo', serif;">
+            404
+        </div>
+        
+        <!-- 메시지 -->
+        <h1 style="color: var(--gold-primary); font-size: 2rem; margin-bottom: 1rem; font-weight: 700;">
+            페이지를 찾을 수 없습니다
+        </h1>
+        
+        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; line-height: 1.6;">
+            요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.<br>
+            주소를 다시 확인해주시거나 아래 메뉴를 이용해주세요.
+        </p>
+        
+        <!-- 메뉴 링크 -->
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+            {% for page_key, page_name in page_names.items() %}
+                <a href="/{{ page_key if page_key != 'ai_saju' else '' }}" 
+                   style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--gold-gradient); color: #0A0E1A; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; box-shadow: var(--shadow-gold);"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-gold-bright)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-gold)';">
+                    {{ page_name }}
+                </a>
+            {% endfor %}
+        </div>
+        
+        <!-- 홈으로 가기 버튼 -->
+        <a href="/" 
+           style="display: inline-block; padding: 1rem 2rem; background: var(--navy-glass); color: var(--gold-primary); text-decoration: none; border-radius: 12px; font-weight: 600; border: 2px solid var(--border-gold); transition: all 0.3s ease;"
+           onmouseover="this.style.background='var(--navy-deep)'; this.style.borderColor='var(--border-gold-bright)';"
+           onmouseout="this.style.background='var(--navy-glass)'; this.style.borderColor='var(--border-gold)';">
+            🏠 홈으로 가기
+        </a>
+        
+        <!-- 장식 요소 -->
+        <div style="margin-top: 3rem; opacity: 0.3;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔮</div>
+            <p style="color: var(--text-dim); font-size: 0.9rem;">
+                운세담 | AI 프리미엄 사주 명리 분석 서비스
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

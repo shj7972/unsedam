@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{% include "includes/sidebar_input.html" %}
+
+<!-- Sidebar Banner -->
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<!-- 우측: 꿈해몽 검색 및 결과 -->
+<div class="result-container">
+    <!-- 컨텐츠 상단 배너 -->
+
+
+    <div class="glass-card">
+        <div class="section-header">
+            <span>💭</span> 꿈해몽
+        </div>
+
+        <!-- 검색 입력 필드 -->
+        <h3 style="color: var(--gold-primary); margin-top: 1.5rem; margin-bottom: 1rem;">🔍 꿈 키워드 검색</h3>
+
+        <form id="dream-search-form" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="dream-search-input" placeholder="예: 뱀, 물, 집 등" value="{{ keyword }}"
+                    style="flex: 1; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary);">
+                <button type="submit"
+                    style="padding: 0.75rem 1.5rem; background: var(--gold-gradient); border: none; border-radius: 8px; color: var(--bg-dark); font-weight: bold; cursor: pointer;">
+                    검색
+                </button>
+            </div>
+        </form>
+
+        <!-- 검색 결과 표시 영역 -->
+        <div id="dream-result-container" style="display: none;"></div>
+
+        <!-- 공유하기 버튼 영역 -->
+        <div id="dream-share" style="display: none;">
+            {% include "includes/share_buttons.html" %}
+        </div>
+    </div>
+
+    <!-- 분류별 키워드 -->
+    <div class="glass-card" style="margin-top: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">📚 분류별 키워드</h3>
+        <p style="color: #A0AEC0; font-size: 0.9em; margin-bottom: 1rem;">키워드를 클릭하면 바로 검색됩니다.</p>
+
+        <div id="dream-categories-container"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 페이지 설정
+    window.DREAM_CONFIG = {
+        initialKeyword: "{{ keyword | replace('\"', '\\\"') if keyword else '' }}"
+    };
+</script>
+<script src="/static/js/pages/dream.js"></script>
+{% endblock %}
