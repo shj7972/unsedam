@@ -1,6 +1,7 @@
 # FastAPI 웹 프레임워크
 fastapi
 uvicorn
+aiofiles
 jinja2
 python-multipart
 itsdangerous
