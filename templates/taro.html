@@ -335,7 +335,7 @@
     function renderSingleCard(cardData, index) {
         const cardName = cardData.카드명;
         const position = cardData.위치;
-        const isReversed = cardData.역위치;
+        const isReversed = cardData.is_reversed; // backend에서 수정한 is_reversed 사용
         const icon = cardData.아이콘 || '🃏';
         const defaultImage = cardData.default_image; // 기본 이미지 경로
         const aiImageUrl = cardData.ai_image_url; // AI 생성 이미지 URL (선택사항)
@@ -347,10 +347,11 @@
         let imageOrIcon = '';
         if (defaultImage) {
             // 기본 이미지 사용 (역위치일 경우 180도 회전)
-            imageOrIcon = `<img src="${defaultImage}" alt="${cardName}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width: 100%; max-width: 300px; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3); margin-bottom: 0.5rem; ${isReversed ? 'transform: rotate(180deg);' : ''}" /><div style="font-size: 3rem; margin-bottom: 0.5rem; display: none;">${icon}</div>`;
+            // console.log(`Loading image for ${cardName}: ${defaultImage}`);
+            imageOrIcon = `<img src="${defaultImage}" alt="${cardName}" onerror="console.error('이미지 로드 실패:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';" style="width: 100%; max-width: 300px; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3); margin-bottom: 0.5rem; ${isReversed ? 'transform: rotate(180deg);' : ''}" /><div style="font-size: 3rem; margin-bottom: 0.5rem; display: none;">${icon}</div>`;
         } else if (aiImageUrl) {
             // AI 생성 이미지 사용
-            imageOrIcon = `<img src="${aiImageUrl}" alt="${cardName}" style="width: 100%; max-width: 300px; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3); margin-bottom: 0.5rem; ${isReversed ? 'transform: rotate(180deg);' : ''}" />`;
+            imageOrIcon = `<img src="${aiImageUrl}" alt="${cardName}" onerror="console.error('AI 이미지 로드 실패:', this.src);" style="width: 100%; max-width: 300px; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3); margin-bottom: 0.5rem; ${isReversed ? 'transform: rotate(180deg);' : ''}" />`;
         } else {
             // 아이콘 사용
             imageOrIcon = `<div style="font-size: 3rem; margin-bottom: 0.5rem;">${icon}</div>`;

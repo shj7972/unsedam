@@ -235,7 +235,7 @@ def draw_tarot_cards(spread_type, question=""):
         is_reversed = random.choice([True, False])
         card_data = TAROT_CARDS[card_name].copy()
         card_data['카드명'] = card_name
-        card_data['역위치'] = is_reversed
+        card_data['is_reversed'] = is_reversed
         card_data['위치'] = SPREAD_TYPES[spread_type]['위치'][i]
         # 기본 이미지 경로 추가
         card_data['default_image'] = get_tarot_card_image_path(card_name)
@@ -272,7 +272,7 @@ def generate_comprehensive_analysis(result):
     }
     
     # 전체 테마 분석
-    reversed_count = sum(1 for card in cards if card['역위치'])
+    reversed_count = sum(1 for card in cards if card['is_reversed'])
     total_cards = len(cards)
     positive_count = total_cards - reversed_count
     
@@ -289,12 +289,12 @@ def generate_comprehensive_analysis(result):
     if spread_type == "1장":
         card = cards[0]
         analysis['detailed_interpretation'] = f"""
-현재 상황을 가장 잘 나타내는 카드는 <strong>{card['카드명']}</strong>입니다.
-{'역위치로 나타난' if card['역위치'] else '정위치로 나타난'} 이 카드는 {card['역위치'] if card['역위치'] else card['정위치']}의 의미를 담고 있습니다.
+ 현재 상황을 가장 잘 나타내는 카드는 <strong>{card['카드명']}</strong>입니다.
+{'역위치로 나타난' if card['is_reversed'] else '정위치로 나타난'} 이 카드는 {card['역위치'] if card['is_reversed'] else card['정위치']}의 의미를 담고 있습니다.
 
 현재 시점에서 가장 중요한 것은 이 카드가 제시하는 메시지입니다. 
-{'역위치 카드가 나타난 것은' if card['역위치'] else '정위치 카드가 나타난 것은'} 현재 상황에서 {'주의해야 할 점이나 내면의 변화가 필요함을' if card['역위치'] else '순조로운 흐름과 명확한 방향성을'} 나타냅니다.
-{question if question else '질문하신 내용'}에 대해, 이 카드는 {'신중한 접근과 성찰' if card['역위치'] else '적극적인 행동과 신뢰'}를 제안합니다.
+{'역위치 카드가 나타난 것은' if card['is_reversed'] else '정위치 카드가 나타난 것은'} 현재 상황에서 {'주의해야 할 점이나 내면의 변화가 필요함을' if card['is_reversed'] else '순조로운 흐름과 명확한 방향성을'} 나타냅니다.
+{question if question else '질문하신 내용'}에 대해, 이 카드는 {'신중한 접근과 성찰' if card['is_reversed'] else '적극적인 행동과 신뢰'}를 제안합니다.
         """
     
     elif spread_type == "3장":
@@ -303,28 +303,28 @@ def generate_comprehensive_analysis(result):
         future_card = cards[2]
         
         analysis['detailed_interpretation'] = f"""
-<strong>과거의 흐름:</strong> {past_card['카드명']}이 {'역위치로' if past_card['역위치'] else '정위치로'} 나타난 것은, 
-과거에 {past_card['역위치'] if past_card['역위치'] else past_card['정위치']}의 경험이 있었음을 의미합니다.
+<strong>과거의 흐름:</strong> {past_card['카드명']}이 {'역위치로' if past_card['is_reversed'] else '정위치로'} 나타난 것은, 
+과거에 {past_card['역위치'] if past_card['is_reversed'] else past_card['정위치']}의 경험이 있었음을 의미합니다.
 이 경험이 현재 상황의 기반이 되었습니다.
 
-<strong>현재 상황:</strong> {present_card['카드명']}이 {'역위치로' if present_card['역위치'] else '정위치로'} 나타나, 
-현재는 {present_card['역위치'] if present_card['역위치'] else present_card['정위치']}의 상태에 있습니다.
-{'역위치' if present_card['역위치'] else '정위치'} 카드는 현재 시점에서 {'내면의 변화나 주의가 필요함' if present_card['역위치'] else '명확한 방향과 긍정적인 흐름'}을 나타냅니다.
+<strong>현재 상황:</strong> {present_card['카드명']}이 {'역위치로' if present_card['is_reversed'] else '정위치로'} 나타나, 
+현재는 {present_card['역위치'] if present_card['is_reversed'] else present_card['정위치']}의 상태에 있습니다.
+{'역위치' if present_card['is_reversed'] else '정위치'} 카드는 현재 시점에서 {'내면의 변화나 주의가 필요함' if present_card['is_reversed'] else '명확한 방향과 긍정적인 흐름'}을 나타냅니다.
 
-<strong>미래 전망:</strong> {future_card['카드명']}이 {'역위치로' if future_card['역위치'] else '정위치로'} 나타난 것은, 
-앞으로 {future_card['역위치'] if future_card['역위치'] else future_card['정위치']}의 흐름이 예상됩니다.
-{'역위치 카드' if future_card['역위치'] else '정위치 카드'}는 미래에 {'변화와 새로운 관점이 필요' if future_card['역위치'] else '순조로운 진행과 성공'}할 가능성을 시사합니다.
+<strong>미래 전망:</strong> {future_card['카드명']}이 {'역위치로' if future_card['is_reversed'] else '정위치로'} 나타난 것은, 
+앞으로 {future_card['역위치'] if future_card['is_reversed'] else future_card['정위치']}의 흐름이 예상됩니다.
+{'역위치 카드' if future_card['is_reversed'] else '정위치 카드'}는 미래에 {'변화와 새로운 관점이 필요' if future_card['is_reversed'] else '순조로운 진행과 성공'}할 가능성을 시사합니다.
 
 <strong>시간의 흐름:</strong> 과거부터 현재, 미래로 이어지는 카드들의 흐름을 보면, 
-{'변화와 전환이 중심' if (past_card['역위치'] or present_card['역위치'] or future_card['역위치']) else '안정적이고 순조로운 발전'}의 패턴을 보입니다.
+{'변화와 전환이 중심' if (past_card['is_reversed'] or present_card['is_reversed'] or future_card['is_reversed']) else '안정적이고 순조로운 발전'}의 패턴을 보입니다.
         """
         
         # 카드 관계성 분석
-        if past_card['역위치'] and not present_card['역위치'] and not future_card['역위치']:
+        if past_card['is_reversed'] and not present_card['is_reversed'] and not future_card['is_reversed']:
             analysis['card_relationships'].append("과거의 어려움을 극복하고 현재와 미래로 긍정적으로 전환되고 있습니다.")
-        elif not past_card['역위치'] and present_card['역위치'] and future_card['역위치']:
+        elif not past_card['is_reversed'] and present_card['is_reversed'] and future_card['is_reversed']:
             analysis['card_relationships'].append("과거의 안정에서 현재와 미래로 변화의 시기가 다가오고 있습니다.")
-        elif past_card['역위치'] and present_card['역위치'] and not future_card['역위치']:
+        elif past_card['is_reversed'] and present_card['is_reversed'] and not future_card['is_reversed']:
             analysis['card_relationships'].append("과거와 현재의 도전을 통해 미래에 새로운 가능성이 열립니다.")
     
     elif spread_type == "5장":
@@ -335,22 +335,22 @@ def generate_comprehensive_analysis(result):
         future_card = cards[4]
         
         analysis['detailed_interpretation'] = f"""
-<strong>현재 상황:</strong> {current_card['카드명']}이 {'역위치로' if current_card['역위치'] else '정위치로'} 나타나, 
-현재는 {current_card['역위치'] if current_card['역위치'] else current_card['정위치']}의 상태입니다.
+<strong>현재 상황:</strong> {current_card['카드명']}이 {'역위치로' if current_card['is_reversed'] else '정위치로'} 나타나, 
+현재는 {current_card['역위치'] if current_card['is_reversed'] else current_card['정위치']}의 상태입니다.
 
-<strong>도전과 장애물:</strong> {challenge_card['카드명']}이 {'역위치로' if challenge_card['역위치'] else '정위치로'} 나타나, 
-앞서 나아가는데 {challenge_card['역위치'] if challenge_card['역위치'] else challenge_card['정위치']}의 도전이 있습니다.
-{'역위치 카드' if challenge_card['역위치'] else '정위치 카드'}는 {'내면의 변화나 접근 방식의 전환이 필요' if challenge_card['역위치'] else '명확한 목표와 의지로 극복 가능'}함을 의미합니다.
+<strong>도전과 장애물:</strong> {challenge_card['카드명']}이 {'역위치로' if challenge_card['is_reversed'] else '정위치로'} 나타나, 
+앞서 나아가는데 {challenge_card['역위치'] if challenge_card['is_reversed'] else challenge_card['정위치']}의 도전이 있습니다.
+{'역위치 카드' if challenge_card['is_reversed'] else '정위치 카드'}는 {'내면의 변화나 접근 방식의 전환이 필요' if challenge_card['is_reversed'] else '명확한 목표와 의지로 극복 가능'}함을 의미합니다.
 
-<strong>과거의 영향:</strong> {past_card['카드명']}이 {'역위치로' if past_card['역위치'] else '정위치로'} 나타나, 
-과거에 {past_card['역위치'] if past_card['역위치'] else past_card['정위치']}의 경험이 현재 상황에 영향을 미치고 있습니다.
+<strong>과거의 영향:</strong> {past_card['카드명']}이 {'역위치로' if past_card['is_reversed'] else '정위치로'} 나타나, 
+과거에 {past_card['역위치'] if past_card['is_reversed'] else past_card['정위치']}의 경험이 현재 상황에 영향을 미치고 있습니다.
 
-<strong>근본 원인:</strong> {root_card['카드명']}이 {'역위치로' if root_card['역위치'] else '정위치로'} 나타나, 
-상황의 근본 원인은 {root_card['역위치'] if root_card['역위치'] else root_card['정위치']}와 관련이 있습니다.
-{'역위치 카드' if root_card['역위치'] else '정위치 카드'}는 {'내면의 문제나 인식의 전환 필요' if root_card['역위치'] else '명확한 기반과 원칙'}을 나타냅니다.
+<strong>근본 원인:</strong> {root_card['카드명']}이 {'역위치로' if root_card['is_reversed'] else '정위치로'} 나타나, 
+상황의 근본 원인은 {root_card['역위치'] if root_card['is_reversed'] else root_card['정위치']}와 관련이 있습니다.
+{'역위치 카드' if root_card['is_reversed'] else '정위치 카드'}는 {'내면의 문제나 인식의 전환 필요' if root_card['is_reversed'] else '명확한 기반과 원칙'}을 나타냅니다.
 
-<strong>미래 전망:</strong> {future_card['카드명']}이 {'역위치로' if future_card['역위치'] else '정위치로'} 나타나, 
-앞으로 {future_card['역위치'] if future_card['역위치'] else future_card['정위치']}의 결과가 예상됩니다.
+<strong>미래 전망:</strong> {future_card['카드명']}이 {'역위치로' if future_card['is_reversed'] else '정위치로'} 나타나, 
+앞으로 {future_card['역위치'] if future_card['is_reversed'] else future_card['정위치']}의 결과가 예상됩니다.
 
 <strong>종합 분석:</strong> 켈틱 크로스 스프레드는 상황의 다양한 층위를 보여줍니다. 
 현재 상황, 도전, 과거의 영향, 근본 원인, 미래 전망을 종합하면, 
@@ -376,15 +376,15 @@ def analyze_celtic_cross(cards):
     challenge = cards[1]
     future = cards[4]
     
-    if not current['역위치'] and not challenge['역위치'] and not future['역위치']:
+    if not current['is_reversed'] and not challenge['is_reversed'] and not future['is_reversed']:
         return "현재부터 미래까지 매우 순조롭고 긍정적인 흐름"
-    elif current['역위치'] and not challenge['역위치'] and not future['역위치']:
+    elif current['is_reversed'] and not challenge['is_reversed'] and not future['is_reversed']:
         return "현재의 변화를 통해 미래로 순조롭게 발전하는 흐름"
-    elif not current['역위치'] and challenge['역위치'] and not future['역위치']:
+    elif not current['is_reversed'] and challenge['is_reversed'] and not future['is_reversed']:
         return "도전을 극복하고 미래로 발전하는 흐름"
-    elif current['역위치'] and challenge['역위치'] and not future['역위치']:
+    elif current['is_reversed'] and challenge['is_reversed'] and not future['is_reversed']:
         return "현재의 변화와 도전을 통해 미래에 새로운 가능성 열리는 흐름"
-    elif current['역위치'] and challenge['역위치'] and future['역위치']:
+    elif current['is_reversed'] and challenge['is_reversed'] and future['is_reversed']:
         return "변화와 전환이 중심이 되는 복잡한 흐름"
     else:
         return "균형과 조화를 이루는 발전적인 흐름"
@@ -400,13 +400,13 @@ def analyze_celtic_cross_relationships(cards):
     future = cards[4]
     
     # 현재와 도전의 관계
-    if current['역위치'] == challenge['역위치']:
+    if current['is_reversed'] == challenge['is_reversed']:
         relationships.append("현재 상황과 도전이 서로 조화를 이루고 있어, 균형잡힌 접근이 가능합니다.")
     else:
         relationships.append("현재 상황과 도전이 서로 다른 에너지를 보여, 균형과 조정이 필요합니다.")
     
     # 근본 원인과 미래의 관계
-    if root['역위치'] != future['역위치']:
+    if root['is_reversed'] != future['is_reversed']:
         relationships.append("근본 원인의 해결을 통해 미래로 긍정적인 전환이 예상됩니다.")
     
     return relationships
@@ -417,7 +417,7 @@ def extract_key_messages(cards, spread_type):
     messages = []
     
     # 역위치 카드가 많은 경우
-    reversed_count = sum(1 for card in cards if card['역위치'])
+    reversed_count = sum(1 for card in cards if card['is_reversed'])
     if reversed_count > len(cards) / 2:
         messages.append("내면의 변화와 새로운 관점이 필요한 시기입니다.")
         messages.append("현재의 고정관념이나 패턴을 재검토하는 것이 중요합니다.")
@@ -449,7 +449,7 @@ def generate_advice(cards, spread_type):
     """카드들로부터 조언을 생성합니다."""
     advice = []
     
-    reversed_count = sum(1 for card in cards if card['역위치'])
+    reversed_count = sum(1 for card in cards if card['is_reversed'])
     total_cards = len(cards)
     
     if reversed_count == 0:
@@ -466,7 +466,7 @@ def generate_advice(cards, spread_type):
     if spread_type == "3장":
         past_card = cards[0]
         present_card = cards[1]
-        if past_card['역위치'] and not present_card['역위치']:
+        if past_card['is_reversed'] and not present_card['is_reversed']:
             advice.append("과거의 어려움을 극복한 경험을 바탕으로 현재를 밀고 나가세요.")
     
     return advice
@@ -476,7 +476,7 @@ def generate_warnings(cards, spread_type):
     """카드들로부터 경고를 생성합니다."""
     warnings = []
     
-    reversed_count = sum(1 for card in cards if card['역위치'])
+    reversed_count = sum(1 for card in cards if card['is_reversed'])
     total_cards = len(cards)
     
     if reversed_count > total_cards / 2:
@@ -489,7 +489,7 @@ def generate_warnings(cards, spread_type):
     if any("탑" in name for name in card_names):
         warnings.append("탑 카드가 나타난 경우, 갑작스러운 변화나 계시가 있을 수 있습니다. 유연성과 적응력이 중요합니다.")
     
-    if any("악마" in name for name in card_names) and any(card['역위치'] for card in cards if "악마" in card['카드명']):
+    if any("악마" in name for name in card_names) and any(card['is_reversed'] for card in cards if "악마" in card['카드명']):
         warnings.append("악마 카드가 역위치로 나타난 경우, 속박이나 중독에서 해방되기 위해 노력이 필요합니다.")
     
     return warnings
