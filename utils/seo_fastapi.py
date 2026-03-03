@@ -77,6 +77,24 @@ PAGE_META = {
         "description": "운세담 서비스 이용과 관련된 주요 궁금증을 해결해 드립니다.",
         "keywords": "FAQ, 자주 묻는 질문, 고객지원, 운세담 도움말",
         "url": f"{SITE_INFO['url']}/faq"
+    },
+    'daily': {
+        "title": "오늘의 운세 | 운세담",
+        "description": "오늘 날짜 기반 별자리 운세와 사주 일진을 확인하세요. 매일 달라지는 오늘의 운세 - 애정운, 직장운, 재물운, 건강운을 무료로 제공합니다.",
+        "keywords": "오늘의 운세, 오늘 운세, 일일 운세, 별자리 운세 오늘, 오늘의 별자리, 오늘 사주, 무료 운세",
+        "url": f"{SITE_INFO['url']}/daily"
+    },
+    'namefortune': {
+        "title": "이름 풀이 성명학 | 운세담",
+        "description": "이름의 획수를 분석하는 무료 성명학 서비스. 81수리 기반 이름 풀이, 원형이정 4격 분석으로 내 이름에 담긴 기운을 확인하세요.",
+        "keywords": "이름풀이, 성명학, 이름획수, 81수리, 작명, 개명, 이름분석, 무료이름풀이",
+        "url": f"{SITE_INFO['url']}/namefortune"
+    },
+    'blog': {
+        "title": "운세 가이드 | 운세담",
+        "description": "사주팔자, 별자리, 타로, 꿈해몽, 성명학 등 운세에 관한 깊이 있는 가이드 아티클 모음. 초보자부터 전문가까지 쉽게 이해할 수 있는 동양 철학 완전 정복.",
+        "keywords": "사주가이드, 운세공부, 사주팔자기초, 별자리운세가이드, 타로가이드, 꿈해몽가이드, 성명학가이드",
+        "url": f"{SITE_INFO['url']}/blog"
     }
 }
 
@@ -131,23 +149,65 @@ def generate_sitemap() -> str:
     # 각 페이지
     # tarot 페이지는 실제 라우터에서 /tarot로 되어 있으므로 확인 필요
     for page_key, page_name in PAGE_NAMES.items():
-        # ai_saju는 메인 페이지이므로 이미 추가됨
-        if page_key == 'ai_saju':
+        # ai_saju는 메인 페이지, blog는 별도 처리
+        if page_key in ('ai_saju', 'blog'):
             continue
-            
+
         # tarot 페이지는 실제 라우터에서 /tarot로 되어 있음
         if page_key == 'tarot':
             page_url = f"{site_url}/tarot"
         else:
             page_url = f"{site_url}/{page_key}"
-            
+
+        # daily 페이지는 매일 업데이트되므로 changefreq=daily, priority 높게
+        if page_key == 'daily':
+            changefreq = 'daily'
+            priority = '0.9'
+        else:
+            changefreq = 'weekly'
+            priority = '0.8'
+
         sitemap_lines.append('  <url>')
         sitemap_lines.append(f'    <loc>{page_url}</loc>')
         sitemap_lines.append(f'    <lastmod>{current_date}</lastmod>')
-        sitemap_lines.append('    <changefreq>weekly</changefreq>')
-        sitemap_lines.append('    <priority>0.8</priority>')
+        sitemap_lines.append(f'    <changefreq>{changefreq}</changefreq>')
+        sitemap_lines.append(f'    <priority>{priority}</priority>')
         sitemap_lines.append('  </url>')
     
+    # 12띠 및 연도별 페이지 (대표 페이지만 추가)
+    for zodiac_key in ['rat', 'ox', 'tiger', 'rabbit', 'dragon', 'snake', 'horse', 'sheep', 'monkey', 'rooster', 'dog', 'pig']:
+        sitemap_lines.append('  <url>')
+        sitemap_lines.append(f'    <loc>{site_url}/zodiac/{zodiac_key}</loc>')
+        sitemap_lines.append(f'    <lastmod>{current_date}</lastmod>')
+        sitemap_lines.append('    <changefreq>monthly</changefreq>')
+        sitemap_lines.append('    <priority>0.7</priority>')
+        sitemap_lines.append('  </url>')
+
+    # 주요 출생연도 페이지 (1970~2010년대 대표 연도)
+    for yr in range(1970, 2011, 3):
+        sitemap_lines.append('  <url>')
+        sitemap_lines.append(f'    <loc>{site_url}/fortune/{yr}</loc>')
+        sitemap_lines.append(f'    <lastmod>{current_date}</lastmod>')
+        sitemap_lines.append('    <changefreq>monthly</changefreq>')
+        sitemap_lines.append('    <priority>0.7</priority>')
+        sitemap_lines.append('  </url>')
+
+    # 블로그/가이드 아티클 페이지
+    from utils.blog_articles import get_all_articles
+    sitemap_lines.append('  <url>')
+    sitemap_lines.append(f'    <loc>{site_url}/blog</loc>')
+    sitemap_lines.append(f'    <lastmod>{current_date}</lastmod>')
+    sitemap_lines.append('    <changefreq>weekly</changefreq>')
+    sitemap_lines.append('    <priority>0.8</priority>')
+    sitemap_lines.append('  </url>')
+    for article in get_all_articles():
+        sitemap_lines.append('  <url>')
+        sitemap_lines.append(f'    <loc>{site_url}/blog/{article["slug"]}</loc>')
+        sitemap_lines.append(f'    <lastmod>{article["date"].strftime("%Y-%m-%d")}</lastmod>')
+        sitemap_lines.append('    <changefreq>monthly</changefreq>')
+        sitemap_lines.append('    <priority>0.75</priority>')
+        sitemap_lines.append('  </url>')
+
     # 추가 정책/정보 페이지
     for extra_page in ['about', 'faq', 'privacy', 'terms']:
         sitemap_lines.append('  <url>')

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+<div class="glass-card">
+    <div class="section-header">
+        <span>📚</span> 카테고리
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <a href="/blog" style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.8rem; border-radius: 8px; color: var(--text-primary); text-decoration: none; background: {% if not current_category %}rgba(212,175,55,0.15); border: 1px solid var(--border-gold){% else %}transparent{% endif %};">
+            <span>전체 아티클</span>
+            <span style="color: var(--gold-primary); font-size: 0.85rem;">{{ articles | length }}</span>
+        </a>
+        {% for cat in categories %}
+        <a href="/blog?category={{ cat }}" style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.8rem; border-radius: 8px; color: var(--text-primary); text-decoration: none; background: {% if current_category == cat %}rgba(212,175,55,0.15); border: 1px solid var(--border-gold){% else %}transparent{% endif %};">
+            <span>{{ cat }}</span>
+            <span style="color: var(--gold-primary); font-size: 0.85rem;">{{ articles | selectattr('category', 'equalto', cat) | list | length }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+
+    <!-- 헤더 -->
+    <div class="glass-card" style="margin-bottom: 1.5rem; padding: 2rem;">
+        <h1 style="color: var(--gold-primary); font-size: 1.8rem; margin-bottom: 0.5rem;">📚 운세 가이드</h1>
+        <p style="color: var(--text-muted); line-height: 1.7;">
+            사주, 별자리, 타로, 꿈해몽 등 운세에 관한 깊이 있는 가이드와 아티클을 모았습니다.<br>
+            초보자부터 전문가까지, 동양 철학과 운세의 세계를 탐구해보세요.
+        </p>
+    </div>
+
+    <!-- 아티클 그리드 -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.2rem;">
+        {% for article in articles %}
+        <a href="/blog/{{ article.slug }}" style="text-decoration: none;">
+            <div class="glass-card" style="padding: 1.5rem; height: 100%; display: flex; flex-direction: column; transition: transform 0.2s, border-color 0.2s; cursor: pointer;"
+                onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='var(--gold-primary)'"
+                onmouseout="this.style.transform=''; this.style.borderColor=''">
+                <!-- 카테고리 배지 + 이모지 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span style="font-size: 2rem;">{{ article.emoji }}</span>
+                    <span style="font-size: 0.75rem; padding: 0.3rem 0.7rem; background: rgba(212,175,55,0.15); border: 1px solid var(--border-gold); border-radius: 20px; color: var(--gold-primary);">
+                        {{ article.category }}
+                    </span>
+                </div>
+                <!-- 제목 -->
+                <h2 style="color: var(--text-primary); font-size: 1.05rem; font-weight: 600; line-height: 1.5; margin-bottom: 0.8rem; flex-grow: 1;">
+                    {{ article.title }}
+                </h2>
+                <!-- 설명 -->
+                <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{ article.description }}
+                </p>
+                <!-- 메타 정보 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(212,175,55,0.15); padding-top: 0.8rem; margin-top: auto;">
+                    <span style="color: var(--text-dim); font-size: 0.8rem;">
+                        {{ article.date.strftime('%Y.%m.%d') }}
+                    </span>
+                    <span style="color: var(--text-dim); font-size: 0.8rem;">
+                        ⏱ {{ article.read_time }}분 읽기
+                    </span>
+                </div>
+                <!-- 태그 -->
+                <div style="display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.7rem;">
+                    {% for tag in article.tags[:3] %}
+                    <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.05); border-radius: 4px; color: var(--text-dim);">
+                        #{{ tag }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- SEO 콘텐츠 -->
+    <div class="glass-card" style="margin-top: 2rem; padding: 2rem;">
+        <h2 style="color: var(--gold-primary); font-size: 1.3rem; margin-bottom: 1.5rem;">🔮 운세담 가이드 센터 소개</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
+            <div>
+                <h3 style="color: var(--gold-primary); font-size: 1rem; margin-bottom: 0.7rem;">📖 왜 운세 가이드가 필요한가?</h3>
+                <p>사주팔자, 별자리, 타로, 꿈해몽은 수천 년의 지혜가 담긴 동양·서양 철학의 결정체입니다. 단순히 '오늘의 운세'를 보는 것을 넘어, 각 학문의 원리와 체계를 이해하면 훨씬 더 풍부하고 정확한 통찰을 얻을 수 있습니다.</p>
+                <p style="margin-top: 0.8rem;">운세담 가이드 센터는 초보자도 쉽게 이해할 수 있도록 각 분야의 핵심 개념을 정리하고, 실생활에 바로 적용할 수 있는 활용법을 제공합니다.</p>
+            </div>
+            <div>
+                <h3 style="color: var(--gold-primary); font-size: 1rem; margin-bottom: 0.7rem;">🌟 추천 콘텐츠</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="margin-bottom: 0.5rem;">🔥 <a href="/blog/2026-saju-yearly-fortune" style="color: var(--gold-primary); text-decoration: none;">2026년 병오년 운세 총정리</a></li>
+                    <li style="margin-bottom: 0.5rem;">📖 <a href="/blog/saju-basics-guide" style="color: var(--gold-primary); text-decoration: none;">사주팔자 기초 완전 정복</a></li>
+                    <li style="margin-bottom: 0.5rem;">⭐ <a href="/blog/constellation-fortune-guide" style="color: var(--gold-primary); text-decoration: none;">12별자리 완전 가이드</a></li>
+                    <li style="margin-bottom: 0.5rem;">💤 <a href="/blog/dream-interpretation-guide" style="color: var(--gold-primary); text-decoration: none;">꿈해몽 의미 총정리</a></li>
+                    <li style="margin-bottom: 0.5rem;">💑 <a href="/blog/gonghap-guide" style="color: var(--gold-primary); text-decoration: none;">사주 궁합 완전 가이드</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 style="color: var(--gold-primary); font-size: 1rem; margin-bottom: 0.7rem;">🗂️ 카테고리별 안내</h3>
+                <p><strong style="color: var(--text-primary);">사주기초</strong>: 천간, 지지, 십신 등 사주명리학의 기본 개념 정리</p>
+                <p style="margin-top: 0.5rem;"><strong style="color: var(--text-primary);">연간운세</strong>: 올해 운세 흐름과 오행별 특징 분석</p>
+                <p style="margin-top: 0.5rem;"><strong style="color: var(--text-primary);">별자리운세</strong>: 12별자리 성격과 운세 활용법</p>
+                <p style="margin-top: 0.5rem;"><strong style="color: var(--text-primary);">꿈해몽</strong>: 자주 꾸는 꿈의 의미와 해몽법</p>
+                <p style="margin-top: 0.5rem;"><strong style="color: var(--text-primary);">성명학</strong>: 81수리 기반 이름 분석과 작명 원리</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

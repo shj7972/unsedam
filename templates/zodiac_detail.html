@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+
+    <!-- 타이틀 카드 -->
+    <div class="glass-card" style="text-align: center; padding: 2.5rem 2rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 4rem; margin-bottom: 0.8rem;">{{ zodiac.emoji }}</div>
+        <h1 style="color: var(--gold-primary); font-size: 1.8rem; margin-bottom: 0.5rem;">{{ zodiac.korean }} 운세</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">{{ zodiac.english }} · 오행: {{ zodiac.element }} · {{ zodiac.yin_yang }}</p>
+        <a href="/zodiac" style="display: inline-block; margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">← 12띠 목록으로</a>
+    </div>
+
+    <!-- 해당 연도 -->
+    <div class="glass-card" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1rem; font-size: 1.1rem;">{{ zodiac.korean }} 출생연도</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% for yr in zodiac.years_example %}
+            <a href="/fortune/{{ yr }}" style="text-decoration: none;">
+                <span style="padding: 0.4rem 0.9rem; background: rgba(212,175,55,0.15); border: 1px solid var(--border-gold); border-radius: 20px; color: var(--gold-primary); font-size: 0.9rem; cursor: pointer; display: inline-block;">
+                    {{ yr }}년
+                </span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 성격 특성 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.2rem;">성격 특성</h3>
+        <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem;">{{ zodiac.personality }}</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+            <div>
+                <h4 style="color: #2ecc71; font-size: 0.9rem; margin-bottom: 0.8rem;">강점</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    {% for s in zodiac.strengths %}
+                    <span style="padding: 0.3rem 0.8rem; background: rgba(46,204,113,0.15); border: 1px solid rgba(46,204,113,0.3); border-radius: 20px; color: #2ecc71; font-size: 0.85rem;">{{ s }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h4 style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 0.8rem;">약점</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    {% for w in zodiac.weaknesses %}
+                    <span style="padding: 0.3rem 0.8rem; background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3); border-radius: 20px; color: #e74c3c; font-size: 0.85rem;">{{ w }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2026년 운세 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem; border-left: 4px solid var(--gold-primary);">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">2026년 {{ zodiac.korean }} 운세</h3>
+        <p style="color: var(--text-primary); line-height: 1.9; font-size: 1rem;">{{ zodiac["2026_fortune"] }}</p>
+    </div>
+
+    <!-- 행운 정보 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.2rem;">행운의 요소</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">행운의 숫자</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 1.1rem;">
+                    {% for n in zodiac.lucky_numbers %}{{ n }}{% if not loop.last %}, {% endif %}{% endfor %}
+                </div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">행운의 색상</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 0.95rem;">
+                    {% for c in zodiac.lucky_colors %}{{ c }}{% if not loop.last %} · {% endif %}{% endfor %}
+                </div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">행운의 방향</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 0.95rem;">{{ zodiac.lucky_direction }}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">오행</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 1.1rem;">{{ zodiac.element }} ({{ zodiac.yin_yang }})</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 궁합 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.2rem;">띠 궁합</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+            <div>
+                <h4 style="color: #2ecc71; font-size: 0.9rem; margin-bottom: 0.8rem;">잘 맞는 띠</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    {% for c in zodiac.compatible %}
+                    <div style="padding: 0.6rem 1rem; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); border-radius: 8px; color: #E2E8F0; font-size: 0.95rem;">
+                        {{ c }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h4 style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 0.8rem;">주의할 띠</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    {% for ic in zodiac.incompatible %}
+                    <div style="padding: 0.6rem 1rem; background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); border-radius: 8px; color: #E2E8F0; font-size: 0.95rem;">
+                        {{ ic }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 추천 직업 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">추천 직업 및 특기</h3>
+        <p style="color: var(--text-muted); line-height: 1.8;">{{ zodiac.career }}</p>
+    </div>
+
+    <!-- SEO 콘텐츠: 띠별 상세 설명 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem;">{{ zodiac.korean }}에 대한 모든 것</h3>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ zodiac.korean }}의 역사와 유래</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                {{ zodiac.korean }}은 동양의 12지지 중 하나로, 수천 년의 역사를 가진 동양 철학 체계의 일부입니다. 십이지(十二支)는 중국, 한국, 일본, 베트남 등 동아시아 문화권에서 공통적으로 사용되는 시간 체계로, 각 동물은 특정 성격과 운명적 특성을 상징합니다. {{ zodiac.korean }}({{ zodiac.english }})은 오행 중 {{ zodiac.element }}의 기운을 가지며, {{ zodiac.yin_yang }}의 성질을 지닙니다. 이는 {{ zodiac.korean }} 사람들의 기본적인 에너지와 성향에 깊은 영향을 미친다고 동양 철학에서는 봅니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ zodiac.korean }}의 성격과 특성 심층 분석</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                {{ zodiac.personality }} 특히 {{ zodiac.korean }}의 강점인 {% for s in zodiac.strengths %}{{ s }}{% if not loop.last %}, {% endif %}{% endfor %} 등의 특성은 일상생활과 직업 선택에도 큰 영향을 미칩니다. 반면 {{ zodiac.korean }}이 주의해야 할 부분은 {% for w in zodiac.weaknesses %}{{ w }}{% if not loop.last %}, {% endif %}{% endfor %} 등이 있으며, 이를 인식하고 개선하려는 노력이 중요합니다. 사주명리학에서는 {{ zodiac.korean }}의 기운이 단순한 성격 분류를 넘어, 그 사람이 어떤 환경에서 가장 잘 성장할 수 있는지, 어떤 관계에서 시너지를 낼 수 있는지를 보여주는 지표라고 해석합니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ zodiac.korean }}의 직업운과 재물운</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                {{ zodiac.korean }}에게 잘 맞는 직업은 {{ zodiac.career }} 분야입니다. 이들의 고유한 강점인 성격 특성이 이 분야에서 특히 빛을 발합니다. 재물운에 있어서는 {{ zodiac.korean }}의 오행 기운인 {{ zodiac.element }}이 재물과 어떤 관계에 있는지가 중요합니다. 행운의 숫자 {% for n in zodiac.lucky_numbers %}{{ n }}{% if not loop.last %}, {% endif %}{% endfor %}와 행운의 색상 {% for c in zodiac.lucky_colors %}{{ c }}{% if not loop.last %}, {% endif %}{% endfor %}을 생활에 활용하면 재물운 향상에 도움이 된다는 전통적인 관념이 있습니다. 또한 행운의 방향인 {{ zodiac.lucky_direction }}을 향해 중요한 결정을 내리거나, 이 방향으로 출입구가 있는 곳에서 활동하면 긍정적인 에너지를 더 잘 받을 수 있다고 전해집니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ zodiac.korean }}의 연애와 인간관계</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                {{ zodiac.korean }}은 연애에서도 고유한 스타일을 가집니다. 잘 맞는 띠인 {% for c in zodiac.compatible %}{{ c }}{% if not loop.last %}, {% endif %}{% endfor %}와는 자연스럽게 에너지가 통하며 서로를 보완하는 관계를 형성합니다. 반면 {{ zodiac.korean }}에게 주의가 필요한 {% for ic in zodiac.incompatible %}{{ ic }}{% if not loop.last %}, {% endif %}{% endfor %}과는 서로의 에너지가 충돌할 수 있어 더 많은 이해와 소통이 필요합니다. 그러나 이것이 절대적인 불화를 의미하는 것은 아닙니다. 사주명리학에서 띠 궁합은 일반적인 경향성을 보여주는 것이지, 두 사람의 관계가 그것만으로 결정되지는 않습니다. 각자의 사주 전체를 보아야 더 정확한 판단이 가능합니다.
+            </p>
+        </div>
+
+        <div>
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">2026년 병오년과 {{ zodiac.korean }}</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                2026년은 병오년(丙午年)입니다. 병(丙)은 천간의 3번째 글자로 양화(陽火), 즉 밝은 불의 기운을 상징합니다. 오(午)는 지지의 7번째 글자로 말을 상징하며 역시 화(火)의 기운을 갖고 있어, 2026년은 화기(火氣)가 매우 강한 해입니다. {{ zodiac.korean }}의 오행 기운인 {{ zodiac.element }}이 이 화(火) 기운과 어떻게 상호작용하느냐에 따라 2026년 운세의 큰 틀이 결정됩니다. {{ zodiac["2026_fortune"] }} 이러한 운세 흐름을 이해하고 주요 시기에 맞춰 계획을 세우면, 2026년을 더욱 알차게 보낼 수 있습니다.
+            </p>
+        </div>
+    </div>
+
+    <!-- 다른 띠 바로가기 -->
+    <div class="glass-card" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem;">
+        <h4 style="color: var(--gold-primary); margin-bottom: 1rem; font-size: 1rem;">다른 띠 운세 보기</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% set all_zodiacs = [
+                ("rat","🐭","쥐띠"), ("ox","🐂","소띠"), ("tiger","🐯","호랑이띠"),
+                ("rabbit","🐰","토끼띠"), ("dragon","🐲","용띠"), ("snake","🐍","뱀띠"),
+                ("horse","🐴","말띠"), ("sheep","🐑","양띠"), ("monkey","🐵","원숭이띠"),
+                ("rooster","🐓","닭띠"), ("dog","🐕","개띠"), ("pig","🐷","돼지띠")
+            ] %}
+            {% for key, emoji, name in all_zodiacs %}
+            {% if key != zodiac.key %}
+            <a href="/zodiac/{{ key }}" style="text-decoration: none;">
+                <span style="padding: 0.4rem 0.8rem; background: rgba(212,175,55,0.1); border: 1px solid var(--border-gold); border-radius: 20px; color: var(--text-muted); font-size: 0.85rem;">
+                    {{ emoji }} {{ name }}
+                </span>
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 공유 버튼 -->
+    {% include "includes/share_buttons.html" %}
+
+</div>
+
+<script>
+window.currentShareData = {
+    title: "{{ zodiac.korean }} 운세 2026 | 운세담",
+    description: "2026년 {{ zodiac.korean }} 운세를 확인하세요.",
+    url: window.location.href,
+    text: "{{ zodiac.emoji }} {{ zodiac.korean }} 2026년 운세\n운세담에서 확인해보세요! " + window.location.href
+};
+</script>
+{% endblock %}

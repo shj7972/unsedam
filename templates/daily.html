@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+<div class="glass-card">
+    <div class="section-header">
+        <span>&#128203;</span> 정보 입력
+    </div>
+
+    <form id="daily-input-form" method="POST" action="/api/calculate">
+        <div style="margin-bottom: 1rem;">
+            <label for="name" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">성함</label>
+            <input type="text" id="name" name="name" placeholder="성함을 입력해주세요" value="{{ user_name }}"
+                autocomplete="off"
+                style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary);">
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label for="birth_date"
+                style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">생년월일</label>
+            <input type="date" id="birth_date" name="birth_date" min="1900-01-01" required value="{{ birth_date }}"
+                style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-gold); border-radius: 8px; background: var(--navy-glass); color: var(--text-primary);">
+        </div>
+
+        <!-- 숨겨진 필드: 기본값 처리 -->
+        <input type="hidden" name="gender" value="기타">
+        <input type="hidden" name="birth_time" value="">
+
+        <button type="submit"
+            style="width: 100%; padding: 1rem; background: var(--gold-gradient); border: none; border-radius: 8px; color: var(--bg-dark); font-weight: bold; cursor: pointer; font-size: 1rem;">
+            오늘의 운세 보기
+        </button>
+    </form>
+
+    <div id="form-error"
+        style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #FCA5A5; display: none;">
+    </div>
+</div>
+
+<!-- Sidebar Banner -->
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+
+    {% if not birth_date %}
+    <!-- 안내 화면: 생년월일 미입력 -->
+    <div class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 4rem; margin-bottom: 1.5rem;">&#9728;</div>
+        <h2 style="color: var(--gold-primary); margin-bottom: 1rem; font-size: 1.8rem;">오늘의 운세</h2>
+        <p style="color: var(--text-muted); line-height: 1.8; font-size: 1.05rem; margin-bottom: 2rem;">
+            오늘의 운세를 보려면 생년월일을 입력하세요.<br>
+            별자리와 사주 일진을 바탕으로 오늘 하루의 운세를 안내해 드립니다.
+        </p>
+        <div style="display: inline-block; padding: 1rem 2rem; border: 1px solid var(--border-gold); border-radius: 12px; color: var(--text-muted); font-size: 0.95rem;">
+            왼쪽 사이드바에서 생년월일을 입력해 주세요
+        </div>
+    </div>
+
+    {% else %}
+    <!-- 오늘의 운세 결과 -->
+
+    <!-- 오늘 날짜 헤더 -->
+    <div class="glass-card" style="text-align: center; padding: 2.5rem 2rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.05em;">TODAY</div>
+        <h1 style="font-size: 2rem; font-weight: bold; color: var(--gold-primary); margin: 0 0 0.5rem 0; text-shadow: 0 0 12px rgba(212,175,55,0.4);">
+            {{ today_full }}
+        </h1>
+        {% if constellation_name and constellation_emoji %}
+        <div style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-muted);">
+            {{ constellation_emoji }} {{ constellation_name }}{% if user_name %} &middot; {{ user_name }}님{% endif %}의 오늘의 운세
+        </div>
+        {% elif user_name %}
+        <div style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-muted);">
+            {{ user_name }}님의 오늘의 운세
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 사주 일진 정보 -->
+    <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+            <span>&#9775;</span> 오늘의 사주 일진
+        </div>
+        <div style="padding: 1.5rem; text-align: center;">
+            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">오늘의 일진 (日辰)</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: var(--gold-primary); letter-spacing: 0.1em;">
+                {{ day_ganji }}
+            </div>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.7;">
+                일진은 하루의 기운을 나타내는 사주의 핵심 요소입니다. 오늘 하루 어떤 에너지가 흐르는지 참고하세요.
+            </div>
+        </div>
+    </div>
+
+    {% if daily_fortune %}
+    <!-- 오늘의 종합 운세 -->
+    <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+            <span>{{ constellation_emoji }}</span> {{ constellation_name }} &mdash; 오늘의 종합 운세
+        </div>
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%); border-left: 5px solid {{ daily_fortune.color }}; border-radius: 0 12px 12px 0; margin: 1rem 0;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
+                <span style="font-size: 2.5rem;">{{ daily_fortune.emoji }}</span>
+                <div>
+                    <div style="font-size: 1.6rem; font-weight: bold; color: {{ daily_fortune.color }};">{{ daily_fortune.level }}의 하루</div>
+                </div>
+            </div>
+            <div style="color: #E2E8F0; line-height: 1.85; font-size: 1.05rem;">
+                {{ daily_fortune.message }}
+            </div>
+        </div>
+    </div>
+
+    <!-- 분야별 운세 카드 -->
+    <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+            <span>&#127919;</span> 분야별 오늘의 운세
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; padding: 1rem 0;">
+            <!-- 애정운 -->
+            <div style="padding: 1.2rem; background: rgba(212,175,55,0.08); border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);">
+                <div style="font-size: 1.5rem; margin-bottom: 0.6rem;">&#10084;&#65039;</div>
+                <div style="color: var(--gold-primary); font-weight: 700; margin-bottom: 0.5rem; font-size: 1rem;">애정운</div>
+                <div style="color: #E2E8F0; font-size: 0.92rem; line-height: 1.7;">
+                    {% if life_aspects %}{{ life_aspects.love }}{% else %}{{ daily_fortune.love }}{% endif %}
+                </div>
+            </div>
+            <!-- 직장운 -->
+            <div style="padding: 1.2rem; background: rgba(212,175,55,0.08); border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);">
+                <div style="font-size: 1.5rem; margin-bottom: 0.6rem;">&#128188;</div>
+                <div style="color: var(--gold-primary); font-weight: 700; margin-bottom: 0.5rem; font-size: 1rem;">직장운</div>
+                <div style="color: #E2E8F0; font-size: 0.92rem; line-height: 1.7;">
+                    {% if life_aspects %}{{ life_aspects.career }}{% else %}{{ daily_fortune.work }}{% endif %}
+                </div>
+            </div>
+            <!-- 재물운 -->
+            <div style="padding: 1.2rem; background: rgba(212,175,55,0.08); border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);">
+                <div style="font-size: 1.5rem; margin-bottom: 0.6rem;">&#128176;</div>
+                <div style="color: var(--gold-primary); font-weight: 700; margin-bottom: 0.5rem; font-size: 1rem;">재물운</div>
+                <div style="color: #E2E8F0; font-size: 0.92rem; line-height: 1.7;">
+                    {% if life_aspects %}{{ life_aspects.wealth }}{% else %}재물 관리에 신중함이 필요한 하루입니다. 충동적인 지출을 삼가세요.{% endif %}
+                </div>
+            </div>
+            <!-- 건강운 -->
+            <div style="padding: 1.2rem; background: rgba(212,175,55,0.08); border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);">
+                <div style="font-size: 1.5rem; margin-bottom: 0.6rem;">&#127968;</div>
+                <div style="color: var(--gold-primary); font-weight: 700; margin-bottom: 0.5rem; font-size: 1rem;">건강운</div>
+                <div style="color: #E2E8F0; font-size: 0.92rem; line-height: 1.7;">
+                    {% if life_aspects %}{{ life_aspects.health }}{% else %}{{ daily_fortune.health }}{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+
+    <!-- AdSense 인피드 광고 (분야별 운세 아래) -->
+    <div style="margin-bottom: 1.5rem; text-align: center; min-height: 90px;">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2947913248390883"
+             data-ad-slot="auto"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    {% if lucky %}
+    <!-- 오늘의 행운 요소 -->
+    <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+            <span>&#127808;</span> 오늘의 행운 요소
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; padding: 1rem 0;">
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">&#127912; 행운 색</div>
+                <div style="color: #E2E8F0; font-size: 1rem; font-weight: 600;">{{ lucky.color }}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">&#128290; 행운 숫자</div>
+                <div style="color: #E2E8F0; font-size: 1rem; font-weight: 600;">{{ lucky.number }}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">&#129517; 행운 방향</div>
+                <div style="color: #E2E8F0; font-size: 1rem; font-weight: 600;">{{ lucky.direction }}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 12px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">&#128197; 행운 요일</div>
+                <div style="color: #E2E8F0; font-size: 1rem; font-weight: 600;">{{ lucky.day }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 공유 버튼 -->
+    {% include "includes/share_buttons.html" %}
+
+    {% endif %}
+
+    <!-- SEO 콘텐츠 블록 -->
+    <div class="glass-card" style="margin-top: 2rem;">
+        <div style="padding: 0.5rem 0 1.5rem 0;">
+            <h3 style="color: var(--gold-primary); font-size: 1.2rem; margin-bottom: 1.2rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(212,175,55,0.2);">
+                오늘의 운세 보는 법
+            </h3>
+            <p style="color: var(--text-muted); line-height: 1.85; font-size: 0.95rem; margin-bottom: 1.5rem;">
+                오늘의 운세는 태어난 날짜와 오늘의 날짜를 바탕으로 별자리 에너지와 사주 일진을 결합하여 산출합니다.
+                단순한 점술이 아닌, 수천 년의 동양철학과 서양 점성술이 조화롭게 어우러진 분석입니다.
+                매일 아침 오늘의 운세를 확인하면 하루를 보다 지혜롭게 계획하는 데 도움이 됩니다.
+                운세는 절대적인 예언이 아니라, 자신의 에너지 흐름을 파악하고 최선의 선택을 하기 위한 나침반으로 활용하는 것이 바람직합니다.
+                긍정적인 운세의 날에는 적극적으로 행동하고, 주의가 필요한 날에는 신중하게 결정하는 것이 좋습니다.
+                생년월일을 입력하면 개인화된 별자리 운세와 일진 정보를 무료로 확인하실 수 있습니다.
+            </p>
+
+            <h4 style="color: var(--gold-primary); font-size: 1.05rem; margin-bottom: 0.8rem;">별자리 운세란?</h4>
+            <p style="color: var(--text-muted); line-height: 1.85; font-size: 0.95rem; margin-bottom: 1.5rem;">
+                별자리 운세(Zodiac Horoscope)는 고대 바빌로니아와 그리스에서 발전한 서양 점성술의 핵심 체계입니다.
+                태어난 날짜에 따라 12개의 별자리(양자리, 황소자리, 쌍둥이자리, 게자리, 사자자리, 처녀자리, 천칭자리, 전갈자리, 사수자리, 염소자리, 물병자리, 물고기자리) 중 하나에 속하게 됩니다.
+                각 별자리는 고유한 성격, 장단점, 그리고 운세의 흐름을 가지고 있으며, 행성의 위치와 상호작용에 따라 매일 다른 에너지가 펼쳐집니다.
+                오늘의 별자리 운세는 당신이 태어난 별자리가 오늘 하루 어떤 에너지와 공명하는지를 분석하여, 애정운, 직장운, 재물운, 건강운 등 다양한 생활 영역의 흐름을 안내해 드립니다.
+                행운의 색, 행운의 숫자, 행운의 방향을 참고하면 하루를 더욱 풍요롭게 보낼 수 있습니다.
+                별자리 운세는 수천 년의 관찰을 바탕으로 한 전통 지혜이며, 현대인의 삶에도 충분히 활용 가치가 있습니다.
+            </p>
+
+            <h4 style="color: var(--gold-primary); font-size: 1.05rem; margin-bottom: 0.8rem;">사주 일진 보는 법</h4>
+            <p style="color: var(--text-muted); line-height: 1.85; font-size: 0.95rem; margin-bottom: 1.5rem;">
+                일진(日辰)은 사주명리학에서 하루의 기운을 나타내는 핵심 개념입니다.
+                60간지(干支) 체계를 기반으로 하며, 10개의 천간(天干)과 12개의 지지(地支)가 조합되어 60일을 한 주기로 순환합니다.
+                천간은 갑(甲), 을(乙), 병(丙), 정(丁), 무(戊), 기(己), 경(庚), 신(辛), 임(壬), 계(癸)의 10가지이며,
+                지지는 자(子), 축(丑), 인(寅), 묘(卯), 진(辰), 사(巳), 오(午), 미(未), 신(申), 유(酉), 술(戌), 해(亥)의 12가지입니다.
+                일진은 하루의 오행(五行) 기운을 파악하는 데 쓰이며, 일의 성사 여부, 외출의 길흉, 중요한 계약이나 이사, 결혼 등의 날짜 선택에 활용됩니다.
+                오늘의 일진 정보를 참고하여 하루를 현명하게 계획해 보세요.
+                특히 중요한 결정을 내리거나 새로운 일을 시작할 때 일진을 확인하는 것이 동양의 전통적인 지혜입니다.
+            </p>
+
+            <h4 style="color: var(--gold-primary); font-size: 1.05rem; margin-bottom: 0.8rem;">오늘의 운세 활용 방법</h4>
+            <p style="color: var(--text-muted); line-height: 1.85; font-size: 0.95rem;">
+                오늘의 운세를 가장 효과적으로 활용하는 방법은 매일 아침 확인하고 하루의 방향을 설정하는 것입니다.
+                운세가 좋은 날에는 그동안 미뤄왔던 중요한 결정이나 새로운 도전을 시작하기에 좋으며,
+                주의가 필요한 날에는 신중하게 행동하고 갈등 상황을 피하는 것이 현명합니다.
+                분야별 운세(애정운, 직장운, 재물운, 건강운)를 각 영역의 계획에 맞게 활용하면 더욱 효과적입니다.
+                행운의 색깔을 옷이나 소품에 적용하거나, 행운의 방향을 책상 배치나 이동 경로에 참고할 수도 있습니다.
+                중요한 것은 운세를 맹목적으로 따르기보다, 자신의 현재 상태와 주변 환경을 파악하는 도구로 활용하는 것입니다.
+                오늘의 운세는 참고 자료일 뿐이며, 최종 결정과 행동은 언제나 본인의 판단과 책임 아래 이루어져야 합니다.
+                매일 꾸준히 운세를 확인하고 기록해두면, 자신의 운세 흐름에 대한 더 넓은 시각을 얻을 수 있습니다.
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('daily-input-form');
+        if (!form) return;
+
+        // localStorage에서 사용자 정보 불러오기
+        try {
+            const saved = localStorage.getItem('user_session_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                const nameInput = form.querySelector('[name="name"]');
+                const birthDateInput = form.querySelector('[name="birth_date"]');
+                if (nameInput && !nameInput.value && data.user_name) {
+                    nameInput.value = data.user_name;
+                }
+                if (birthDateInput && !birthDateInput.value && data.birth_date) {
+                    birthDateInput.value = data.birth_date;
+                }
+            }
+        } catch (e) {
+            // localStorage 접근 실패 시 무시
+        }
+
+        // 폼 제출 처리
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const errorDiv = document.getElementById('form-error');
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '처리 중...';
+            }
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+
+            try {
+                const response = await fetch('/api/calculate', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // localStorage에도 저장
+                    try {
+                        const sessionData = {
+                            user_name: formData.get('name') || '',
+                            birth_date: formData.get('birth_date') || '',
+                            user_gender: formData.get('gender') || '',
+                            birth_time: formData.get('birth_time') || '',
+                            is_lunar: false,
+                            _timestamp: Date.now()
+                        };
+                        localStorage.setItem('user_session_data', JSON.stringify(sessionData));
+                    } catch (e) {
+                        // 무시
+                    }
+                    // 페이지 새로고침으로 운세 결과 표시
+                    window.location.reload();
+                } else {
+                    if (errorDiv) {
+                        errorDiv.textContent = data.detail || '오류가 발생했습니다.';
+                        errorDiv.style.display = 'block';
+                    }
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '오늘의 운세 보기';
+                    }
+                }
+            } catch (error) {
+                if (errorDiv) {
+                    errorDiv.textContent = '네트워크 오류가 발생했습니다.';
+                    errorDiv.style.display = 'block';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '오늘의 운세 보기';
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

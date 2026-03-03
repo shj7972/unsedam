@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+<div class="glass-card">
+    <div class="section-header">
+        <span>✍️</span> 이름 입력
+    </div>
+    <form id="name-form">
+        <div style="margin-bottom: 1rem;">
+            <label for="input-name" style="display:block; margin-bottom:0.5rem; color:var(--text-primary);">이름 (성+이름)</label>
+            <input type="text" id="input-name" name="name"
+                placeholder="예: 홍길동"
+                value="{{ name }}"
+                style="width:100%; padding:0.75rem; border:1px solid var(--border-gold); border-radius:8px; background:var(--navy-glass); color:var(--text-primary); font-size:1.1rem; text-align:center; box-sizing:border-box;">
+        </div>
+        <button type="submit"
+            style="width:100%; padding:1rem; background:var(--gold-gradient); border:none; border-radius:8px; color:var(--bg-dark); font-weight:bold; cursor:pointer; font-size:1rem;">
+            이름 풀이 분석
+        </button>
+    </form>
+    <div id="name-error" style="margin-top:1rem; padding:0.75rem; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px; color:#FCA5A5; display:none;"></div>
+</div>
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    {% if not result %}
+    <!-- 초기 안내 화면 -->
+    <div class="glass-card" style="text-align:center; padding:4rem 2rem; margin-bottom:1.5rem;">
+        <div style="font-size:3.5rem; margin-bottom:1.2rem;">✍️</div>
+        <h1 style="color:var(--gold-primary); font-size:1.8rem; margin-bottom:1rem;">이름 풀이 (성명학)</h1>
+        <p style="color:var(--text-muted); line-height:1.8;">
+            이름의 획수를 분석하여 81수리 성명학으로 이름의 기운을 풀이합니다.<br>
+            왼쪽에 이름을 입력하면 바로 결과를 확인하실 수 있습니다.
+        </p>
+    </div>
+
+    {% else %}
+    <!-- 획수 분석 카드 -->
+    <div class="glass-card" style="margin-bottom:1.5rem; text-align:center; padding:2rem;">
+        <h2 style="color:var(--gold-primary); font-size:2rem; margin-bottom:1rem;">{{ result.name }}</h2>
+        <div style="display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+            {% for i in range(result.chars|length) %}
+            <div style="text-align:center;">
+                <div style="font-size:2rem; color:var(--gold-primary); font-weight:bold;">{{ result.chars[i] }}</div>
+                <div style="font-size:0.9rem; color:var(--text-muted); margin-top:0.3rem;">{{ result.strokes[i] }}획</div>
+                <div style="font-size:0.85rem; color:var(--text-dim); margin-top:0.1rem;">{{ result.elements[i] }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="font-size:1.1rem; color:var(--text-muted);">
+            총 획수: <span style="color:var(--gold-primary); font-size:1.4rem; font-weight:bold;">{{ result.total }}획</span>
+        </div>
+    </div>
+
+    <!-- 81수리 결과 -->
+    <div class="glass-card" style="margin-bottom:1.5rem; padding:2rem;">
+        <div style="text-align:center; margin-bottom:1.5rem;">
+            <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.5rem;">81수리 결과</div>
+            <div style="font-size:3rem; font-weight:bold; color:{{ result.suri_color }};">{{ result.suri_num }}</div>
+            <div style="font-size:1.3rem; color:var(--gold-primary); margin:0.5rem 0;">{{ result.suri.name }}</div>
+            <span style="display:inline-block; padding:0.3rem 1rem; border-radius:20px; font-size:0.9rem; font-weight:bold; background:rgba(0,0,0,0.3); color:{{ result.suri_color }}; border:1px solid {{ result.suri_color }};">{{ result.suri.type }}</span>
+        </div>
+        <p style="color:#E2E8F0; line-height:1.8; text-align:center; font-size:1.05rem;">{{ result.suri.desc }}</p>
+    </div>
+
+    <!-- 4격 분석 -->
+    <div class="glass-card" style="margin-bottom:1.5rem; padding:2rem;">
+        <div class="section-header"><span>📊</span> 원형이정(元亨利貞) 4격 분석</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1rem;">
+            {% set격_list = [
+                ('원격(元格)', 'won', '이름의 근본 기운'),
+                ('형격(亨格)', 'hyung', '사회적 운'),
+                ('이격(利格)', 'i', '이름 내부 기운'),
+                ('정격(貞格)', 'jeong', '전체 종합 운')
+            ] %}
+            {% for label, key, desc in 격_list %}
+            <div style="padding:1.2rem; background:rgba(212,175,55,0.07); border-radius:12px; border:1px solid rgba(212,175,55,0.2); text-align:center;">
+                <div style="color:var(--gold-primary); font-weight:700; margin-bottom:0.3rem; font-size:0.95rem;">{{ label }}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.8rem;">{{ desc }}</div>
+                <div style="font-size:1.8rem; font-weight:bold; color:{{ TYPE_COLORS.get(result[key].info.type, '#f39c12') }}; margin-bottom:0.4rem;">{{ result[key].num }}</div>
+                <div style="font-size:0.9rem; color:#E2E8F0; margin-bottom:0.3rem;">{{ result[key].info.name }}</div>
+                <span style="font-size:0.8rem; padding:0.2rem 0.6rem; border-radius:12px; background:rgba(0,0,0,0.3); color:{{ TYPE_COLORS.get(result[key].info.type, '#f39c12') }};">{{ result[key].info.type }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 공유 버튼 -->
+    {% include "includes/share_buttons.html" %}
+    {% endif %}
+
+    <!-- SEO 콘텐츠 -->
+    <div class="glass-card" style="margin-top:2rem; padding:2rem;">
+        <h3 style="color:var(--gold-primary); margin-bottom:1.5rem; font-size:1.3rem;">✍️ 성명학 완벽 가이드</h3>
+
+        <div style="margin-bottom:1.5rem;">
+            <h4 style="color:#E2E8F0; margin-bottom:0.8rem; border-left:3px solid var(--gold-primary); padding-left:0.8rem;">성명학(姓名學)이란?</h4>
+            <p style="color:var(--text-muted); line-height:1.8; font-size:0.95rem;">
+                성명학은 이름의 획수와 음양오행을 분석하여 그 사람의 운명과 기운을 파악하는 동양의 전통 학문입니다.
+                한자 문화권에서는 수천 년 전부터 이름 짓기에 성명학을 활용해왔으며, 이름에 담긴 기운이 삶에 영향을 미친다고 믿어왔습니다.
+                특히 81수리(八十一數理) 성명학은 이름을 구성하는 글자들의 획수를 더한 총 획수를 1부터 81 사이의 수로 환산하여,
+                그 수리가 가진 길흉화복의 의미를 파악합니다. 81은 9×9의 수로, 동양 철학에서 완전한 순환을 상징합니다.
+                아이의 이름을 짓거나, 개명을 고려할 때, 혹은 사업체명이나 브랜드명을 결정할 때도 성명학을 참고합니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom:1.5rem;">
+            <h4 style="color:#E2E8F0; margin-bottom:0.8rem; border-left:3px solid var(--gold-primary); padding-left:0.8rem;">원형이정(元亨利貞) 4격이란?</h4>
+            <p style="color:var(--text-muted); line-height:1.8; font-size:0.95rem;">
+                성명학에서는 이름을 4가지 격(格)으로 나누어 분석합니다.
+                원격(元格)은 이름자만의 획수 합으로 타고난 본질적 기운을 나타냅니다.
+                형격(亨格)은 성과 이름 첫 글자의 합으로 사회적 활동과 대인관계의 운을 나타냅니다.
+                이격(利格)은 이름 글자들의 합으로 이름이 가져다주는 내면의 기운을 나타냅니다.
+                정격(貞格)은 성과 이름 전체의 총 획수로 인생 전체의 운세와 최종적인 결과를 나타냅니다.
+                이 4가지 격이 모두 길수(吉數)이면 최고의 이름이며, 일부가 흉수여도 다른 격이 보완해주면 균형 잡힌 이름이 됩니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom:1.5rem;">
+            <h4 style="color:#E2E8F0; margin-bottom:0.8rem; border-left:3px solid var(--gold-primary); padding-left:0.8rem;">좋은 이름의 조건</h4>
+            <p style="color:var(--text-muted); line-height:1.8; font-size:0.95rem;">
+                성명학적으로 좋은 이름은 여러 조건을 만족해야 합니다.
+                첫째, 81수리 기준 길수(1, 3, 5, 6, 7, 8, 11, 13, 15, 16, 17, 18, 21, 23, 24, 29, 31, 32, 33, 35, 37, 39, 41, 45, 47, 48, 52, 57, 58, 61, 63, 65, 67, 68, 71, 72, 73, 75, 77, 78, 81)에 해당해야 합니다.
+                둘째, 음양(陰陽)의 배합이 조화로워야 합니다.
+                셋째, 오행(五行)이 치우치지 않고 균형을 이루어야 합니다.
+                넷째, 발음이 부드럽고 긍정적인 의미를 담아야 합니다.
+                다섯째, 성씨와 어울려 전체적인 조화를 이루어야 합니다.
+                운세담의 이름 풀이는 이러한 기준을 종합적으로 분석하여 이름에 담긴 기운을 알려드립니다.
+            </p>
+        </div>
+
+        <div>
+            <h4 style="color:#E2E8F0; margin-bottom:0.8rem; border-left:3px solid var(--gold-primary); padding-left:0.8rem;">이름이 운명에 미치는 영향</h4>
+            <p style="color:var(--text-muted); line-height:1.8; font-size:0.95rem;">
+                동양 철학에서 이름은 단순한 호칭이 아니라, 부르는 사람과 불리는 사람 모두에게 지속적인 에너지를 전달하는 매체로 봅니다.
+                좋은 이름은 사람의 기운을 활성화하고 긍정적인 영향을 미치는 반면, 불균형한 획수를 가진 이름은 삶에 크고 작은 장애를 만들 수 있다고 합니다.
+                실제로 많은 사람들이 개명 후 인생이 바뀌었다고 느끼는 경우가 있는데, 이는 단순한 심리적 효과를 넘어 이름에 담긴 기운의 변화가 삶에 영향을 미치기 때문이라고 성명학에서는 설명합니다.
+                물론 이름이 운명의 전부는 아니지만, 좋은 이름은 인생에 있어 긍정적인 에너지의 씨앗이 될 수 있습니다.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('name-form');
+    if (!form) return;
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nameInput = document.getElementById('input-name');
+        const errorDiv = document.getElementById('name-error');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const name = nameInput.value.trim();
+
+        if (!name) {
+            errorDiv.textContent = '이름을 입력해주세요.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        if (name.length < 2) {
+            errorDiv.textContent = '두 글자 이상 입력해주세요.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        errorDiv.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = '분석 중...';
+
+        window.location.href = '/namefortune?name=' + encodeURIComponent(name);
+    });
+});
+</script>
+{% endblock %}

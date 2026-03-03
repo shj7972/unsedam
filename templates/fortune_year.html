@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+
+    <!-- 타이틀 카드 -->
+    <div class="glass-card" style="text-align: center; padding: 2.5rem 2rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 3.5rem; margin-bottom: 0.8rem;">{{ data.zodiac.emoji }}</div>
+        <h1 style="color: var(--gold-primary); font-size: 1.8rem; margin-bottom: 0.5rem;">{{ year }}년생 운세</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">{{ data.zodiac.korean }} · {{ data.birth_ganji }}</p>
+        <a href="/zodiac/{{ data.zodiac.key }}" style="display: inline-block; margin-top: 0.8rem; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; margin-right: 1rem;">
+            {{ data.zodiac.emoji }} {{ data.zodiac.korean }} 상세보기
+        </a>
+        <a href="/zodiac" style="display: inline-block; margin-top: 0.8rem; color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">
+            ← 12띠 목록
+        </a>
+    </div>
+
+    <!-- 기본 정보 카드 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.2rem;">{{ year }}년생 기본 정보</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">출생연도</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 1.3rem;">{{ year }}년</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">한국 나이</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 1.3rem;">{{ data.age_korean }}세</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">만 나이</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 1.3rem;">{{ data.age_western }}세</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">태어난 해 간지</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 0.95rem;">{{ data.birth_ganji }}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">띠</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 1.1rem;">{{ data.zodiac.emoji }} {{ data.zodiac.korean }}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">오행 · 음양</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 0.95rem;">{{ data.zodiac.element }} · {{ data.zodiac.yin_yang }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2026년 운세 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem; border-left: 4px solid var(--gold-primary);">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">2026년 {{ year }}년생 운세</h3>
+        <p style="color: var(--text-primary); line-height: 1.9; font-size: 1rem;">{{ data.zodiac["2026_fortune"] }}</p>
+    </div>
+
+    <!-- 성격 특성 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.2rem;">{{ year }}년생 성격 특성</h3>
+        <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem;">{{ data.zodiac.personality }}</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+            <div>
+                <h4 style="color: #2ecc71; font-size: 0.9rem; margin-bottom: 0.8rem;">강점</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    {% for s in data.zodiac.strengths %}
+                    <span style="padding: 0.3rem 0.8rem; background: rgba(46,204,113,0.15); border: 1px solid rgba(46,204,113,0.3); border-radius: 20px; color: #2ecc71; font-size: 0.85rem;">{{ s }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h4 style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 0.8rem;">약점</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    {% for w in data.zodiac.weaknesses %}
+                    <span style="padding: 0.3rem 0.8rem; background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3); border-radius: 20px; color: #e74c3c; font-size: 0.85rem;">{{ w }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 행운 정보 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.2rem;">{{ year }}년생 행운의 요소</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">행운의 숫자</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 1.1rem;">
+                    {% for n in data.zodiac.lucky_numbers %}{{ n }}{% if not loop.last %}, {% endif %}{% endfor %}
+                </div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">행운의 색상</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 0.9rem;">
+                    {% for c in data.zodiac.lucky_colors %}{{ c }}{% if not loop.last %} · {% endif %}{% endfor %}
+                </div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">행운의 방향</div>
+                <div style="color: var(--text-primary); font-weight: bold; font-size: 0.9rem;">{{ data.zodiac.lucky_direction }}</div>
+            </div>
+            <div style="padding: 1rem; background: rgba(212,175,55,0.1); border-radius: 10px; text-align: center;">
+                <div style="color: var(--gold-primary); font-size: 0.8rem; margin-bottom: 0.4rem;">추천 직업</div>
+                <div style="color: var(--text-primary); font-size: 0.8rem; line-height: 1.5;">{{ data.zodiac.career }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 궁합 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.2rem;">{{ year }}년생 띠 궁합</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+            <div>
+                <h4 style="color: #2ecc71; font-size: 0.9rem; margin-bottom: 0.8rem;">잘 맞는 띠</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    {% for c in data.zodiac.compatible %}
+                    <div style="padding: 0.6rem 1rem; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); border-radius: 8px; color: #E2E8F0; font-size: 0.95rem;">
+                        {{ c }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h4 style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 0.8rem;">주의할 띠</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    {% for ic in data.zodiac.incompatible %}
+                    <div style="padding: 0.6rem 1rem; background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); border-radius: 8px; color: #E2E8F0; font-size: 0.95rem;">
+                        {{ ic }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEO 콘텐츠 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem;">{{ year }}년생 완전 분석</h3>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ year }}년생의 사주와 간지</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                {{ year }}년은 간지로 {{ data.birth_ganji }}의 해입니다. 이 해에 태어난 사람들은 {{ data.zodiac.korean }}의 기운을 타고났습니다. 사주명리학에서 태어난 해의 간지는 그 사람의 '연주(年柱)'가 되어 평생 영향을 미칩니다. {{ data.birth_ganji }}는 천간(天干)과 지지(地支)의 조합으로, 각 글자가 가진 오행의 기운이 {{ year }}년생의 기본적인 성격과 잠재력을 형성하는 데 기여합니다. 물론 정확한 사주 분석을 위해서는 태어난 월·일·시도 함께 고려해야 합니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ year }}년생의 나이와 인생 시기</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                2026년 기준으로 {{ year }}년생은 한국 나이 {{ data.age_korean }}세, 만 {{ data.age_western }}세가 됩니다. 동양 철학에서는 인생을 12년 주기로 나누어 보기도 합니다. 각 주기마다 강조되는 운의 흐름이 다르며, 현재 {{ year }}년생이 맞이하고 있는 시기가 어떤 의미를 갖는지 살펴볼 필요가 있습니다. 2026년 {{ year }}년생의 띠 운세를 바탕으로 한 해의 큰 흐름을 파악하고, 중요한 결정과 계획을 세울 때 참고하시기 바랍니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ year }}년생의 직업운과 재물운</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                {{ data.zodiac.korean }}인 {{ year }}년생에게 잘 맞는 직업군은 {{ data.zodiac.career }} 분야입니다. 이 분야는 {{ data.zodiac.korean }}의 특성인 {% for s in data.zodiac.strengths %}{{ s }}{% if not loop.last %}, {% endif %}{% endfor %} 등의 강점을 발휘하기에 적합한 환경을 제공합니다. 2026년 재물운과 직업운의 흐름은 {{ data.zodiac["2026_fortune"] }} 행운의 요소인 숫자 {% for n in data.zodiac.lucky_numbers %}{{ n }}{% if not loop.last %}, {% endif %}{% endfor %}와 색상 {% for c in data.zodiac.lucky_colors %}{{ c }}{% if not loop.last %}, {% endif %}{% endfor %}을 일상에 활용하면 재물과 관련된 결정에 긍정적인 에너지를 더할 수 있습니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ year }}년생의 연애운과 대인관계</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                {{ year }}년생 {{ data.zodiac.korean }}은 연애에서 고유한 스타일을 가집니다. 잘 맞는 띠인 {% for c in data.zodiac.compatible %}{{ c }}{% if not loop.last %}, {% endif %}{% endfor %}와는 자연스러운 에너지 교류가 이루어지며 서로를 이해하고 보완하는 관계를 형성합니다. 그러나 사주에서 띠 궁합은 여러 요소 중 하나일 뿐이므로, 상대방의 전체적인 사주를 보아야 더 정확한 궁합 판단이 가능합니다. 2026년에는 특히 인간관계에서 진실성과 신뢰를 바탕으로 한 관계를 맺는 것이 중요합니다.
+            </p>
+        </div>
+
+        <div>
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ year }}년생의 건강운과 주의사항</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                {{ data.zodiac.korean }}에게는 오행 {{ data.zodiac.element }}과 연관된 신체 부위 및 건강 경향이 있습니다. 목(木)은 간·담과 관련되고, 화(火)는 심장·소장, 토(土)는 위·비장, 금(金)은 폐·대장, 수(水)는 신장·방광과 연관됩니다. {{ year }}년생은 자신의 오행 특성을 이해하고 해당 부위의 건강에 주의를 기울이면 도움이 됩니다. 또한 {{ data.zodiac.korean }}의 특성상 {% for w in data.zodiac.weaknesses %}{{ w }}{% if not loop.last %}, {% endif %}{% endfor %} 등의 성향이 스트레스로 이어질 수 있으므로, 자신을 돌보는 시간을 충분히 갖는 것이 중요합니다. 규칙적인 생활 습관과 충분한 휴식이 2026년 건강 관리의 핵심입니다.
+            </p>
+        </div>
+    </div>
+
+    <!-- 연도 탐색 -->
+    <div class="glass-card" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem;">
+        <h4 style="color: var(--gold-primary); margin-bottom: 1rem; font-size: 1rem;">같은 {{ data.zodiac.korean }} 연도 보기</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% for yr in data.zodiac.years_example %}
+            {% if yr >= 1900 and yr <= 2024 %}
+            <a href="/fortune/{{ yr }}" style="text-decoration: none;">
+                <span style="padding: 0.4rem 0.9rem; background: {% if yr == year %}rgba(212,175,55,0.35){% else %}rgba(212,175,55,0.1){% endif %}; border: 1px solid var(--border-gold); border-radius: 20px; color: {% if yr == year %}var(--gold-primary){% else %}var(--text-muted){% endif %}; font-size: 0.9rem; font-weight: {% if yr == year %}bold{% else %}normal{% endif %};">
+                    {{ yr }}년
+                </span>
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 공유 버튼 -->
+    {% include "includes/share_buttons.html" %}
+
+</div>
+
+<script>
+window.currentShareData = {
+    title: "{{ year }}년생 {{ data.zodiac.korean }} 운세 2026 | 운세담",
+    description: "{{ year }}년생({{ data.zodiac.korean }}) 2026년 운세를 확인하세요. 한국 나이 {{ data.age_korean }}세.",
+    url: window.location.href,
+    text: "{{ data.zodiac.emoji }} {{ year }}년생 {{ data.zodiac.korean }} 2026년 운세\n운세담에서 확인해보세요! " + window.location.href
+};
+</script>
+{% endblock %}

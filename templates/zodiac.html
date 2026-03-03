@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <div class="glass-card" style="text-align: center; padding: 2.5rem 2rem; margin-bottom: 1.5rem;">
+        <h1 style="color: var(--gold-primary); font-size: 1.8rem; margin-bottom: 0.5rem;">🐯 12띠 운세</h1>
+        <p style="color: var(--text-muted);">나의 띠를 선택하면 상세 운세를 확인할 수 있습니다.</p>
+    </div>
+
+    <!-- 12띠 그리드 -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        {% for z in zodiacs %}
+        <a href="/zodiac/{{ z.key }}" style="text-decoration: none;">
+            <div class="glass-card" style="padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-gold);">
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{{ z.emoji }}</div>
+                <div style="color: var(--gold-primary); font-weight: bold; font-size: 1rem;">{{ z.korean }}</div>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.3rem;">
+                    {{ z.years_example[-2] }}년, {{ z.years_example[-1] }}년
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- 출생연도로 찾기 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 2rem; text-align: center;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">출생연도로 운세 찾기</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem;">출생연도를 입력하면 해당 연도의 띠 운세와 상세 정보를 확인할 수 있습니다.</p>
+        <form action="" onsubmit="goToYearFortune(event)" style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;">
+            <input type="number" id="year-input" placeholder="예: 1990" min="1900" max="2024"
+                style="padding: 0.7rem 1rem; border-radius: 8px; border: 1px solid var(--border-gold); background: rgba(0,0,0,0.3); color: var(--text-primary); font-size: 1rem; width: 140px;">
+            <button type="submit"
+                style="padding: 0.7rem 1.5rem; border-radius: 8px; background: var(--gold-primary); color: #1a1a2e; font-weight: bold; border: none; cursor: pointer; font-size: 1rem;">
+                운세 확인
+            </button>
+        </form>
+    </div>
+
+    <!-- SEO 콘텐츠 -->
+    <div class="glass-card" style="padding: 2rem;">
+        <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem;">12띠 운세 완벽 가이드</h3>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">12띠(十二支)란?</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                12띠는 동양의 전통적인 시간 체계인 십이지(十二支)에서 유래한 것으로, 쥐(자)·소(축)·호랑이(인)·토끼(묘)·용(진)·뱀(사)·말(오)·양(미)·원숭이(신)·닭(유)·개(술)·돼지(해)의 12가지 동물이 해마다 순환합니다. 태어난 해의 띠는 그 사람의 기본적인 성격과 운명의 틀을 나타낸다고 동양 문화권에서는 믿어왔습니다. 음력 12달과 하루 12시간도 이 십이지로 표현하며, 사주명리학에서는 태어난 해(年支)뿐만 아니라 월지(月支), 일지(日支), 시지(時支)도 모두 이 십이지로 표기합니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">2026년 말띠의 해 (丙午年)</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                2026년은 병오년(丙午年)으로 불의 기운을 가진 붉은 말의 해입니다. 병(丙)은 양화(陽火)로 태양처럼 밝고 강렬한 에너지를 상징하며, 오(午)는 말로 활동성과 변화를 나타냅니다. 오화(午火)의 기운이 강한 2026년은 새로운 도전과 변화에 유리한 해입니다. 특히 말띠생은 본명년(本命年)을 맞이하는 해로, 인생의 중요한 전환점이 될 수 있습니다. 호랑이띠, 개띠와는 삼합(三合)을 이루어 특별한 협력 에너지가 발생하며, 쥐띠·소띠와는 충(沖)이 되어 변화와 긴장감이 높아질 수 있습니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">띠 궁합과 상생·상극</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                띠 궁합은 십이지의 삼합(三合), 육합(六合), 충(沖), 형(刑) 관계로 파악합니다. 삼합은 자오묘유(子午卯酉), 인오술(寅午戌), 신자진(申子辰), 해묘미(亥卯未) 등 세 띠가 모이면 강력한 합력이 발생하는 관계입니다. 육합은 자축(子丑), 인해(寅亥), 묘술(卯戌), 진유(辰酉), 사신(巳申), 오미(午未)로 두 띠가 서로 이어지는 조합입니다. 반면 충(沖)은 자오(子午), 축미(丑未), 인신(寅申), 묘유(卯酉), 진술(辰戌), 사해(巳亥) 등 정반대 위치의 띠로, 서로 강하게 충돌하는 에너지입니다. 단순히 좋고 나쁜 것이 아니라, 서로의 에너지를 이해하고 조율하는 것이 중요합니다.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">오행(五行)과 12띠의 관계</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                12띠는 오행(木·火·土·金·水)과 깊이 연결되어 있습니다. 목(木)의 기운을 가진 호랑이띠·토끼띠는 성장과 생명력을 상징하고, 화(火)의 기운인 뱀띠·말띠는 열정과 활력을 나타냅니다. 토(土)의 기운인 용띠·양띠·개띠·소띠는 안정과 중재를 상징하며, 금(金)의 기운인 원숭이띠·닭띠는 결단력과 정밀함을 나타냅니다. 수(水)의 기운인 돼지띠·쥐띠는 지혜와 유연함을 상징합니다. 오행은 상생(相生)과 상극(相剋)의 원리로 서로 영향을 주고받으며, 이것이 띠 간의 궁합과 운세에도 영향을 미칩니다.
+            </p>
+        </div>
+
+        <div>
+            <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">본명년(本命年)과 액운</h4>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+                본명년이란 자신의 띠와 같은 해를 맞이하는 해로, 12년마다 돌아옵니다. 동양 문화권에서는 본명년에 특히 주의가 필요하다고 알려져 있습니다. 태세(太歲)신이 자신의 자리를 범한다고 하여 범태세(犯太歲)라고도 합니다. 이 해에는 붉은 속옷, 붉은 실 팔찌, 옥이나 황금 장신구를 착용하면 액운을 막을 수 있다는 민간 신앙이 있습니다. 그러나 본명년이 반드시 나쁜 것만은 아니며, 큰 변화와 새로운 시작의 기회이기도 합니다. 중요한 것은 이 해에 더 신중하게 행동하고 자신을 성찰하는 태도입니다.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+function goToYearFortune(e) {
+    e.preventDefault();
+    const year = document.getElementById('year-input').value;
+    if (year && year >= 1900 && year <= 2024) {
+        window.location.href = '/fortune/' + year;
+    } else {
+        alert('1900년부터 2024년 사이의 연도를 입력해주세요.');
+    }
+}
+</script>
+{% endblock %}

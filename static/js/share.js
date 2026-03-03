@@ -74,18 +74,52 @@ const ShareUtils = {
     copyLink: async function (url) {
         try {
             await navigator.clipboard.writeText(url);
-            // 토스트 메시지 표시 (기존 showSuccess 함수 활용 가능 시)
-            if (typeof showSuccess === 'function') {
-                // showSuccess('share-status', '링크가 복사되었습니다!'); 
-                // 위 함수는 elementId가 필요하므로, 간단한 alert 또는 커스텀 토스트 사용
-                alert('링크가 복사되었습니다!');
-            } else {
-                alert('링크가 복사되었습니다!');
-            }
+            ShareUtils.showToast('🔗 링크가 복사되었습니다!', 'success');
         } catch (err) {
             console.error('링크 복사 실패:', err);
-            alert('링크 복사에 실패했습니다.');
+            // fallback: execCommand
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = url;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                ShareUtils.showToast('🔗 링크가 복사되었습니다!', 'success');
+            } catch (e) {
+                ShareUtils.showToast('링크 복사에 실패했습니다.', 'error');
+            }
         }
+    },
+
+    /**
+     * 토스트 메시지 표시
+     * @param {string} message - 표시할 메시지
+     * @param {string} type - 'success' | 'error'
+     */
+    showToast: function (message, type) {
+        // 기존 토스트 제거
+        const existing = document.getElementById('share-utils-toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'share-utils-toast';
+        toast.textContent = message;
+        const bg = type === 'error' ? 'rgba(231,76,60,0.9)' : 'rgba(39,174,96,0.9)';
+        toast.style.cssText = [
+            'position:fixed', 'bottom:2rem', 'left:50%', 'transform:translateX(-50%)',
+            `background:${bg}`, 'color:#fff', 'padding:0.75rem 1.5rem',
+            'border-radius:30px', 'font-size:0.95rem', 'font-weight:500',
+            'z-index:9999', 'box-shadow:0 4px 20px rgba(0,0,0,0.3)',
+            'pointer-events:none', 'transition:opacity 0.4s'
+        ].join(';');
+        document.body.appendChild(toast);
+
+        // 2.5초 후 페이드아웃
+        setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2500);
     },
 
     /**
