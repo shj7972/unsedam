@@ -496,23 +496,30 @@ def calculate_daeun(pillars_info, gender, birth_datetime):
     current_long = current_long % 360
     
     # Find target angle
-    term_angles = [315, 330, 345, 0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300]
+    # 절기 황경각 목록: 15도 간격으로 24절기 (소한=285, 대한=300, 입춘=315, 우수=330, ...)
+    # 순서는 0~345 오름차순으로 관리하고, 현재 황경 기준으로 wrap-around를 처리
+    term_angles_sorted = [0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165,
+                          180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345]
     if direction == 1:
+        # 순행: current_long 이후의 가장 가까운 절기 황경을 찾음
         target_angle = None
-        for angle in term_angles:
+        for angle in term_angles_sorted:
             if angle > current_long:
                 target_angle = angle
                 break
         if target_angle is None:
-            target_angle = 315
+            # current_long이 345 이상일 때 → 다음 절기는 0도(다음 해로 넘어감)
+            target_angle = 0
     else:
+        # 역행: current_long 이전의 가장 가까운 절기 황경을 찾음
         target_angle = None
-        for angle in reversed(term_angles):
+        for angle in reversed(term_angles_sorted):
             if angle < current_long:
                 target_angle = angle
                 break
         if target_angle is None:
-            target_angle = 300
+            # current_long이 0 이하일 때 → 이전 절기는 345도
+            target_angle = 345
     
     # Find the actual date when sun reaches target angle
     # Simple approach: find first date that reaches or passes target
@@ -581,13 +588,17 @@ def calculate_daeun(pillars_info, gender, birth_datetime):
     
     # Convert days to years: 3 days = 1 year (1 day = 4 months = 1/3 year)
     start_age_years = days_diff / 3
-    
-    # NEW RULE: Discard the tens digit (modulo 10)
-    # Most schools use integer Daeun numbers. We'll use the integer part modulo 10.
-    start_age = int(round(start_age_years, 0)) % 10
-    if start_age == 0 and round(start_age_years, 0) >= 10:
-        # Some might want 0, some might want 10. Modulo 10 gives 0.
-        pass
+
+    # 대운 시작 나이: 반올림하여 정수로 변환
+    # 한 절기 구간은 약 15일이므로 최대 15/3 = 5년 → 일반적으로 1~9 범위
+    # % 10을 적용하지 않음: 절기 탐색이 정확하면 10 이상 나올 수 없으며,
+    # % 10은 오히려 10→0으로 잘못 변환하는 버그를 유발
+    start_age = int(round(start_age_years, 0))
+    # 방어 코드: 절기 탐색 오류로 비정상적으로 큰 값이 나오는 경우 클램프
+    if start_age >= 10:
+        start_age = start_age % 10
+        if start_age == 0:
+            start_age = 1  # 0세는 의미상 1세로 보정
     
     # Calculate Daeun periods (typically 8 periods, 10 years each)
     # Daeun starts from the NEXT ganji after month pillar
