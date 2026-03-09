@@ -42,7 +42,8 @@
     <meta property="og:url" content="{{ meta.url }}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ site_info.name }}">
-    <meta property="og:image" content="{{ site_info.url }}/static/images/og-image.png">
+    {% set og_img = meta.og_image if meta.og_image else site_info.url ~ '/static/images/og-image.png' %}
+    <meta property="og:image" content="{{ og_img }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="{{ site_info.name }} - {{ meta.title }}">
@@ -51,7 +52,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ meta.title }}">
     <meta name="twitter:description" content="{{ meta.description }}">
-    <meta name="twitter:image" content="{{ site_info.url }}/static/images/og-image.png">
+    <meta name="twitter:image" content="{{ og_img }}">
     <meta name="twitter:image:alt" content="{{ site_info.name }} - {{ meta.title }}">
 
     <!-- Canonical URL -->
@@ -94,6 +95,30 @@
         }
     }
     </script>
+
+    <!-- 구조화된 데이터 (JSON-LD) - Breadcrumb -->
+    {% if page in page_names %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "운세담",
+                "item": "{{ site_info.url }}/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ page_names[page] }}",
+                "item": "{{ site_info.url }}/{{ page if page != 'ai_saju' else '' }}"
+            }
+        ]
+    }
+    </script>
+    {% endif %}
 </head>
 
 <body class="app-root">
@@ -152,7 +177,38 @@
                 {% block content %}{% endblock %}
             </div>
 
-            <!-- Banner Exchange Section -->
+            <!-- 연관 운세 추천 (내부 링크 강화) -->
+            <div class="internal-links-section"
+                style="max-width: 800px; margin: 2rem auto; padding: 1.5rem; background: rgba(255, 255, 255, 0.03); border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center;">
+                <h3 style="color: var(--gold-primary); margin-bottom: 1rem; font-size: 1.1rem;">✨ 다른 운세도 확인해 보세요</h3>
+                <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 0.8rem;">
+                    <a href="/"
+                        style="color: #E2E8F0; text-decoration: none; padding: 0.5rem 1rem; background: rgba(212,175,55,0.1); border-radius: 20px; font-size: 0.9rem; transition: background 0.2s;">✨
+                        AI 사주 분석</a>
+                    <a href="/tojeong"
+                        style="color: #E2E8F0; text-decoration: none; padding: 0.5rem 1rem; background: rgba(212,175,55,0.1); border-radius: 20px; font-size: 0.9rem; transition: background 0.2s;">📜
+                        2026년 토정비결</a>
+                    <a href="/gonghap"
+                        style="color: #E2E8F0; text-decoration: none; padding: 0.5rem 1rem; background: rgba(212,175,55,0.1); border-radius: 20px; font-size: 0.9rem; transition: background 0.2s;">💑
+                        사주 궁합</a>
+                    <a href="/tarot"
+                        style="color: #E2E8F0; text-decoration: none; padding: 0.5rem 1rem; background: rgba(212,175,55,0.1); border-radius: 20px; font-size: 0.9rem; transition: background 0.2s;">🃏
+                        타로점 보기</a>
+                    <a href="/dream"
+                        style="color: #E2E8F0; text-decoration: none; padding: 0.5rem 1rem; background: rgba(212,175,55,0.1); border-radius: 20px; font-size: 0.9rem; transition: background 0.2s;">💤
+                        무료 꿈해몽</a>
+                    <a href="/namefortune"
+                        style="color: #E2E8F0; text-decoration: none; padding: 0.5rem 1rem; background: rgba(212,175,55,0.1); border-radius: 20px; font-size: 0.9rem; transition: background 0.2s;">🖋️
+                        정통 이름풀이</a>
+                    <a href="/lotto"
+                        style="color: #E2E8F0; text-decoration: none; padding: 0.5rem 1rem; background: rgba(212,175,55,0.1); border-radius: 20px; font-size: 0.9rem; transition: background 0.2s;">🍀
+                        로또 번호 추천</a>
+                    <a href="/blog"
+                        style="color: #E2E8F0; text-decoration: none; padding: 0.5rem 1rem; background: rgba(212,175,55,0.1); border-radius: 20px; font-size: 0.9rem; transition: background 0.2s;">📚
+                        운세 가이드(블로그)</a>
+                </div>
+            </div>
+
             <!-- Banner Exchange Section -->
             <div
                 style="text-align: center; padding: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
