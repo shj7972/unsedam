@@ -7,6 +7,55 @@
 {{ sidebar_banner_html | safe }}
 {% endblock %}
 
+{% block page_schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "AI 꿈해몽 서비스",
+    "description": "어젯밤 꾼 꿈의 진짜 의미를 AI가 즉시 해몽해 드립니다. 돼지꿈, 뱀꿈, 이빨 빠지는 꿈 등 모든 꿈 키워드 무료 풀이.",
+    "url": "{{ site_info.url }}/dream",
+    "provider": {
+        "@type": "Organization",
+        "name": "{{ site_info.name }}",
+        "url": "{{ site_info.url }}"
+    },
+    "serviceType": "꿈해몽",
+    "areaServed": "KR",
+    "isAccessibleForFree": true,
+    "inLanguage": "ko-KR"
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "꿈해몽 하는 법",
+    "description": "운세담 AI 꿈해몽 서비스로 꿈의 의미를 확인하는 방법",
+    "step": [
+        {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "꿈 키워드 입력",
+            "text": "검색창에 꿈에서 본 대상(예: 뱀, 돼지, 물, 집 등)을 키워드로 입력합니다."
+        },
+        {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "검색 실행",
+            "text": "검색 버튼을 누르거나 Enter를 눌러 AI 꿈해몽을 실행합니다."
+        },
+        {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "해몽 결과 확인",
+            "text": "AI가 분석한 꿈의 의미와 길흉 해석 결과를 확인합니다."
+        }
+    ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- 우측: 꿈해몽 검색 및 결과 -->
 <div class="result-container">
@@ -15,7 +64,7 @@
 
     <div class="glass-card">
         <div class="section-header">
-            <span>💭</span> 꿈해몽
+            <h1 style="display: inline; font-size: inherit; font-weight: inherit; color: inherit; margin: 0; padding: 0;"><span>💭</span> AI 꿈해몽</h1>
         </div>
 
         <!-- 검색 입력 필드 -->

@@ -523,7 +523,6 @@ async def daily_page(request: Request):
     import saju_logic
 
     page = "daily"
-    meta = get_page_meta(page)
 
     # 세션에서 사용자 데이터 가져오기
     user_name = request.session.get('user_name', '')
@@ -532,6 +531,15 @@ async def daily_page(request: Request):
 
     today = datetime.now()
     today_str = today.strftime('%Y년 %m월 %d일')
+
+    # 오늘 날짜를 메타 title/description에 동적 반영 (네이버 "오늘의운세 날짜" 검색 타겟)
+    meta = {
+        "title": f"{today.strftime('%Y년 %m월 %d일')} 오늘의 운세 ✨ 별자리·사주 일진 총정리 | 운세담",
+        "description": f"{today.strftime('%Y년 %#m월 %#d일')} 오늘의 운세! 내 별자리 운세와 사주 일진을 결합한 {today.strftime('%Y')}년 가장 정확한 오늘의 무료 운세를 확인하세요.",
+        "keywords": f"오늘의운세, 오늘운세, {today.strftime('%m')}월운세, 별자리운세오늘, 오늘사주, 무료운세, 일일운세, {today.strftime('%Y년%m월%d일')}운세",
+        "url": f"{SITE_INFO['url']}/daily",
+        "author": SITE_INFO['author'],
+    }
     weekdays = ['월', '화', '수', '목', '금', '토', '일']
     today_weekday = weekdays[today.weekday()]
     today_full = f"{today_str} ({today_weekday}요일)"

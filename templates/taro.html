@@ -7,6 +7,27 @@
 {{ sidebar_banner_html | safe }}
 {% endblock %}
 
+{% block page_schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "무료 타로카드 뽑기",
+    "description": "당신의 고민, 타로 카드는 답을 알고 있습니다. 금전운, 연애운, 속마음을 꿰뚫어 보는 무료 타로점 테스트.",
+    "url": "{{ site_info.url }}/tarot",
+    "provider": {
+        "@type": "Organization",
+        "name": "{{ site_info.name }}",
+        "url": "{{ site_info.url }}"
+    },
+    "serviceType": "타로카드",
+    "areaServed": "KR",
+    "isAccessibleForFree": true,
+    "inLanguage": "ko-KR"
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- 우측: 타로 카드 뽑기 및 결과 -->
 <div class="result-container">
@@ -15,7 +36,7 @@
 
     <div class="glass-card">
         <div class="section-header">
-            <span>🃏</span> 타로 카드
+            <h1 style="display: inline; font-size: inherit; font-weight: inherit; color: inherit; margin: 0; padding: 0;"><span>🃏</span> 무료 타로카드 뽑기</h1>
         </div>
 
         <!-- 타로 소개 -->

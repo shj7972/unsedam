@@ -7,6 +7,27 @@
 {{ sidebar_banner_html | safe }}
 {% endblock %}
 
+{% block page_schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "2026년 토정비결",
+    "description": "토정 이지함의 비결을 현대적으로 완벽 분석한 2026년 토정비결 무료 풀이. 재물운, 연애운, 직장운을 확인하세요.",
+    "url": "{{ site_info.url }}/tojeong",
+    "provider": {
+        "@type": "Organization",
+        "name": "{{ site_info.name }}",
+        "url": "{{ site_info.url }}"
+    },
+    "serviceType": "토정비결",
+    "areaServed": "KR",
+    "isAccessibleForFree": true,
+    "inLanguage": "ko-KR"
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- 우측: 토정비결 결과 -->
 <div class="result-container">
@@ -17,7 +38,7 @@
     {% if not processed or not pillars_data %}
     <div id="tojeong-initial-message" class="glass-card" style="text-align: center; padding: 4rem 2rem;">
         <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
-        <h2 style="color: var(--gold-primary); margin-bottom: 1rem;">토정비결</h2>
+        <h1 style="color: var(--gold-primary); margin-bottom: 1rem; font-size: 1.5rem;">2026년 토정비결</h1>
         <p style="color: var(--text-muted); line-height: 1.8;">
             왼쪽에서 성함과 생년월일을 입력하시면 토정비결을 확인할 수 있습니다.
         </p>

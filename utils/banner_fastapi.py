@@ -115,7 +115,7 @@ def get_banner_html(
     if is_sidebar:
         # 사이드바용 배너 스타일
         banner_html = f"""
-        <div class="sidebar-banner-promotion" style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(rgba(26, 35, 62, 0.5), rgba(26, 35, 62, 0.5)), url('/static/images/sidebar_banner_bg.png') no-repeat center center; background-size: cover; border: 1px solid rgba(212,175,55,0.3); border-radius: 8px; position: relative; overflow: hidden;">
+        <div class="sidebar-banner-promotion" style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(rgba(26, 35, 62, 0.5), rgba(26, 35, 62, 0.5)), url('/static/images/sidebar_banner_bg.webp') no-repeat center center; background-size: cover; border: 1px solid rgba(212,175,55,0.3); border-radius: 8px; position: relative; overflow: hidden;">
             <div style="display: flex; flex-direction: column; gap: 0.75rem; position: relative; z-index: 1;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <span style="font-size: 1.2em;">{icon}</span>
@@ -130,7 +130,7 @@ def get_banner_html(
     else:
         # 컨텐츠 상단용 배너 스타일 (결과 영역에만 위치, 모바일 대응)
         banner_html = f"""
-        <div class="banner-promotion" style="margin-top: 0; margin-bottom: 2rem; padding: 1rem 1.25rem; background: linear-gradient(rgba(26, 35, 62, 0.4), rgba(26, 35, 62, 0.4)), url('/static/images/main_banner_bg.png') no-repeat center center; background-size: cover; border: 2px solid rgba(212,175,55,0.4); border-radius: 12px; box-shadow: 0 4px 15px rgba(212,175,55,0.2); width: 100%; max-width: 100%; position: relative; overflow: hidden;">
+        <div class="banner-promotion" style="margin-top: 0; margin-bottom: 2rem; padding: 1rem 1.25rem; background: linear-gradient(rgba(26, 35, 62, 0.4), rgba(26, 35, 62, 0.4)), url('/static/images/main_banner_bg.webp') no-repeat center center; background-size: cover; border: 2px solid rgba(212,175,55,0.4); border-radius: 12px; box-shadow: 0 4px 15px rgba(212,175,55,0.2); width: 100%; max-width: 100%; position: relative; overflow: hidden;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; position: relative; z-index: 1;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 200px;">
                     <span style="font-size: 1.3em;">{icon}</span>

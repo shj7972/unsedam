@@ -7,11 +7,33 @@
 {{ sidebar_banner_html | safe }}
 {% endblock %}
 
+{% block page_schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "사주 궁합 보기",
+    "description": "나와 상대방의 생년월일만으로 완벽한 사주 궁합을 분석합니다. 연인, 썸남썸녀, 친구와의 속궁합부터 결혼운까지 무료 테스트.",
+    "url": "{{ site_info.url }}/gonghap",
+    "provider": {
+        "@type": "Organization",
+        "name": "{{ site_info.name }}",
+        "url": "{{ site_info.url }}"
+    },
+    "serviceType": "사주궁합",
+    "areaServed": "KR",
+    "isAccessibleForFree": true,
+    "inLanguage": "ko-KR"
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- 우측: 궁합 입력 및 결과 -->
 <div class="result-container">
     <!-- 컨텐츠 상단 배너 -->
 
+    <h1 style="color: var(--gold-primary); font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">💑 사주 궁합 분석</h1>
 
     <!-- 첫 번째 사람 정보 입력 -->
     <div class="glass-card" style="margin-bottom: 1.5rem;">

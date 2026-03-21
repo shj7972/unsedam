@@ -7,6 +7,27 @@
 {{ sidebar_banner_html | safe }}
 {% endblock %}
 
+{% block page_schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "오늘의 별자리 운세",
+    "description": "매일 아침 업데이트되는 12별자리 운세. 애정운, 금전운, 직장운과 오늘의 럭키 컬러·숫자를 무료로 확인하세요.",
+    "url": "{{ site_info.url }}/byeoljari",
+    "provider": {
+        "@type": "Organization",
+        "name": "{{ site_info.name }}",
+        "url": "{{ site_info.url }}"
+    },
+    "serviceType": "별자리운세",
+    "areaServed": "KR",
+    "isAccessibleForFree": true,
+    "inLanguage": "ko-KR"
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- 우측: 별자리운세 결과 -->
 <div class="result-container">
@@ -15,7 +36,7 @@
     {% if not processed or not birth_date %}
     <div class="glass-card" style="text-align: center; padding: 4rem 2rem;">
         <div style="font-size: 3rem; margin-bottom: 1rem;">⭐</div>
-        <h2 style="color: var(--gold-primary); margin-bottom: 1rem;">별자리운세</h2>
+        <h1 style="color: var(--gold-primary); margin-bottom: 1rem; font-size: 1.5rem;">오늘의 별자리 운세</h1>
         <p style="color: var(--text-muted); line-height: 1.8;">
             왼쪽에서 성함과 생년월일을 입력하시면 별자리 운세를 확인할 수 있습니다.
         </p>

@@ -145,6 +145,70 @@ async def naver_verification():
     )
 
 
+@app.get("/rss.xml", response_class=PlainTextResponse)
+async def rss_feed():
+    """RSS 2.0 피드 – 네이버 웹마스터 도구 RSS 등록 및 검색 색인용"""
+    from utils.blog_articles import get_all_articles
+    from email.utils import format_datetime
+    from datetime import datetime, timezone
+
+    site_url = SITE_INFO['url']
+    site_name = SITE_INFO['name']
+    site_desc = SITE_INFO['description']
+    articles = get_all_articles()
+
+    def to_rfc2822(d) -> str:
+        """date 또는 datetime → RFC 2822 포맷"""
+        if hasattr(d, 'hour'):
+            dt = d.replace(tzinfo=timezone.utc)
+        else:
+            dt = datetime(d.year, d.month, d.day, 9, 0, 0, tzinfo=timezone.utc)
+        return format_datetime(dt)
+
+    items = []
+    for article in articles[:30]:  # 최근 30개
+        item_url = f"{site_url}/blog/{article['slug']}"
+        pub_date = to_rfc2822(article['date'])
+        # description에서 XML 특수문자 이스케이프
+        desc = (article['description']
+                .replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;'))
+        title = (article['title']
+                 .replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
+        items.append(f"""    <item>
+      <title>{title}</title>
+      <link>{item_url}</link>
+      <description>{desc}</description>
+      <pubDate>{pub_date}</pubDate>
+      <guid isPermaLink="true">{item_url}</guid>
+      <category>{article['category']}</category>
+    </item>""")
+
+    build_date = to_rfc2822(datetime.now(timezone.utc))
+    rss_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{site_name}</title>
+    <link>{site_url}/blog</link>
+    <description>{site_desc}</description>
+    <language>ko</language>
+    <lastBuildDate>{build_date}</lastBuildDate>
+    <atom:link href="{site_url}/rss.xml" rel="self" type="application/rss+xml"/>
+    <image>
+      <url>{site_url}/static/images/og-image.png</url>
+      <title>{site_name}</title>
+      <link>{site_url}</link>
+    </image>
+{chr(10).join(items)}
+  </channel>
+</rss>"""
+
+    return PlainTextResponse(
+        content=rss_content,
+        media_type="application/rss+xml; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=3600"}
+    )
+
+
 @app.get("/ads.txt", response_class=PlainTextResponse)
 async def ads_txt():
     """Google AdSense ads.txt 제공"""

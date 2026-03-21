@@ -24,6 +24,27 @@
 {{ sidebar_banner_html | safe }}
 {% endblock %}
 
+{% block page_schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "무료 이름풀이 성명학",
+    "description": "전문가 수준의 81수리 성명학과 원형이정 4격 분석으로 이름에 담긴 기운과 운명을 무료로 풀이해 드립니다.",
+    "url": "{{ site_info.url }}/namefortune",
+    "provider": {
+        "@type": "Organization",
+        "name": "{{ site_info.name }}",
+        "url": "{{ site_info.url }}"
+    },
+    "serviceType": "성명학",
+    "areaServed": "KR",
+    "isAccessibleForFree": true,
+    "inLanguage": "ko-KR"
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="result-container">
     {% if not result %}

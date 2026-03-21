@@ -7,6 +7,27 @@
 {{ sidebar_banner_html | safe }}
 {% endblock %}
 
+{% block page_schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "무료 만세력 보기",
+    "description": "전문가 수준의 가장 정확한 만세력. 태어난 시간만 알아도 천간, 지지, 십이운성, 신살까지 완벽한 명식표를 즉시 제공합니다.",
+    "url": "{{ site_info.url }}/manse",
+    "provider": {
+        "@type": "Organization",
+        "name": "{{ site_info.name }}",
+        "url": "{{ site_info.url }}"
+    },
+    "serviceType": "만세력",
+    "areaServed": "KR",
+    "isAccessibleForFree": true,
+    "inLanguage": "ko-KR"
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- 우측: 만세력 달력 -->
 <div class="result-container">
@@ -15,7 +36,7 @@
 
     <div class="glass-card">
         <div class="section-header">
-            <span>📅</span> 만세력
+            <h1 style="display: inline; font-size: inherit; font-weight: inherit; color: inherit; margin: 0; padding: 0;"><span>📅</span> 무료 만세력 보기</h1>
         </div>
 
         <!-- 년월 선택 및 네비게이션 -->
