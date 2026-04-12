@@ -144,8 +144,7 @@ const ShareUtils = {
 // 페이지 로드 시 카카오 키 초기화 (플레이스홀더)
 // 페이지 로드 시 카카오 키 초기화 (플레이스홀더)
 document.addEventListener('DOMContentLoaded', () => {
-    // TODO: 여기에 실제 카카오 JavaScript 키를 입력하세요.
-    const KAKAO_JS_KEY = '';
+    const KAKAO_JS_KEY = 'ee2a88cbac8ba33e6ec6bcdd9cb57c14';
 
     // 키가 설정되어 있을 때만 초기화 수행
     if (KAKAO_JS_KEY) {
