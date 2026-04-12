@@ -85,6 +85,7 @@ async def index(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
             "request": request,
@@ -260,6 +261,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         }
         
         return templates.TemplateResponse(
+            request,
             "404.html",
             {
                 "request": request,

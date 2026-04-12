@@ -46,6 +46,7 @@ async def tojeong_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "tojeong.html",
         {
             "request": request,
@@ -96,6 +97,7 @@ async def byeoljari_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "byeoljari.html",
         {
             "request": request,
@@ -143,6 +145,7 @@ async def gonghap_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "gonghap.html",
         {
             "request": request,
@@ -195,6 +198,7 @@ async def dream_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "dream.html",
         {
             "request": request,
@@ -260,6 +264,7 @@ async def manse_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "manse.html",
         {
             "request": request,
@@ -311,6 +316,7 @@ async def taro_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "taro.html",
         {
             "request": request,
@@ -360,6 +366,7 @@ async def lotto_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "lotto.html",
         {
             "request": request,
@@ -396,6 +403,7 @@ async def privacy_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "privacy.html",
         {
             "request": request,
@@ -424,6 +432,7 @@ async def terms_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "terms.html",
         {
             "request": request,
@@ -446,6 +455,7 @@ async def about_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
     
     return templates.TemplateResponse(
+        request,
         "about.html",
         {
             "request": request,
@@ -468,6 +478,7 @@ async def faq_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
 
     return templates.TemplateResponse(
+        request,
         "contact.html",  # 파일명은 그대로 유지하거나 faq.html로 변경 가능 (여기선 유지)
         {
             "request": request,
@@ -502,6 +513,7 @@ async def namefortune_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
 
     return templates.TemplateResponse(
+        request,
         "namefortune.html",
         {
             "request": request,
@@ -571,6 +583,7 @@ async def daily_page(request: Request):
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
 
     return templates.TemplateResponse(
+        request,
         "daily.html",
         {
             "request": request,
@@ -608,7 +621,7 @@ async def blog_page(request: Request):
         articles = get_all_articles()
 
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
-    return templates.TemplateResponse("blog.html", {
+    return templates.TemplateResponse(request, "blog.html", {
         "request": request, "page": page, "page_names": PAGE_NAMES,
         "meta": meta, "site_info": SITE_INFO,
         "articles": articles,
@@ -636,7 +649,7 @@ async def blog_detail_page(request: Request, slug: str):
         "author": SITE_INFO['author']
     }
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
-    return templates.TemplateResponse("blog_detail.html", {
+    return templates.TemplateResponse(request, "blog_detail.html", {
         "request": request, "page": page, "page_names": PAGE_NAMES,
         "meta": meta, "site_info": SITE_INFO,
         "article": article,
@@ -659,7 +672,7 @@ async def zodiac_hub_page(request: Request):
     }
     zodiacs = get_all_zodiacs()
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
-    return templates.TemplateResponse("zodiac.html", {
+    return templates.TemplateResponse(request, "zodiac.html", {
         "request": request, "page": page, "page_names": PAGE_NAMES,
         "meta": meta, "site_info": SITE_INFO,
         "zodiacs": zodiacs, "sidebar_banner_html": sidebar_banner_html,
@@ -682,7 +695,7 @@ async def zodiac_detail_page(request: Request, animal: str):
         "author": SITE_INFO['author']
     }
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
-    return templates.TemplateResponse("zodiac_detail.html", {
+    return templates.TemplateResponse(request, "zodiac_detail.html", {
         "request": request, "page": page, "page_names": PAGE_NAMES,
         "meta": meta, "site_info": SITE_INFO,
         "zodiac": zodiac, "sidebar_banner_html": sidebar_banner_html,
@@ -707,7 +720,7 @@ async def fortune_year_page(request: Request, year: int):
         "author": SITE_INFO['author']
     }
     sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
-    return templates.TemplateResponse("fortune_year.html", {
+    return templates.TemplateResponse(request, "fortune_year.html", {
         "request": request, "page": page, "page_names": PAGE_NAMES,
         "meta": meta, "site_info": SITE_INFO,
         "data": data, "year": year, "sidebar_banner_html": sidebar_banner_html,
