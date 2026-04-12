@@ -5,12 +5,14 @@
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from pathlib import Path
 from utils.page_config import PAGE_NAMES
 from utils.seo_fastapi import get_page_meta, SITE_INFO
 from utils.banner_fastapi import get_banner_html
 
 router = APIRouter()
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = Path(__file__).resolve().parent.parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 # 전역 함수 등록 (배너 로테이션)
 from utils.exchange_banners import get_random_banners
