@@ -69,8 +69,8 @@
     <link rel="canonical" href="{{ meta.url }}">
 
     <!-- CSS: preload 힌트 후 일반 로드 (FOUC 없이 fetch 우선순위 상향) -->
-    <link rel="preload" href="{{ url_for('static', path='css/styles.css') }}?v=2.0" as="style">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}?v=2.0">
+    <link rel="preload" href="/static/css/styles.css?v=2.0" as="style">
+    <link rel="stylesheet" href="/static/css/styles.css?v=2.0">
     {% if page == 'ai_saju' or page == 'tojeong' %}
     <style>
         /* Streamlit 스타일 호환성을 위한 추가 스타일 */
