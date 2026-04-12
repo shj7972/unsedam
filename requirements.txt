@@ -1,6 +1,5 @@
 # FastAPI 웹 프레임워크
-fastapi==0.109.2
-starlette==0.35.0
+fastapi
 uvicorn[standard]
 aiofiles
 jinja2
