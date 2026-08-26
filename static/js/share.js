@@ -68,6 +68,15 @@ const ShareUtils = {
     },
 
     /**
+     * 페이스북 공유하기
+     * @param {string} url - 공유할 URL
+     */
+    shareFacebook: function (url) {
+        const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        window.open(fbUrl, '_blank', 'width=600,height=400');
+    },
+
+    /**
      * 링크 복사하기
      * @param {string} url - 복사할 URL
      */
