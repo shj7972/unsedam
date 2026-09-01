@@ -57,6 +57,12 @@ print(c.get('/compat').status_code)
 ```
 - 의존성: fastapi, jinja2, itsdangerous, uvicorn, ephem, httpx, python-multipart, korean-lunar-calendar, openai
 
+## 내부링크 개선 (06e0d8d9 → 실제 6e0d8d9, 9/1 2차 배포)
+- 헤더 nav에 "띠 궁합 66쌍" 메뉴 추가 (PAGE_NAMES — 모든 페이지 자동 반영)
+- 하단 연관 운세 섹션 + 푸터에 compat/zodiac 링크 추가
+- zodiac 상세 12개 페이지: 잘 맞는 띠·주의할 띠 카드 → compat 상세 링크로 전환
+- 롤백 시: git revert 6e0d8d9 f6a4c29 (2개 커밋 함께)
+
 ## 신규 생성 파일 목록 (롤백 시 영향 범위)
 - utils/zodiac_compat.py (신규 — 궁합 계산 로직)
 - templates/compat.html (신규 — 허브)
