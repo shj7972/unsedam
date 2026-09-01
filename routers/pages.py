@@ -682,10 +682,19 @@ async def zodiac_hub_page(request: Request):
 @router.get("/zodiac/{animal}", response_class=HTMLResponse)
 async def zodiac_detail_page(request: Request, animal: str):
     """특정 띠 상세 운세 페이지"""
-    from utils.zodiac_fortune import get_zodiac_by_key
+    from utils.zodiac_fortune import get_zodiac_by_key, KOREAN_TO_KEY_MAP as KOREAN_TO_KEY
     zodiac = get_zodiac_by_key(animal)
     if not zodiac:
         raise HTTPException(status_code=404, detail="Not found")
+    # 궁합 띠 이름 → key 변환 (compat 내부링크용)
+    zodiac["compatible"] = [
+        {"korean": name, "key": KOREAN_TO_KEY.get(name.replace("띠", ""))}
+        for name in zodiac["compatible"]
+    ]
+    zodiac["incompatible"] = [
+        {"korean": name, "key": KOREAN_TO_KEY.get(name.replace("띠", ""))}
+        for name in zodiac["incompatible"]
+    ]
     page = "zodiac"
     meta = {
         "title": f"{zodiac['korean']} 운세 2026 | 운세담",

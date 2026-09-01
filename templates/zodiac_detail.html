@@ -22,6 +22,8 @@
         <h1 style="color: var(--gold-primary); font-size: 1.8rem; margin-bottom: 0.5rem;">{{ zodiac.korean }} 운세</h1>
         <p style="color: var(--text-muted); font-size: 0.95rem;">{{ zodiac.english }} · 오행: {{ zodiac.element }} · {{ zodiac.yin_yang }}</p>
         <a href="/zodiac" style="display: inline-block; margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">← 12띠 목록으로</a>
+        &nbsp;&nbsp;·&nbsp;&nbsp;
+        <a href="/compat" style="display: inline-block; margin-top: 1rem; color: var(--gold-primary); font-size: 0.85rem; text-decoration: none;">❤ {{ zodiac.korean }} 궁합 보기</a>
     </div>
 
     <!-- 해당 연도 -->
@@ -104,9 +106,11 @@
                 <h4 style="color: #2ecc71; font-size: 0.9rem; margin-bottom: 0.8rem;">잘 맞는 띠</h4>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                     {% for c in zodiac.compatible %}
+                    <a href="/compat/{{ zodiac.key }}-vs-{{ c.key }}" style="text-decoration: none;">
                     <div style="padding: 0.6rem 1rem; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); border-radius: 8px; color: #E2E8F0; font-size: 0.95rem;">
-                        {{ c }}
+                        {{ c.korean }} — 궁합 분석 보기 →
                     </div>
+                    </a>
                     {% endfor %}
                 </div>
             </div>
@@ -114,9 +118,11 @@
                 <h4 style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 0.8rem;">주의할 띠</h4>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                     {% for ic in zodiac.incompatible %}
+                    <a href="/compat/{{ zodiac.key }}-vs-{{ ic.key }}" style="text-decoration: none;">
                     <div style="padding: 0.6rem 1rem; background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); border-radius: 8px; color: #E2E8F0; font-size: 0.95rem;">
-                        {{ ic }}
+                        {{ ic.korean }} — 궁합 분석 보기 →
                     </div>
+                    </a>
                     {% endfor %}
                 </div>
             </div>

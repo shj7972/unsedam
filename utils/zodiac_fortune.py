@@ -256,3 +256,7 @@ def get_year_fortune(year: int) -> dict:
         "age_western": age_western,
         "zodiac": zodiac,
     }
+
+
+# 한글 띠 이름 → zodiac key 매핑 (compat 내부링크용)
+KOREAN_TO_KEY_MAP = {info["korean"].replace("띠", ""): key for key, info in ZODIAC_INFO.items()}
