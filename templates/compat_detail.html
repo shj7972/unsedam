@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{{ sidebar_banner_html | safe }}
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <!-- 인아티클 광고 (콘텐츠 상단) -->
+    <ins class="adsbygoogle"
+         style="display:block;min-height:100px;margin:1rem auto;max-width:100%;"
+         data-ad-client="ca-pub-2947913248390883"
+         data-ad-slot="2173340919"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+    <!-- 타이틀 -->
+    <div class="glass-card" style="text-align: center; padding: 2.5rem 2rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 3.2rem; margin-bottom: 0.6rem;">{{ compat.zodiac_a.emoji }} 💞 {{ compat.zodiac_b.emoji }}</div>
+        <h1 style="color: var(--gold-primary); font-size: 1.8rem; margin-bottom: 0.4rem;">{{ compat.zodiac_a.korean }} {{ compat.zodiac_b.korean }} 궁합</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">명리학 {{ compat.relation_label }} 기반 띠 궁합 분석</p>
+        <div style="margin-top: 1.2rem;">
+            <span style="display: inline-block; padding: 0.5rem 1.2rem; background: rgba(212,175,55,0.15); border: 1px solid var(--border-gold); border-radius: 24px; color: var(--gold-primary); font-weight: bold; font-size: 1.1rem;">
+                궁합 점수 {{ compat.score }}점 / 100
+            </span>
+        </div>
+        <div style="margin-top: 1rem;">
+            <a href="/compat" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">← 띠 궁합 전체 보기</a>
+        </div>
+    </div>
+
+    <!-- 명리 관계 해설 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h2 style="color: var(--gold-primary); font-size: 1.2rem; margin-bottom: 1rem;">{{ compat.zodiac_a.korean }}·{{ compat.zodiac_b.korean }}은 어떤 인연?</h2>
+        <p style="color: var(--text-muted); line-height: 1.9;">{{ compat.detail }}</p>
+    </div>
+
+    <!-- 영역별 궁합 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h2 style="color: var(--gold-primary); font-size: 1.2rem; margin-bottom: 1.2rem;">영역별 궁합 점수</h2>
+        {% set areas = [('love', '연애 궁합', '❤️'), ('marriage', '결혼 궁합', '💍'), ('friend', '우정 궁합', '🤝'), ('work', '직장·동업 궁합', '💼')] %}
+        {% for key, label, icon in areas %}
+        <div style="margin-bottom: 1.1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                <span style="color: var(--text-muted); font-size: 0.95rem;">{{ icon }} {{ label }}</span>
+                <span style="color: var(--gold-primary); font-weight: bold;">{{ compat.area[key] }}점</span>
+            </div>
+            <div style="height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; width: {{ compat.area[key] }}%; background: linear-gradient(90deg, #8e6c1f, #d4af37); border-radius: 4px;"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 인아티클 광고 (중단) -->
+    <ins class="adsbygoogle"
+         style="display:block;min-height:100px;margin:1.5rem auto;max-width:100%;"
+         data-ad-client="ca-pub-2947913248390883"
+         data-ad-slot="2173340919"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+    <!-- 운세 요약 (각 띠 2026 운세) -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h2 style="color: var(--gold-primary); font-size: 1.2rem; margin-bottom: 1rem;">2026년 두 띠의 운세는?</h2>
+        <div style="margin-bottom: 1.4rem;">
+            <h3 style="color: var(--gold-primary); font-size: 1rem; margin-bottom: 0.5rem;">{{ compat.zodiac_a.emoji }} {{ compat.zodiac_a.korean }}</h3>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.92rem;">{{ compat.zodiac_a['2026_fortune'] }}</p>
+            <a href="/zodiac/{{ compat.zodiac_a.key }}" style="color: var(--gold-primary); font-size: 0.88rem;">{{ compat.zodiac_a.korean }} 자세히 보기 →</a>
+        </div>
+        <div>
+            <h3 style="color: var(--gold-primary); font-size: 1rem; margin-bottom: 0.5rem;">{{ compat.zodiac_b.emoji }} {{ compat.zodiac_b.korean }}</h3>
+            <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.92rem;">{{ compat.zodiac_b['2026_fortune'] }}</p>
+            <a href="/zodiac/{{ compat.zodiac_b.key }}" style="color: var(--gold-primary); font-size: 0.88rem;">{{ compat.zodiac_b.korean }} 자세히 보기 →</a>
+        </div>
+    </div>
+
+    <!-- 행운 팁 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h2 style="color: var(--gold-primary); font-size: 1.1rem; margin-bottom: 0.8rem;">🍀 궁합을 살리는 작은 팁</h2>
+        <p style="color: var(--text-muted); line-height: 1.8;">{{ compat.lucky_tip }}</p>
+        <p style="color: var(--text-muted); line-height: 1.8; margin-top: 0.8rem; font-size: 0.9rem;">더 정확한 궁합은 두 사람의 <a href="/" style="color: var(--gold-primary);">생년월일시 기반 사주 궁합</a>으로 확인할 수 있습니다.</p>
+    </div>
+
+    <!-- 다른 궁합 추천 -->
+    <div class="glass-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+        <h2 style="color: var(--gold-primary); font-size: 1.1rem; margin-bottom: 1rem;">{{ compat.zodiac_a.korean }}의 다른 궁합 보기</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.6rem;">
+            {% for z in all_zodiacs %}
+            {% if z.key != compat.zodiac_a.key and z.key != compat.zodiac_b.key %}
+            <a href="/compat/{{ compat.zodiac_a.key }}-vs-{{ z.key }}"
+               style="padding: 0.5rem 0.9rem; background: rgba(212,175,55,0.12); border: 1px solid var(--border-gold); border-radius: 20px; color: var(--gold-primary); font-size: 0.88rem; text-decoration: none;">
+                {{ compat.zodiac_a.korean }} × {{ z.korean }}
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 1.5rem 0;">
+        <a href="/" class="btn-primary" style="display: inline-block; padding: 0.9rem 2rem; background: linear-gradient(135deg, #8e6c1f, #d4af37); border-radius: 30px; color: #fff; text-decoration: none; font-weight: bold;">내 사주 궁합 무료로 보기</a>
+    </div>
+</div>
+{% endblock %}

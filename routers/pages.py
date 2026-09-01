@@ -725,3 +725,66 @@ async def fortune_year_page(request: Request, year: int):
         "meta": meta, "site_info": SITE_INFO,
         "data": data, "year": year, "sidebar_banner_html": sidebar_banner_html,
     })
+
+
+# =============================================================================
+# 띠궁합 (compat) 페이지 — 2026-09-01 롱테일 1차
+# =============================================================================
+
+@router.get("/compat", response_class=HTMLResponse)
+async def compat_hub_page(request: Request):
+    """12띠 궁합 허브 페이지 (66쌍 전체)"""
+    from utils.zodiac_fortune import get_all_zodiacs
+    from utils.zodiac_compat import get_all_pairs
+
+    page = "compat"
+    meta = {
+        "title": "12띠 궁합 총정리 | 육합·삼합·육충 명리 해석 | 운세담",
+        "description": "띠별 궁합 66가지 조합을 명리학 육합·삼합·육충 원리로 해석합니다. 쥐띠부터 돼지띠까지 연애·결혼·동업 궁합 무료 확인.",
+        "keywords": "띠궁합, 12띠 궁합, 띠별 궁합, 쥐띠 궁합, 소띠 궁합, 용띠 궁합, 말띠 궁합, 띠 궁합표, 명리 궁합",
+        "url": f"{SITE_INFO['url']}/compat",
+        "author": SITE_INFO['author']
+    }
+    zodiacs = get_all_zodiacs()
+    compat_map = get_all_pairs()
+    sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
+    return templates.TemplateResponse(request, "compat.html", {
+        "request": request, "page": page, "page_names": PAGE_NAMES,
+        "meta": meta, "site_info": SITE_INFO,
+        "zodiacs": zodiacs, "compat_map": compat_map,
+        "sidebar_banner_html": sidebar_banner_html,
+    })
+
+
+@router.get("/compat/{pair}", response_class=HTMLResponse)
+async def compat_detail_page(request: Request, pair: str):
+    """띠×띠 궁합 상세 페이지 (예: rat-vs-ox)"""
+    from utils.zodiac_fortune import get_all_zodiacs
+    from utils.zodiac_compat import get_pair_fortune
+
+    if "-vs-" not in pair:
+        raise HTTPException(status_code=404, detail="Not found")
+    a_key, b_key = pair.split("-vs-", 1)
+    try:
+        compat = get_pair_fortune(a_key, b_key)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    page = "compat"
+    za_name = compat['zodiac_a']['korean']
+    zb_name = compat['zodiac_b']['korean']
+    meta = {
+        "title": f"{za_name} {zb_name} 궁합 — {compat['relation_label']} {compat['score']}점 | 운세담",
+        "description": f"{za_name}와 {zb_name}의 궁합을 명리학 {compat['relation_label']} 원리로 분석. 연애 {compat['area']['love']}점, 결혼 {compat['area']['marriage']}점. 2026년 두 띠의 운세까지 한 번에 확인하세요.",
+        "keywords": f"{za_name} {zb_name} 궁합, {za_name} 궁합, {zb_name} 궁합, 띠궁합, {compat['relation_label']}",
+        "url": f"{SITE_INFO['url']}/compat/{pair}",
+        "author": SITE_INFO['author']
+    }
+    zodiacs = get_all_zodiacs()
+    sidebar_banner_html = get_banner_html(current_page=page, is_sidebar=True)
+    return templates.TemplateResponse(request, "compat_detail.html", {
+        "request": request, "page": page, "page_names": PAGE_NAMES,
+        "meta": meta, "site_info": SITE_INFO,
+        "compat": compat, "all_zodiacs": zodiacs,
+        "sidebar_banner_html": sidebar_banner_html,
+    })

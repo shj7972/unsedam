@@ -183,6 +183,23 @@ def generate_sitemap() -> str:
         sitemap_lines.append('    <priority>0.7</priority>')
         sitemap_lines.append('  </url>')
 
+    # 띠궁합 (compat) 페이지 — 66쌍 전체
+    zodiac_keys = ['rat', 'ox', 'tiger', 'rabbit', 'dragon', 'snake', 'horse', 'sheep', 'monkey', 'rooster', 'dog', 'pig']
+    sitemap_lines.append('  <url>')
+    sitemap_lines.append(f'    <loc>{site_url}/compat</loc>')
+    sitemap_lines.append(f'    <lastmod>{current_date}</lastmod>')
+    sitemap_lines.append('    <changefreq>weekly</changefreq>')
+    sitemap_lines.append('    <priority>0.8</priority>')
+    sitemap_lines.append('  </url>')
+    for a_idx, a_key in enumerate(zodiac_keys):
+        for b_key in zodiac_keys[a_idx+1:]:
+            sitemap_lines.append('  <url>')
+            sitemap_lines.append(f'    <loc>{site_url}/compat/{a_key}-vs-{b_key}</loc>')
+            sitemap_lines.append(f'    <lastmod>{current_date}</lastmod>')
+            sitemap_lines.append('    <changefreq>monthly</changefreq>')
+            sitemap_lines.append('    <priority>0.7</priority>')
+            sitemap_lines.append('  </url>')
+
     # 주요 출생연도 페이지 (1970~2010년대 대표 연도)
     for yr in range(1970, 2011, 3):
         sitemap_lines.append('  <url>')
