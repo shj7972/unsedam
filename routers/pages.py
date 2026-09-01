@@ -714,12 +714,23 @@ async def zodiac_detail_page(request: Request, animal: str):
 @router.get("/fortune/{year}", response_class=HTMLResponse)
 async def fortune_year_page(request: Request, year: int):
     """출생연도별 운세 페이지"""
-    from utils.zodiac_fortune import get_year_fortune
+    from utils.zodiac_fortune import get_year_fortune, KOREAN_TO_KEY_MAP as KOREAN_TO_KEY
     from datetime import datetime
     current_year = datetime.now().year
     if year < 1900 or year > current_year:
         raise HTTPException(status_code=404, detail="Not found")
     data = get_year_fortune(year)
+    # 궁합 띠 이름 → key 변환 (원본 띠 데이터에 영향 없이 복사본 처리)
+    from copy import deepcopy
+    data = deepcopy(data)
+    data["zodiac"]["compatible"] = [
+        {"korean": name, "key": KOREAN_TO_KEY.get(name.replace("띠", ""))}
+        for name in data["zodiac"]["compatible"]
+    ]
+    data["zodiac"]["incompatible"] = [
+        {"korean": name, "key": KOREAN_TO_KEY.get(name.replace("띠", ""))}
+        for name in data["zodiac"]["incompatible"]
+    ]
     page = "fortune_year"
     meta = {
         "title": f"{year}년생 운세 | {data['zodiac']['korean']} | 운세담",

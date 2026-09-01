@@ -125,9 +125,11 @@
                 <h4 style="color: #2ecc71; font-size: 0.9rem; margin-bottom: 0.8rem;">잘 맞는 띠</h4>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                     {% for c in data.zodiac.compatible %}
+                    <a href="/compat/{{ data.zodiac.key }}-vs-{{ c.key }}" style="text-decoration: none;">
                     <div style="padding: 0.6rem 1rem; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); border-radius: 8px; color: #E2E8F0; font-size: 0.95rem;">
-                        {{ c }}
+                        {{ c.korean }} — 궁합 분석 보기 →
                     </div>
+                    </a>
                     {% endfor %}
                 </div>
             </div>
@@ -135,9 +137,11 @@
                 <h4 style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 0.8rem;">주의할 띠</h4>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                     {% for ic in data.zodiac.incompatible %}
+                    <a href="/compat/{{ data.zodiac.key }}-vs-{{ ic.key }}" style="text-decoration: none;">
                     <div style="padding: 0.6rem 1rem; background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); border-radius: 8px; color: #E2E8F0; font-size: 0.95rem;">
-                        {{ ic }}
+                        {{ ic.korean }} — 궁합 분석 보기 →
                     </div>
+                    </a>
                     {% endfor %}
                 </div>
             </div>
@@ -172,7 +176,7 @@
         <div style="margin-bottom: 1.5rem;">
             <h4 style="color: #E2E8F0; margin-bottom: 0.8rem; border-left: 3px solid var(--gold-primary); padding-left: 0.8rem;">{{ year }}년생의 연애운과 대인관계</h4>
             <p style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
-                {{ year }}년생 {{ data.zodiac.korean }}은 연애에서 고유한 스타일을 가집니다. 잘 맞는 띠인 {% for c in data.zodiac.compatible %}{{ c }}{% if not loop.last %}, {% endif %}{% endfor %}와는 자연스러운 에너지 교류가 이루어지며 서로를 이해하고 보완하는 관계를 형성합니다. 그러나 사주에서 띠 궁합은 여러 요소 중 하나일 뿐이므로, 상대방의 전체적인 사주를 보아야 더 정확한 궁합 판단이 가능합니다. 2026년에는 특히 인간관계에서 진실성과 신뢰를 바탕으로 한 관계를 맺는 것이 중요합니다.
+                {{ year }}년생 {{ data.zodiac.korean }}은 연애에서 고유한 스타일을 가집니다. 잘 맞는 띠인 {% for c in data.zodiac.compatible %}{{ c.korean }}{% if not loop.last %}, {% endif %}{% endfor %}와는 자연스러운 에너지 교류가 이루어지며 서로를 이해하고 보완하는 관계를 형성합니다. 그러나 사주에서 띠 궁합은 여러 요소 중 하나일 뿐이므로, 상대방의 전체적인 사주를 보아야 더 정확한 궁합 판단이 가능합니다. 2026년에는 특히 인간관계에서 진실성과 신뢰를 바탕으로 한 관계를 맺는 것이 중요합니다.
             </p>
         </div>
 
